@@ -16,7 +16,8 @@
       "support": [
         {"sample_id": "S001", "observation_ids": ["O011"]},
         {"sample_id": "S002", "observation_ids": ["O014"]},
-        {"sample_id": "S003", "observation_ids": ["O014"]}
+        {"sample_id": "S003", "observation_ids": ["O014"]},
+        {"sample_id": "S004", "observation_ids": ["O014"]}
       ],
       "counterexamples": [],
       "confidence": "low",
@@ -35,7 +36,8 @@
       "support": [
         {"sample_id": "S001", "observation_ids": ["O011"]},
         {"sample_id": "S002", "observation_ids": ["O014"]},
-        {"sample_id": "S003", "observation_ids": ["O014"]}
+        {"sample_id": "S003", "observation_ids": ["O014"]},
+        {"sample_id": "S004", "observation_ids": ["O014"]}
       ],
       "counterexamples": [],
       "confidence": "low",
@@ -54,7 +56,8 @@
       "support": [
         {"sample_id": "S001", "observation_ids": ["O011"]},
         {"sample_id": "S002", "observation_ids": ["O014"]},
-        {"sample_id": "S003", "observation_ids": ["O014"]}
+        {"sample_id": "S003", "observation_ids": ["O014"]},
+        {"sample_id": "S004", "observation_ids": ["O014"]}
       ],
       "counterexamples": [],
       "confidence": "low",
@@ -73,7 +76,8 @@
       "support": [
         {"sample_id": "S001", "observation_ids": ["O011"]},
         {"sample_id": "S002", "observation_ids": ["O014"]},
-        {"sample_id": "S003", "observation_ids": ["O014"]}
+        {"sample_id": "S003", "observation_ids": ["O014"]},
+        {"sample_id": "S004", "observation_ids": ["O014"]}
       ],
       "counterexamples": [],
       "confidence": "low",
@@ -92,7 +96,8 @@
       "support": [
         {"sample_id": "S001", "observation_ids": ["O011"]},
         {"sample_id": "S002", "observation_ids": ["O014"]},
-        {"sample_id": "S003", "observation_ids": ["O014"]}
+        {"sample_id": "S003", "observation_ids": ["O014"]},
+        {"sample_id": "S004", "observation_ids": ["O014"]}
       ],
       "counterexamples": [],
       "confidence": "low",

@@ -1,7 +1,7 @@
 {
   "schema_version": "0.1.0",
   "last_updated": "2026-08-10",
-  "batch_count": 3,
+  "batch_count": 4,
   "batches": [
     {
       "batch_id": "B001",
@@ -65,20 +65,44 @@
       "qualified_rule_ids": [],
       "induced_voice_rule_ids": ["V001", "V002", "V003", "V004", "V005"],
       "contamination_note_ids": ["C001", "C002"]
+    },
+    {
+      "batch_id": "B004",
+      "sample_id": "S004",
+      "topic": "越野跑與健行鞋款研究地圖",
+      "source_class": "scoping_review_without_formal_critical_appraisal",
+      "canonical_queue_family": "TP",
+      "article_result": "16 篇研究高度集中於小型急性生物力學測試；AFT／碳板相關鞋款沒有一致表現或生理優勢，觀察性受傷與水泡研究也不能支持防傷處方。這是研究地圖，不是最佳鞋款排名。",
+      "method_result": "依研究版圖—AFT 衝突—多路徑代理指標—觀察性傷害—時間性舒適—方法與長期缺口重排；把研究數量與效果大小、急性代理指標與防傷／長期表現分開。",
+      "voice_result": "以平靜的研究地圖語態呈現小型研究的具體方向；每個可讀結果旁立即放入異質性、代理結果、觀察性設計或外推限制，最後只保留研究方向，不給購鞋處方。",
+      "companion_audit": {
+        "status": "semantic_partial_strict_fail",
+        "cards": 6,
+        "semantic_passes": 5,
+        "semantic_failures": 1,
+        "strict_render_passes": 0,
+        "strict_render_failures": 6,
+        "semantic_failure_ids": ["C05"],
+        "semantic_failure_note": "C05 adds fictional watch readings 158 and 142 that are absent from the queue and source paper."
+      },
+      "induced_rule_ids": ["R014", "R015"],
+      "qualified_rule_ids": [],
+      "induced_voice_rule_ids": ["V001", "V002", "V003", "V004", "V005"],
+      "contamination_note_ids": ["C001", "C002"]
     }
   ],
   "cross_batch_summary": {
     "method_layer": {
       "candidate_rule_ids": ["R001", "R002", "R003", "R004", "R005", "R006", "R008", "R009", "R010"],
       "conditional_rule_ids": ["R007"],
-      "hypothesis_rule_ids": ["R011", "R012", "R013"],
+      "hypothesis_rule_ids": ["R011", "R012", "R013", "R014", "R015"],
       "stable_rule_ids": [],
-      "current_reading": "三批已形成可重複觀察的處理骨架，但仍不足以把任何規則直接升格為生產生成契約。"
+      "current_reading": "四批已形成跨研究設計重複出現的處理骨架；本批新增研究地圖與代理結果的語義防火牆，但仍不足以把任何規則直接升格為生產生成契約。"
     },
     "voice_layer": {
       "rule_ids": ["V001", "V002", "V003", "V004", "V005"],
       "status": "hypothesis",
-      "current_reading": "三批都呈現證據比例式、歸因清楚、邊界貼近結果、讀者導向且高密度但不煽情的語態；目前先作為觀察到的共同語態，不與方法規則混寫。"
+      "current_reading": "四批都呈現證據比例式、歸因清楚、邊界貼近結果、讀者導向且高密度但不煽情的語態；目前先作為觀察到的共同語態，不與方法規則混寫。"
     },
     "next_gate": "新增不同來源與研究設計的樣本，先做看不到參考文章的 held-out reconstruction，再考慮把方法或語態規則提升為 conditional 或 stable。"
   }

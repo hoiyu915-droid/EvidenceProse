@@ -11,7 +11,8 @@
       "support": [
         {"sample_id": "S001", "observation_ids": ["O001"]},
         {"sample_id": "S002", "observation_ids": ["O001"]},
-        {"sample_id": "S003", "observation_ids": ["O001"]}
+        {"sample_id": "S003", "observation_ids": ["O001"]},
+        {"sample_id": "S004", "observation_ids": ["O001"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
@@ -29,7 +30,8 @@
       "support": [
         {"sample_id": "S001", "observation_ids": ["O002"]},
         {"sample_id": "S002", "observation_ids": ["O002"]},
-        {"sample_id": "S003", "observation_ids": ["O002"]}
+        {"sample_id": "S003", "observation_ids": ["O002"]},
+        {"sample_id": "S004", "observation_ids": ["O002"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
@@ -47,7 +49,8 @@
       "support": [
         {"sample_id": "S001", "observation_ids": ["O003"]},
         {"sample_id": "S002", "observation_ids": ["O003"]},
-        {"sample_id": "S003", "observation_ids": ["O003"]}
+        {"sample_id": "S003", "observation_ids": ["O003"]},
+        {"sample_id": "S004", "observation_ids": ["O003"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
@@ -65,7 +68,8 @@
       "support": [
         {"sample_id": "S001", "observation_ids": ["O004"]},
         {"sample_id": "S002", "observation_ids": ["O004"]},
-        {"sample_id": "S003", "observation_ids": ["O004"]}
+        {"sample_id": "S003", "observation_ids": ["O004"]},
+        {"sample_id": "S004", "observation_ids": ["O004"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
@@ -83,7 +87,8 @@
       "support": [
         {"sample_id": "S001", "observation_ids": ["O005"]},
         {"sample_id": "S002", "observation_ids": ["O005"]},
-        {"sample_id": "S003", "observation_ids": ["O005"]}
+        {"sample_id": "S003", "observation_ids": ["O005"]},
+        {"sample_id": "S004", "observation_ids": ["O005"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
@@ -101,7 +106,8 @@
       "support": [
         {"sample_id": "S001", "observation_ids": ["O006"]},
         {"sample_id": "S002", "observation_ids": ["O006"]},
-        {"sample_id": "S003", "observation_ids": ["O006"]}
+        {"sample_id": "S003", "observation_ids": ["O006"]},
+        {"sample_id": "S004", "observation_ids": ["O006"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
@@ -118,7 +124,8 @@
       "does_not_apply_when": ["The method detail is immaterial to interpretation and would only add procedural trivia."],
       "support": [
         {"sample_id": "S001", "observation_ids": ["O007"]},
-        {"sample_id": "S003", "observation_ids": ["O007"]}
+        {"sample_id": "S003", "observation_ids": ["O007"]},
+        {"sample_id": "S004", "observation_ids": ["O007"]}
       ],
       "counterexamples": [
         {
@@ -141,7 +148,8 @@
       "support": [
         {"sample_id": "S001", "observation_ids": ["O008"]},
         {"sample_id": "S002", "observation_ids": ["O008"]},
-        {"sample_id": "S003", "observation_ids": ["O008"]}
+        {"sample_id": "S003", "observation_ids": ["O008"]},
+        {"sample_id": "S004", "observation_ids": ["O008"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
@@ -159,7 +167,8 @@
       "support": [
         {"sample_id": "S001", "observation_ids": ["O009"]},
         {"sample_id": "S002", "observation_ids": ["O009"]},
-        {"sample_id": "S003", "observation_ids": ["O009"]}
+        {"sample_id": "S003", "observation_ids": ["O009"]},
+        {"sample_id": "S004", "observation_ids": ["O009"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
@@ -176,7 +185,8 @@
       "does_not_apply_when": ["The source is a single primary study and no review-level conduct is being assessed."],
       "support": [
         {"sample_id": "S001", "observation_ids": ["O010"]},
-        {"sample_id": "S002", "observation_ids": ["O010"]}
+        {"sample_id": "S002", "observation_ids": ["O010"]},
+        {"sample_id": "S004", "observation_ids": ["O010"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
@@ -223,6 +233,34 @@
       "counterexamples": [],
       "confidence": "low",
       "validator_potential": "automatable",
+      "last_updated": "2026-08-10"
+    },
+    {
+      "rule_id": "R014",
+      "name": "Evidence-map coverage is not effect ranking",
+      "category": "quantitative_semantics",
+      "statement": "In a scoping review, counts of studies by topic or outcome describe research coverage; do not translate them into effect magnitude, clinical importance, product ranking or a recommendation.",
+      "status": "hypothesis",
+      "applies_when": ["A scoping or mapping review reports how many studies examined each topic, population, exposure or outcome."],
+      "does_not_apply_when": ["A valid quantitative synthesis directly estimates comparative effects."],
+      "support": [{"sample_id": "S004", "observation_ids": ["O011"]}],
+      "counterexamples": [],
+      "confidence": "low",
+      "validator_potential": "automatable",
+      "last_updated": "2026-08-10"
+    },
+    {
+      "rule_id": "R015",
+      "name": "Proxy-outcome firewall",
+      "category": "quantitative_semantics",
+      "statement": "Keep acute biomechanical or physiological proxy changes separate from unmeasured clinical outcomes and long-term performance; never let the proxy inherit a prevention or durability claim.",
+      "status": "hypothesis",
+      "applies_when": ["A study measures an acute surrogate or proxy that readers could mistake for injury prevention, clinical benefit or durable performance."],
+      "does_not_apply_when": ["The source directly measures and validly estimates the claimed clinical or long-term outcome."],
+      "support": [{"sample_id": "S004", "observation_ids": ["O012"]}],
+      "counterexamples": [],
+      "confidence": "low",
+      "validator_potential": "partial",
       "last_updated": "2026-08-10"
     }
   ]

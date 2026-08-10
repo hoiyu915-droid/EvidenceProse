@@ -7,12 +7,12 @@ The project is deliberately data-first. A polished article is not treated as a t
 ## Current status
 
 - Phase: pattern induction
-- Samples: 3 (`S001`–`S003`)
-- Processing-rule catalogue: 13 (`R001`–`R013`): 9 candidates, 1 conditional rule, 3 hypotheses
+- Samples: 4 (`S001`–`S004`)
+- Processing-rule catalogue: 15 (`R001`–`R015`): 9 candidates, 1 conditional rule, 5 hypotheses
 - Article-register catalogue: 5 (`V001`–`V005`), all hypotheses
-- Batch result index: 3 (`B001`–`B003`), keeping method and voice findings separate
+- Batch result index: 4 (`B001`–`B004`), keeping method and voice findings separate
 - Stable generation rules: 0
-- Domains observed: clinical intervention meta-analysis, public-health systems narrative review, and single-centre observational rehabilitation research
+- Domains observed: clinical intervention meta-analysis, public-health systems narrative review, single-centre observational rehabilitation research, and footwear scoping review
 - Primary output language: Traditional Chinese
 
 No candidate rule is production-authoritative yet.
@@ -38,7 +38,7 @@ data/
   registry.json               cumulative sample/rule registry
   rules/rules.json            processing-method rule catalogue (`R###`)
   voice/voice_rules.json      article-register rule catalogue (`V###`)
-  batch_results.json          cumulative three-batch result index (`B###`)
+  batch_results.json          cumulative four-batch result index (`B###`)
   samples/S001/
     article.md                exact observed prose sample
     sample.json               provenance, observations and cautions
@@ -50,8 +50,12 @@ data/
     article.md                third exact observed prose sample
     sample.json               primary-study provenance and induced observations
     card_storyboard.json      two-track card audit with visual-data failure record
+  samples/S004/
+    article.md                fourth exact observed prose sample
+    sample.json               scoping-review provenance and induced observations
+    card_storyboard.json      title-bound queue audit with fabricated-reading record
 docs/
-  batch_results.md            human-readable three-batch summary
+  batch_results.md            human-readable four-batch summary
   induction_protocol.md       how repeated examples update the model
   terminology.md              evidence, method/voice and rule-state vocabulary
 schemas/
