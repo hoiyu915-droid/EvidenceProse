@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://evidenceprose.local/schemas/voice_rule.schema.json",
+  "title": "EvidenceProse article-register rule",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "rule_id",
+    "name",
+    "category",
+    "statement",
+    "register_markers",
+    "status",
+    "applies_when",
+    "does_not_apply_when",
+    "support",
+    "counterexamples",
+    "confidence",
+    "validator_potential",
+    "last_updated"
+  ],
+  "properties": {
+    "rule_id": {"type": "string", "pattern": "^V[0-9]{3}$"},
+    "name": {"type": "string", "minLength": 1},
+    "category": {"enum": ["stance", "attribution", "sentence_posture", "reader_address", "density"]},
+    "statement": {"type": "string", "minLength": 1},
+    "register_markers": {"type": "array", "items": {"type": "string"}},
+    "status": {"enum": ["hypothesis", "candidate", "conditional", "stable", "contradicted", "rejected"]},
+    "applies_when": {"type": "array", "items": {"type": "string"}},
+    "does_not_apply_when": {"type": "array", "items": {"type": "string"}},
+    "support": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["sample_id", "observation_ids"],
+        "properties": {
+          "sample_id": {"type": "string", "pattern": "^S[0-9]{3}$"},
+          "observation_ids": {"type": "array", "minItems": 1, "items": {"type": "string", "pattern": "^O[0-9]{3}$"}}
+        }
+      }
+    },
+    "counterexamples": {"type": "array"},
+    "confidence": {"enum": ["low", "moderate", "high"]},
+    "validator_potential": {"enum": ["none", "manual", "partial", "automatable"]},
+    "last_updated": {"type": "string", "format": "date"}
+  }
+}

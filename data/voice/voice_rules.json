@@ -1,0 +1,108 @@
+{
+  "schema_version": "0.1.0",
+  "layer": "article_register",
+  "not_persona": true,
+  "definition": "Voice rules describe the visible stance, attribution habits, sentence posture and reader-facing density of the explainer. They do not override evidence provenance, study-design limits or the processing workflow.",
+  "rules": [
+    {
+      "rule_id": "V001",
+      "name": "Evidence-proportional certainty",
+      "category": "stance",
+      "statement": "State the main result directly, but make certainty, scope and durability no stronger than the evidence design permits.",
+      "register_markers": ["尚不能", "不能解讀為", "方向性證據", "短期", "仍不確定"],
+      "status": "hypothesis",
+      "applies_when": ["The source contains a result that a reader could mistake for efficacy, causality, equivalence or durable benefit."],
+      "does_not_apply_when": [],
+      "support": [
+        {"sample_id": "S001", "observation_ids": ["O011"]},
+        {"sample_id": "S002", "observation_ids": ["O014"]},
+        {"sample_id": "S003", "observation_ids": ["O014"]},
+        {"sample_id": "S004", "observation_ids": ["O014"]}
+      ],
+      "counterexamples": [],
+      "confidence": "low",
+      "validator_potential": "manual",
+      "last_updated": "2026-08-10"
+    },
+    {
+      "rule_id": "V002",
+      "name": "Attribution-forward stance",
+      "category": "attribution",
+      "statement": "Use attribution and source-layer cues so readers can tell whether a sentence is a pooled finding, a single-study observation, an author interpretation or an explainer inference.",
+      "register_markers": ["作者指出", "研究觀察到", "單一研究", "作者推測", "這只來自"],
+      "status": "hypothesis",
+      "applies_when": ["The evidence package contains more than one authority layer or more than one study-level result."],
+      "does_not_apply_when": [],
+      "support": [
+        {"sample_id": "S001", "observation_ids": ["O011"]},
+        {"sample_id": "S002", "observation_ids": ["O014"]},
+        {"sample_id": "S003", "observation_ids": ["O014"]},
+        {"sample_id": "S004", "observation_ids": ["O014"]}
+      ],
+      "counterexamples": [],
+      "confidence": "low",
+      "validator_potential": "manual",
+      "last_updated": "2026-08-10"
+    },
+    {
+      "rule_id": "V003",
+      "name": "Adjacent boundary language",
+      "category": "sentence_posture",
+      "statement": "Place the relevant boundary in the same paragraph or sentence block as the favourable finding instead of postponing all caution to a detached final disclaimer.",
+      "register_markers": ["但", "不過", "換言之", "值得注意的是", "不能把"],
+      "status": "hypothesis",
+      "applies_when": ["A favourable, alarming or highly interpretable result needs an immediate scope or causal brake."],
+      "does_not_apply_when": ["The result is purely descriptive and cannot reasonably be overread."],
+      "support": [
+        {"sample_id": "S001", "observation_ids": ["O011"]},
+        {"sample_id": "S002", "observation_ids": ["O014"]},
+        {"sample_id": "S003", "observation_ids": ["O014"]},
+        {"sample_id": "S004", "observation_ids": ["O014"]}
+      ],
+      "counterexamples": [],
+      "confidence": "low",
+      "validator_potential": "manual",
+      "last_updated": "2026-08-10"
+    },
+    {
+      "rule_id": "V004",
+      "name": "Reader-facing plain-language density",
+      "category": "reader_address",
+      "statement": "Use question-shaped headings and plain-language translations to explain what a technical result means for a reader's decision, while retaining the original technical term when needed for traceability.",
+      "register_markers": ["為什麼", "怎麼做", "承受什麼", "不能說是", "換句話說"],
+      "status": "hypothesis",
+      "applies_when": ["The requested output is a public-facing or cross-disciplinary science explainer."],
+      "does_not_apply_when": ["The requested output is a formal abstract, protocol or data table."],
+      "support": [
+        {"sample_id": "S001", "observation_ids": ["O011"]},
+        {"sample_id": "S002", "observation_ids": ["O014"]},
+        {"sample_id": "S003", "observation_ids": ["O014"]},
+        {"sample_id": "S004", "observation_ids": ["O014"]}
+      ],
+      "counterexamples": [],
+      "confidence": "low",
+      "validator_potential": "manual",
+      "last_updated": "2026-08-10"
+    },
+    {
+      "rule_id": "V005",
+      "name": "Calm high-density synthesis",
+      "category": "density",
+      "statement": "Prefer compact result-to-meaning-to-limit paragraphs and explicit transitions over promotional adjectives, rhetorical alarm or unexplained lists of numbers.",
+      "register_markers": ["值得注意", "必須強調", "整體而言", "換言之", "證據邊界"],
+      "status": "hypothesis",
+      "applies_when": ["Several findings, limitations and decision implications must fit into a readable long-form explainer."],
+      "does_not_apply_when": [],
+      "support": [
+        {"sample_id": "S001", "observation_ids": ["O011"]},
+        {"sample_id": "S002", "observation_ids": ["O014"]},
+        {"sample_id": "S003", "observation_ids": ["O014"]},
+        {"sample_id": "S004", "observation_ids": ["O014"]}
+      ],
+      "counterexamples": [],
+      "confidence": "low",
+      "validator_potential": "manual",
+      "last_updated": "2026-08-10"
+    }
+  ]
+}

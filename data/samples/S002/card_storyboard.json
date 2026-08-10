@@ -1,0 +1,170 @@
+{
+  "sample_id": "S002",
+  "canonical_queue": {
+    "filename": "TZ01_20260810_eclinm104119__imagegen_queue(3).json",
+    "sha256": "369230eb6835ba323859a65af05135d93731c2f24b4533273ecf92b67cdff747",
+    "plan_id": "TA07-20260810-010543-18237b69",
+    "binding_basis": "The six rendered titles match TZ01 C01-C06 exactly and do not match the TP title sequence."
+  },
+  "rejected_queue": {
+    "filename": "TP_20260810_eclinm_104119__imagegen_queue(3).json",
+    "sha256": "d131733a6c4519f9f6f069573dc93251d2150abf11b6d65918b2d32b62a1ccf1",
+    "reason": "Title-sequence mismatch."
+  },
+  "audit_policy": {
+    "semantic_track": "Check whether the scene and claims remain faithful to the source and card-specific causal boundaries.",
+    "strict_render_track": "Treat card.title, card.visible_text, allowed_visible_numbers and the exact-once citation as the complete visible render contract; semantic paraphrase does not authorise extra visible text.",
+    "global_constraints_checked": [
+      "no pooled prevalence or causal effect",
+      "no summing overlapping cause categories as mutually exclusive",
+      "no global extrapolation of 11% or 46%",
+      "no efficacy ranking of mitigation strategies",
+      "no trusted reuse of PRISMA n=8533",
+      "no causal solid arrows"
+    ]
+  },
+  "summary": {
+    "cards": 6,
+    "semantic_passes": 6,
+    "semantic_failures": 0,
+    "strict_render_passes": 0,
+    "strict_render_failures": 6,
+    "interpretation": "The cardset is source-aligned in meaning but not compliant with the queue's verbatim visible-text contract."
+  },
+  "cards": [
+    {
+      "card_id": "C01",
+      "title": "缺藥研究有 56 篇，但不能合成單一全球比例",
+      "image_filename": "EC51685A-C5FA-46CB-81BA-E5933E959923.jpeg",
+      "image_sha256": "9f6f1ee6fc3f6283c012f1624e5dfb279148a3a7f3badc3ed35b50eff57b1f9c",
+      "visible_text": [
+        "HIV 27｜瘧疾 20｜結核 9",
+        "40 篇來自撒哈拉以南非洲",
+        "55 篇接受 JBI 評讀：低風險 32｜中等 22｜高風險 1",
+        "研究設計、缺藥定義與結果高度異質，因此採敘事整合",
+        "研究數不是缺藥盛行率；地理集中限制外推。",
+        "標籤與框線表示內容功能；小標記表示證據狀態。"
+      ],
+      "allowed_visible_numbers": ["56", "27", "20", "9", "40", "55", "32", "22", "1"],
+      "main_visual_scene": "以 HIV、瘧疾、結核三個疾病計畫模組圍繞一疊異質研究證據；旁側以非比例式非洲地理標記提示證據集中，不畫圓餅圖或全球盛行率儀表。",
+      "semantic_audit": "pass",
+      "strict_render_audit": {
+        "status": "fail",
+        "violations": [
+          "Unlisted visible labels inside the paper stack: 異質研究證據、研究設計、缺藥定義、結果指標."
+        ]
+      }
+    },
+    {
+      "card_id": "C02",
+      "title": "缺藥問題，主要卡在系統",
+      "image_filename": "71835FC2-EADD-43FE-9873-F1A78589CAD5.jpeg",
+      "image_sha256": "7ade5aa941d6074b794fc9df3e3c1594befff7652d7424f889445d82d45a0029",
+      "visible_text": [
+        "供應鏈／庫存：28 篇",
+        "採購：17｜資金：16",
+        "治理：8｜預測／規劃：6",
+        "原因類別可在同一研究重疊",
+        "作者的敘事綜合，非因果估計。"
+      ],
+      "allowed_visible_numbers": ["28", "17", "16", "8", "6"],
+      "main_visual_scene": "用五個可重疊的系統節點呈現供應鏈、採購、資金、治理、預測；以虛線關聯連到中央缺藥箱，明示類別重疊，不用圓餅圖、不使用因果實線箭頭。",
+      "semantic_audit": "pass",
+      "strict_render_audit": {
+        "status": "fail",
+        "violations": [
+          "The central box adds 缺藥 as a separate visible label although it is not a listed visible_text item.",
+          "Approved count phrases are duplicated in node labels and the lower legend rather than rendered once as the supplied strings."
+        ]
+      }
+    },
+    {
+      "card_id": "C03",
+      "title": "缺藥怎麼一路傷到病人？",
+      "image_filename": "D64ABB84-E24A-4BB7-A304-0570EEF9E50D.jpeg",
+      "image_sha256": "30cb7c79500afd3e3e048529accbf2c9497890876e5f318ff5e10eb2575e2de1",
+      "visible_text": [
+        "上游：政策／採購／資金問題｜中層：供應中斷｜下游：治療延遲或中斷",
+        "報告的後果包括依從性變差、療效變差、抗藥性與疾病惡化",
+        "象牙海岸 HIV 隊列：11% 因缺藥出現治療缺口或換藥",
+        "象牙海岸單一 HIV 隊列。跨研究多為觀察性證據。"
+      ],
+      "allowed_visible_numbers": ["11%"],
+      "main_visual_scene": "三層垂直框架：上游政策與供應、中層服務中斷、下游病人後果；層與層只用虛線導引表示回顧中的關聯鏈，旁置 HIV 單一隊列的小型證據標記。",
+      "semantic_audit": "pass",
+      "strict_render_audit": {
+        "status": "fail",
+        "violations": [
+          "The combined upstream-middle-downstream sentence is split and each fragment is duplicated as a heading and body line.",
+          "Rx is rendered on the medicine bottle without visible-text authorisation."
+        ]
+      }
+    },
+    {
+      "card_id": "C04",
+      "title": "缺貨的帳單，病人和系統一起付",
+      "image_filename": "6548F28C-97F1-49B2-97A5-844A7A9ED358.jpeg",
+      "image_sha256": "7ce016ba2032012b18c9295d4f1bb6460158041bfbb20def787f535f2413468e",
+      "visible_text": [
+        "病人：跨區求藥、私人購藥、交通與自費增加",
+        "系統：緊急採購、替代藥、庫存失衡與浪費",
+        "泛美調查：46% 抗反轉錄病毒缺貨事件觸發緊急採購",
+        "泛美抗反轉錄病毒事件調查。不可外推成全球比例。"
+      ],
+      "allowed_visible_numbers": ["46%"],
+      "main_visual_scene": "中央缺貨藥架，左側是病人的交通與自費負擔，右側是醫療系統的緊急採購與庫存壓力；用兩側負擔而非單向因果流程。",
+      "semantic_audit": "pass",
+      "strict_render_audit": {
+        "status": "fail",
+        "violations": [
+          "Scene decoration adds multiple unlisted labels, including 缺貨、庫存狀態、自費明細、藥費、交通、其他、合計、私人藥局、緊急採購、採購申請 and 替代藥."
+        ]
+      }
+    },
+    {
+      "card_id": "C05",
+      "title": "從救火，轉向能預警的供應鏈",
+      "image_filename": "0008875C-7FC2-4013-8939-3C3C3081AE0D.jpeg",
+      "image_sha256": "3b934a155e49c380c95e902bf6501e313fca1974e49e1dc48d63648598544847",
+      "visible_text": [
+        "短期：緊急採購／調貨、優先排序、替代方案、轉介",
+        "長期：緩衝庫存、多元供應、穩定融資、治理與物流資訊系統",
+        "SMS／電子回報可協助早期發現與重新分配",
+        "敘事性時間趨勢，非正式時間序列分析。策略不是效果排名。"
+      ],
+      "allowed_visible_numbers": [],
+      "main_visual_scene": "左右雙欄：左為短期救火工具箱，右為長期韌性供應鏈；中間只用虛線轉換導引。電子庫存回報以簡潔手機與倉儲訊號呈現，不畫療效排名。",
+      "semantic_audit": "pass",
+      "strict_render_audit": {
+        "status": "fail",
+        "violations": [
+          "The two authorised list sentences are rewritten into eight separately prefixed short-term and long-term labels.",
+          "The priority-list illustration renders 1, 2 and 3 although this card authorises no visible numbers."
+        ]
+      }
+    },
+    {
+      "card_id": "C06",
+      "title": "方向一致，但證據還不夠硬",
+      "image_filename": "D4F75100-CDA8-481D-B93A-BA9989959974.jpeg",
+      "image_sha256": "8df39f2b0cf99093d2f8506e1d6bd669972064a12f034ddb0ecd403351738944",
+      "visible_text": [
+        "缺乏嚴格量化病人結果，TB／瘧疾尤其不足",
+        "經濟成本研究很少",
+        "不同研究方法與缺藥定義差異大",
+        "PRISMA 流程數字有內部不一致",
+        "僅作審計警示。缺乏量化不等於沒有危害。"
+      ],
+      "allowed_visible_numbers": [],
+      "main_visual_scene": "研究證據文件在放大鏡下顯示方法異質、經濟資料缺口與 PRISMA 稽核警示；以缺口框與不確定性標記呈現，不重畫有問題的 PRISMA 數字。",
+      "semantic_audit": "pass",
+      "strict_render_audit": {
+        "status": "fail",
+        "violations": [
+          "Unlisted scene labels include 研究證據文件、方法異質性、缺藥定義不同、量化結果不足 and 經濟成本研究.",
+          "The audit clipboard adds 審計檢視、PRISMA 流程、????、數字有內部不一致 and 不採納為確定數字 instead of limiting text to the authorised sentence."
+        ]
+      }
+    }
+  ]
+}

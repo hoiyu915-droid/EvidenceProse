@@ -1,0 +1,182 @@
+{
+  "sample_id": "S003",
+  "canonical_queue": {
+    "filename": "TP_20260810_s44276_026_00246_6__imagegen_queue(2).json",
+    "sha256": "d88d8931ec9613c3178b2b4c423a5359216624cb54b1d8e81c6f07ca6eaaa059",
+    "plan_id": "TP_20260810_s44276_026_00246_6",
+    "binding_basis": "The six rendered titles match TP C01-C06 exactly and do not match the TZ01 title sequence."
+  },
+  "rejected_queue": {
+    "filename": "TZ01_20260810_BJCR00246__imagegen_queue(2).json",
+    "sha256": "036ab3b6acf93297584548f72d33be08718d4aae885348bca677f567ac67ebd5",
+    "reason": "Title-sequence mismatch."
+  },
+  "audit_policy": {
+    "semantic_track": "Check whether wording, numbers, visual data encodings and causal structure remain faithful to the source and card-specific constraints.",
+    "strict_render_track": "Treat card.title, card.visible_text, allowed_visible_numbers and the exact-once citation as the complete visible render contract; scene descriptions authorise objects, not extra labels.",
+    "global_constraints_checked": [
+      "no causal claim that exercise frequency reduced CRF",
+      "no generalisation from physical CFS to affective, cognitive or total CFS",
+      "no claim that the ECOG-PS sensitivity model remained statistically significant",
+      "no selection of a supposedly correct HF/LF subgroup size from conflicting source labels",
+      "no implication that frequency is independent of cumulative exercise volume",
+      "no long-term benefit claim",
+      "no causal arrows"
+    ]
+  },
+  "summary": {
+    "cards": 6,
+    "semantic_passes": 5,
+    "semantic_failures": 1,
+    "strict_render_passes": 0,
+    "strict_render_failures": 6,
+    "interpretation": "Five cards are source-aligned in meaning, while C03 reverses the observed discharge direction in its timeline. Every card also violates the canonical queue's exact visible-text contract."
+  },
+  "cards": [
+    {
+      "card_id": "C01",
+      "title": "運動越常參與，身體疲勞越低？",
+      "image_filename": "3F96FBAA-DA9F-4905-A845-16003E76E25C.jpeg",
+      "image_sha256": "55fa56cc8e2a7664386d658d89b95e7aec9832a5817975591ff4adc8241d9457",
+      "visible_text": [
+        "130名住院接受化療的淋巴瘤患者",
+        "主要調整模型：B=-2.10｜95% CI -4.20至-0.05｜p=0.04",
+        "觀察到的是運動參與頻率與出院身體CFS的負向關聯",
+        "相關而非因果；只有身體CFS在主要調整模型達顯著",
+        "標籤與框線表示內容功能；小標記表示證據狀態。"
+      ],
+      "allowed_visible_numbers": ["130", "-2.10", "95%", "-4.20", "-0.05", "0.04"],
+      "main_visual_scene": "一位住院化療患者沿著一週運動日曆走向較低的身體疲勞量表，旁邊以小型回歸係數卡呈現調整後關聯；使用關聯線而非因果箭頭。",
+      "targeted_audit": "pass",
+      "semantic_audit": "pass",
+      "strict_render_audit": {
+        "status": "fail",
+        "violations": [
+          "Unlisted visible scene labels include 一週運動參與日曆、休息、出院時身體疲勞程度（CFS）、高、低 and 調整後關聯（主要模型）.",
+          "The weekday grid renders additional day characters beyond the authorised visible-text strings."
+        ]
+      }
+    },
+    {
+      "card_id": "C02",
+      "title": "院內運動方案怎麼做？",
+      "image_filename": "1021C9A0-39B2-4684-815D-0EA35F0AF1D1.jpeg",
+      "image_sha256": "617f18b8c7108b47eef620137f86d3c01c8feee217608782a15ed2376888fcc5",
+      "visible_text": [
+        "有氧＋阻力：每日1次、每週6天",
+        "Borg 12–13；有氧10–20分鐘",
+        "實際參與頻率中位數71.4%；觀察期共1854次課程",
+        "這是院內建議方案，不是已驗證的最佳運動處方。"
+      ],
+      "allowed_visible_numbers": ["1", "6", "12", "13", "10", "20", "71.4%", "1854"],
+      "main_visual_scene": "住院病房中的週曆、腳踏車與阻力訓練器材並列；用六個運動日格和頻率計量條表示建議方案與實際參與。",
+      "targeted_audit": "pass",
+      "semantic_audit": "pass",
+      "strict_render_audit": {
+        "status": "fail",
+        "violations": [
+          "The calendar adds 一週計畫, weekday labels and 建議：每日1次、每週6天, none of which is an exact listed visible_text item.",
+          "The once-daily and six-days-per-week content is duplicated between the calendar and authorised sentence."
+        ]
+      }
+    },
+    {
+      "card_id": "C03",
+      "title": "原始差異，基線就存在",
+      "image_filename": "D66B5DCF-05F9-4CD0-9965-C95AE29C81E7.jpeg",
+      "image_sha256": "29935afe5c87df6609262d8a3092a521999b2689cfa0493c32dd03cf4d9cf1b1",
+      "visible_text": [
+        "出院身體CFS：HF 1.0｜LF 4.0",
+        "化療開始前：HF 2.0｜LF 5.0",
+        "兩組在治療開始前就不是同一個疲勞起點",
+        "基線已存在差異；原始組間差不可當療效"
+      ],
+      "allowed_visible_numbers": ["4.0", "1.0", "5.0", "2.0"],
+      "main_visual_scene": "兩條平行的疲勞量表軌跡，各自在基線和出院有清楚標記；強調兩條線起點不同，不畫治療造成下降的因果箭頭。",
+      "targeted_audit": "fail: the timeline positions discharge at 6 for HF and 7 for LF despite the authorised discharge values 1.0 and 4.0.",
+      "semantic_audit": "fail",
+      "semantic_violations": [
+        "The HF timeline encodes discharge at 6 rather than 1.0.",
+        "The LF timeline encodes discharge at 7 rather than 4.0.",
+        "Both trajectories visually rise from baseline even though the source reports lower discharge medians in both groups."
+      ],
+      "required_correction": "Place HF baseline at 2.0 and discharge at 1.0; place LF baseline at 5.0 and discharge at 4.0. Remove every unlisted scale number and label unless the queue is formally revised.",
+      "strict_render_audit": {
+        "status": "fail",
+        "violations": [
+          "The timelines render 0, 1, 2, 3, 4, 5, 6 and 7 although only 1.0, 2.0, 4.0 and 5.0 are authorised.",
+          "Unlisted labels include 高頻運動（HF組）, 低頻運動（LF組）, 基線（治療開始前）, 出院時, 疲勞量表（CFS） and the scale-note sentence."
+        ]
+      }
+    },
+    {
+      "card_id": "C04",
+      "title": "顯著只出現在身體疲勞",
+      "image_filename": "F14A7A6A-72AF-4235-A95C-5753B0508555.jpeg",
+      "image_sha256": "057815dd8e41b33b9bbcf81f325be76e9d7b70cc6533205543ae7903e5a7b2e4",
+      "visible_text": [
+        "主模型：身體CFS p=0.04",
+        "情感 p=0.33｜認知 p=0.65｜總分 p=0.30",
+        "加入ECOG-PS：B=-2.04；正文 p=0.055（表格 p=0.06）",
+        "相關而非因果；敏感度分析未達統計顯著"
+      ],
+      "allowed_visible_numbers": ["0.04", "0.33", "0.65", "0.30", "-2.04", "0.055", "0.06"],
+      "main_visual_scene": "四個CFS面向以小型量表卡並列，只有身體面向有主要模型顯著標記；下方另設敏感度分析框，清楚標示未達統計顯著。",
+      "targeted_audit": "fail: two footer lines were added beyond visible_text.",
+      "semantic_audit": "pass",
+      "strict_render_audit": {
+        "status": "fail",
+        "violations": [
+          "Unlisted footer text: 研究對象：住院淋巴瘤患者接受化學治療（基線分析）.",
+          "Unlisted footer text: 量表：CFS（癌症相關疲勞量表）.",
+          "The panel headings 身體、情感、認知、總分 are also separately rendered labels rather than exact authorised strings."
+        ]
+      }
+    },
+    {
+      "card_id": "C05",
+      "title": "缺課，也有系統因素",
+      "image_filename": "C3210E95-F5BB-4F87-85CB-9E03917C72A1.jpeg",
+      "image_sha256": "580882294dd20d4d669df543f4a28d81a65fb5b5b0f11d6c640b4621eb3c63ee",
+      "visible_text": [
+        "物理治療師不在場 20.0%",
+        "疲勞 17.8%",
+        "化療相關不良事件原因合計 29.8%",
+        "百分比分母是未執行運動的session／原因，不是患者比例。"
+      ],
+      "allowed_visible_numbers": ["20.0%", "17.8%", "29.8%"],
+      "main_visual_scene": "病房運動課程被三類障礙打斷：空著的治療師位置、疲勞患者、化療不良事件；使用原因分布卡，不畫成患者盛行率。",
+      "targeted_audit": "pass",
+      "semantic_audit": "pass",
+      "strict_render_audit": {
+        "status": "fail",
+        "violations": [
+          "Scene decoration adds the unlisted sign 物理治療師 and the unlisted symptom labels 噁心、嘔吐、腹瀉、血球低下."
+        ]
+      }
+    },
+    {
+      "card_id": "C06",
+      "title": "為什麼不能說是療效？",
+      "image_filename": "6B5CAD42-B7AD-4F4A-8123-025508586E4B.jpeg",
+      "image_sha256": "d4deb5096caceaa42495dcee0aead17d86c5d1d1a9dc218abae21d65df02fb72",
+      "visible_text": [
+        "疲勞本身可能讓人少運動：可能有反向因果",
+        "頻率與總運動量無法分開",
+        "單中心、回溯性，且沒有出院後長期追蹤",
+        "相關而非因果；需要前瞻性研究與長期追蹤。"
+      ],
+      "allowed_visible_numbers": [],
+      "main_visual_scene": "一個研究解讀煞車板，三個警示圖像依序為雙向箭頭代表反向因果、FITT量尺代表總運動量混雜、單一醫院與短時間軸代表外部效度和追蹤限制。",
+      "targeted_audit": "fail: an unlisted disclaimer sentence was added in the footer.",
+      "semantic_audit": "pass",
+      "strict_render_audit": {
+        "status": "fail",
+        "violations": [
+          "Unlisted footer text: 本為研究解讀，不代表療效；證據尚有缺口與限制。",
+          "Unlisted scene labels include FITT、頻率、總量、反向因果、混雜無法分開、住院期間、出院後 and 外部效度與追蹤限制."
+        ]
+      }
+    }
+  ]
+}

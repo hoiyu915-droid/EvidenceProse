@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://evidenceprose.local/schemas/batch_results.schema.json",
+  "title": "EvidenceProse cumulative batch result index",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "last_updated", "batch_count", "batches", "cross_batch_summary"],
+  "properties": {
+    "schema_version": {"type": "string"},
+    "last_updated": {"type": "string", "format": "date"},
+    "batch_count": {"type": "integer", "minimum": 1},
+    "batches": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["batch_id", "sample_id", "topic", "source_class", "article_result", "method_result", "voice_result", "companion_audit", "induced_rule_ids", "qualified_rule_ids", "induced_voice_rule_ids", "contamination_note_ids"],
+        "properties": {
+          "batch_id": {"type": "string", "pattern": "^B[0-9]{3}$"},
+          "sample_id": {"type": "string", "pattern": "^S[0-9]{3}$"},
+          "topic": {"type": "string", "minLength": 1},
+          "source_class": {"type": "string", "minLength": 1},
+          "canonical_queue_family": {"type": ["string", "null"]},
+          "article_result": {"type": "string", "minLength": 1},
+          "method_result": {"type": "string", "minLength": 1},
+          "voice_result": {"type": "string", "minLength": 1},
+          "companion_audit": {"type": "object"},
+          "induced_rule_ids": {"type": "array", "items": {"type": "string", "pattern": "^R[0-9]{3}$"}},
+          "qualified_rule_ids": {"type": "array", "items": {"type": "string", "pattern": "^R[0-9]{3}$"}},
+          "induced_voice_rule_ids": {"type": "array", "items": {"type": "string", "pattern": "^V[0-9]{3}$"}},
+          "contamination_note_ids": {"type": "array", "items": {"type": "string", "pattern": "^C[0-9]{3}$"}}
+        }
+      }
+    },
+    "cross_batch_summary": {"type": "object"}
+  }
+}
