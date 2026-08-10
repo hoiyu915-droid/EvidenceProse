@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://evidenceprose.local/schemas/sample.schema.json",
+  "title": "EvidenceProse observation sample",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "sample_id",
+    "title",
+    "language",
+    "article_path",
+    "source",
+    "study_profile",
+    "observations",
+    "contamination_notes",
+    "analysis_date"
+  ],
+  "properties": {
+    "sample_id": {"type": "string", "pattern": "^S[0-9]{3}$"},
+    "title": {"type": "string", "minLength": 1},
+    "language": {"type": "string", "const": "zh-Hant"},
+    "article_path": {"type": "string", "pattern": "^data/samples/S[0-9]{3}/article\\.md$"},
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["citation", "doi", "verification_state"],
+      "properties": {
+        "citation": {"type": "string"},
+        "doi": {"type": "string", "pattern": "^10\\."},
+        "pdf_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "verification_state": {"enum": ["metadata_only", "abstract", "full_text", "full_text_audited"]}
+      }
+    },
+    "study_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["study_type", "included_reports", "total_participants", "quantitative_datasets", "follow_up"],
+      "properties": {
+        "study_type": {"type": "string"},
+        "included_reports": {"type": "integer", "minimum": 0},
+        "total_participants": {"type": "integer", "minimum": 0},
+        "quantitative_datasets": {"type": "integer", "minimum": 0},
+        "follow_up": {"type": "string"}
+      }
+    },
+    "observations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["observation_id", "kind", "description", "article_locations"],
+        "properties": {
+          "observation_id": {"type": "string", "pattern": "^O[0-9]{3}$"},
+          "kind": {"enum": ["architecture", "claim_transform", "calibration", "provenance", "mechanism", "limitations", "clinical_positioning", "evidence_grade"]},
+          "description": {"type": "string", "minLength": 1},
+          "article_locations": {"type": "array", "minItems": 1, "items": {"type": "string"}}
+        }
+      }
+    },
+    "contamination_notes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["note_id", "location", "issue", "preferred_handling"],
+        "properties": {
+          "note_id": {"type": "string", "pattern": "^C[0-9]{3}$"},
+          "location": {"type": "string"},
+          "issue": {"type": "string"},
+          "preferred_handling": {"type": "string"}
+        }
+      }
+    },
+    "analysis_date": {"type": "string", "format": "date"}
+  }
+}
+

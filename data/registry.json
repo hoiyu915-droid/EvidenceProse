@@ -1,0 +1,10 @@
+{
+  "schema_version": "0.1.0",
+  "project_phase": "pattern_induction",
+  "primary_language": "zh-Hant",
+  "sample_ids": ["S001"],
+  "rule_ids": ["R001", "R002", "R003", "R004", "R005", "R006", "R007", "R008", "R009", "R010"],
+  "stable_rule_ids": [],
+  "last_updated": "2026-08-10"
+}
+
