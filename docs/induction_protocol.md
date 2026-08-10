@@ -14,6 +14,7 @@ Every completed explainer becomes one immutable sample (`S###`). A sample contai
 - observable editorial decisions;
 - evidence linking the sample to candidate rules;
 - suspected technical errors or overclaims that must not be learned.
+- receipts for any source PDF, alternative queues, canonical render queue, and rendered companion artifacts used in the analysis.
 
 The article and the interpretation record are stored separately. Updating a rule never silently rewrites the observed article.
 
@@ -23,7 +24,18 @@ The article and the interpretation record are stored separately. Updating a rule
 
 Record the paper identity, DOI or other stable identifier, source digest when available, verification state, and the date of analysis.
 
-### 2. Describe before generalising
+When multiple render queues are supplied, bind cards to a queue before auditing them. Use exact title sequence and content identity, record both accepted and rejected queue digests, and never choose a queue merely because its topic is similar.
+
+### 2. Audit companion artifacts on two tracks
+
+If cards or other rendered companions are present, keep two verdicts separate:
+
+- semantic fidelity: whether claims, scope, uncertainty and causal structure remain faithful to the source;
+- strict render compliance: whether every visible string and number is authorised by the canonical queue.
+
+Scene descriptions authorise objects and composition, not extra visible labels. A semantically sensible label still fails a `no_unlisted_visible_text` contract when it is absent from the authorised list.
+
+### 3. Describe before generalising
 
 Record concrete writing decisions such as:
 
@@ -37,7 +49,7 @@ Record concrete writing decisions such as:
 
 Descriptions must be recoverable from an excerpt or a precise location in the sample.
 
-### 3. Update rule evidence
+### 4. Update rule evidence
 
 For every candidate rule, classify the new sample as one of:
 
@@ -48,13 +60,13 @@ For every candidate rule, classify the new sample as one of:
 
 Absence is not automatically contradiction.
 
-### 4. Detect contamination
+### 5. Detect contamination
 
 Technically incorrect, unsupported, or overly strong sentences are recorded in `contamination_notes`. They remain part of the observed sample but cannot support a preferred writing rule.
 
 Typical examples include confusing odds with risk, extending a treatment duration beyond the source, or treating zero observed heterogeneity as proof of identical effects.
 
-### 5. Recalculate rule state
+### 6. Recalculate rule state
 
 Rule maturity states are:
 
@@ -95,4 +107,3 @@ The project is ready to implement a production writer when:
 - claim provenance survives from evidence input to final prose;
 - validators can detect unsupported numbers, source-layer collapse, inference promotion, and clinical-positioning overreach;
 - failures are reported as structured gaps rather than silently repaired by invention.
-

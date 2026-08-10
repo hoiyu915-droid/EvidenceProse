@@ -13,6 +13,9 @@ ROOT = Path(__file__).resolve().parents[1]
 SAMPLE_ID = re.compile(r"^S\d{3}$")
 RULE_ID = re.compile(r"^R\d{3}$")
 OBSERVATION_ID = re.compile(r"^O\d{3}$")
+ARTIFACT_ID = re.compile(r"^A\d{3}$")
+CARD_ID = re.compile(r"^C\d{2}$")
+SHA256 = re.compile(r"^[a-f0-9]{64}$")
 RULE_STATES = {"hypothesis", "candidate", "conditional", "stable", "contradicted", "rejected"}
 
 
@@ -49,6 +52,7 @@ def validate() -> dict[str, int]:
 
     observations_by_sample: dict[str, set[str]] = {}
     contamination_count = 0
+    strict_render_failures = 0
     for sample_id in sample_ids:
         require(isinstance(sample_id, str) and SAMPLE_ID.fullmatch(sample_id) is not None, f"invalid sample id: {sample_id!r}")
         sample_path = ROOT / f"data/samples/{sample_id}/sample.json"
@@ -59,6 +63,57 @@ def validate() -> dict[str, int]:
         require(isinstance(article_path, str), f"{sample_id} article_path must be a string")
         require((ROOT / article_path).is_file(), f"{sample_id} article file is missing: {article_path}")
 
+        study_profile = sample.get("study_profile")
+        require(isinstance(study_profile, dict), f"{sample_id} study_profile must be an object")
+        not_applicable_reasons = study_profile.get("not_applicable_reasons")
+        require(isinstance(not_applicable_reasons, dict), f"{sample_id} not_applicable_reasons must be an object")
+        for nullable_field in ("total_participants", "quantitative_datasets", "follow_up"):
+            if study_profile.get(nullable_field) is None:
+                reason = not_applicable_reasons.get(nullable_field)
+                require(isinstance(reason, str) and reason.strip(), f"{sample_id} null {nullable_field} requires a reason")
+
+        artifact_receipts = sample.get("artifact_receipts", [])
+        require(isinstance(artifact_receipts, list), f"{sample_id} artifact_receipts must be an array")
+        artifact_ids: set[str] = set()
+        for receipt in artifact_receipts:
+            require(isinstance(receipt, dict), f"{sample_id} artifact receipt must be an object")
+            artifact_id = receipt.get("artifact_id")
+            require(isinstance(artifact_id, str) and ARTIFACT_ID.fullmatch(artifact_id) is not None, f"{sample_id} invalid artifact id")
+            require(artifact_id not in artifact_ids, f"{sample_id} duplicate artifact {artifact_id}")
+            digest = receipt.get("sha256")
+            require(isinstance(digest, str) and SHA256.fullmatch(digest) is not None, f"{sample_id}/{artifact_id} invalid sha256")
+            artifact_ids.add(artifact_id)
+
+        storyboard_path = sample.get("card_storyboard_path")
+        if storyboard_path is not None:
+            require(isinstance(storyboard_path, str), f"{sample_id} card_storyboard_path must be a string")
+            storyboard = load_json(ROOT / storyboard_path)
+            require(isinstance(storyboard, dict) and storyboard.get("sample_id") == sample_id, f"{sample_id} storyboard identity mismatch")
+            cards = storyboard.get("cards")
+            require(isinstance(cards, list) and cards, f"{sample_id} storyboard requires cards")
+            card_ids: set[str] = set()
+            observed_failures = 0
+            for card in cards:
+                require(isinstance(card, dict), f"{sample_id} storyboard card must be an object")
+                card_id = card.get("card_id")
+                require(isinstance(card_id, str) and CARD_ID.fullmatch(card_id) is not None, f"{sample_id} invalid card id")
+                require(card_id not in card_ids, f"{sample_id} duplicate card {card_id}")
+                image_digest = card.get("image_sha256")
+                require(isinstance(image_digest, str) and SHA256.fullmatch(image_digest) is not None, f"{sample_id}/{card_id} invalid image sha256")
+                strict_audit = card.get("strict_render_audit")
+                require(isinstance(strict_audit, dict) and strict_audit.get("status") in {"pass", "fail"}, f"{sample_id}/{card_id} invalid strict render audit")
+                if strict_audit["status"] == "fail":
+                    violations = strict_audit.get("violations")
+                    require(isinstance(violations, list) and violations, f"{sample_id}/{card_id} failed audit requires violations")
+                    observed_failures += 1
+                card_ids.add(card_id)
+            summary = storyboard.get("summary")
+            require(isinstance(summary, dict), f"{sample_id} storyboard summary must be an object")
+            require(summary.get("cards") == len(cards), f"{sample_id} storyboard card count mismatch")
+            require(summary.get("strict_render_failures") == observed_failures, f"{sample_id} strict-render failure count mismatch")
+            require(summary.get("strict_render_passes") == len(cards) - observed_failures, f"{sample_id} strict-render pass count mismatch")
+            strict_render_failures += observed_failures
+
         observations = sample.get("observations")
         require(isinstance(observations, list) and observations, f"{sample_id} requires observations")
         observation_ids: set[str] = set()
@@ -67,8 +122,8 @@ def validate() -> dict[str, int]:
             observation_id = observation.get("observation_id")
             require(isinstance(observation_id, str) and OBSERVATION_ID.fullmatch(observation_id) is not None, f"{sample_id} invalid observation id")
             require(observation_id not in observation_ids, f"{sample_id} duplicate observation {observation_id}")
-            locations = observation.get("article_locations")
-            require(isinstance(locations, list) and locations, f"{sample_id}/{observation_id} requires article locations")
+            locations = observation.get("evidence_locations")
+            require(isinstance(locations, list) and locations, f"{sample_id}/{observation_id} requires evidence locations")
             observation_ids.add(observation_id)
         observations_by_sample[sample_id] = observation_ids
 
@@ -101,15 +156,19 @@ def validate() -> dict[str, int]:
             missing = set(observation_ids) - observations_by_sample[sample_id]
             require(not missing, f"{rule_id}/{sample_id} references unknown observations: {sorted(missing)}")
 
+        if status == "stable":
+            support_samples = {receipt.get("sample_id") for receipt in support}
+            require(len(support_samples) >= 2, f"{rule_id} cannot be stable without multiple independent samples")
+
     require(actual_rule_ids == rule_ids, "registry rule_ids do not exactly match ordered rule catalogue")
     require(actual_stable_ids == stable_rule_ids, "registry stable_rule_ids do not match stable rule states")
-    require(not stable_rule_ids, "initial S001 registry must not promote any rule to stable")
 
     return {
         "samples": len(sample_ids),
         "rules": len(rules),
         "stable_rules": len(actual_stable_ids),
         "contamination_notes": contamination_count,
+        "strict_render_failures": strict_render_failures,
     }
 
 
@@ -125,4 +184,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

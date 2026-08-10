@@ -11,71 +11,73 @@
   },
   "study_profile": {
     "study_type": "systematic review and meta-analysis of observational studies",
+    "synthesis_mode": "random-effects meta-analysis with narrative synthesis",
     "included_reports": 4,
     "total_participants": 82,
     "quantitative_datasets": 3,
-    "follow_up": "approximately 12 months"
+    "follow_up": "approximately 12 months",
+    "not_applicable_reasons": {}
   },
   "observations": [
     {
       "observation_id": "O001",
       "kind": "architecture",
       "description": "The article reorganises the source around reader decision questions rather than reproducing journal section order.",
-      "article_locations": ["一句話總結", "為什麼會有這篇文獻", "這篇文章對臨床角色的定位"]
+      "evidence_locations": ["article:一句話總結", "article:為什麼會有這篇文獻", "article:這篇文章對臨床角色的定位"]
     },
     {
       "observation_id": "O002",
       "kind": "calibration",
       "description": "A favourable result stream is kept beside an evidence-boundary stream, and the boundary stream controls the final conclusion.",
-      "article_locations": ["一句話總結", "統合結果", "方法學限制"]
+      "evidence_locations": ["article:一句話總結", "article:統合結果", "article:方法學限制"]
     },
     {
       "observation_id": "O003",
       "kind": "mechanism",
       "description": "Partial ablation preserving function while possibly preserving recurrence substrate acts as the explanatory spine.",
-      "article_locations": ["為什麼會有這篇文獻", "沒有被統合分析講清楚的部分"]
+      "evidence_locations": ["article:為什麼會有這篇文獻", "article:沒有被統合分析講清楚的部分"]
     },
     {
       "observation_id": "O004",
       "kind": "claim_transform",
       "description": "Major claims are expanded through result, clinical meaning, and interpretive ceiling.",
-      "article_locations": ["統合結果", "免疫學上有一個值得注意的現象"]
+      "evidence_locations": ["article:統合結果", "article:免疫學上有一個值得注意的現象"]
     },
     {
       "observation_id": "O005",
       "kind": "calibration",
       "description": "Positive findings are paired with explicit brakes such as failure rate, short follow-up, small samples, or absence of direct comparison.",
-      "article_locations": ["一句話總結", "統合結果", "方法學限制"]
+      "evidence_locations": ["article:一句話總結", "article:統合結果", "article:方法學限制"]
     },
     {
       "observation_id": "O006",
       "kind": "provenance",
       "description": "The prose preserves whether a statement comes from pooled data, all included reports, one study, or interpretation.",
-      "article_locations": ["四篇研究長什麼樣子", "統合結果", "免疫學上有一個值得注意的現象"]
+      "evidence_locations": ["article:四篇研究長什麼樣子", "article:統合結果", "article:免疫學上有一個值得注意的現象"]
     },
     {
       "observation_id": "O007",
       "kind": "limitations",
       "description": "Review-process details and unexplained PRISMA count differences are treated as substantive evidence information.",
-      "article_locations": ["這篇系統性回顧在問什麼問題"]
+      "evidence_locations": ["article:這篇系統性回顧在問什麼問題"]
     },
     {
       "observation_id": "O008",
       "kind": "limitations",
       "description": "Each important limitation changes external validity, comparative claims, durability claims, or reproducibility.",
-      "article_locations": ["這篇系統性回顧自己列出的方法學限制"]
+      "evidence_locations": ["article:這篇系統性回顧自己列出的方法學限制"]
     },
     {
       "observation_id": "O009",
-      "kind": "clinical_positioning",
+      "kind": "decision_positioning",
       "description": "The ending sets a permitted clinical role rather than merely repeating the pooled estimate.",
-      "article_locations": ["這篇文章對臨床角色的定位"]
+      "evidence_locations": ["article:這篇文章對臨床角色的定位"]
     },
     {
       "observation_id": "O010",
       "kind": "evidence_grade",
       "description": "Review conduct quality is separated from the strength and generalisability of the underlying observational evidence.",
-      "article_locations": ["引用來源", "中等證據強度"]
+      "evidence_locations": ["article:引用來源", "article:中等證據強度"]
     }
   ],
   "contamination_notes": [
@@ -100,4 +102,3 @@
   ],
   "analysis_date": "2026-08-10"
 }
-

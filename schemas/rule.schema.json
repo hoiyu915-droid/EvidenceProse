@@ -22,7 +22,7 @@
     "rule_id": {"type": "string", "pattern": "^R[0-9]{3}$"},
     "name": {"type": "string", "minLength": 1},
     "category": {
-      "enum": ["architecture", "claim_transform", "calibration", "provenance", "mechanism", "limitations", "clinical_positioning", "evidence_grade"]
+      "enum": ["architecture", "claim_transform", "calibration", "provenance", "mechanism", "limitations", "decision_positioning", "evidence_grade", "quantitative_semantics"]
     },
     "statement": {"type": "string", "minLength": 1},
     "status": {"enum": ["hypothesis", "candidate", "conditional", "stable", "contradicted", "rejected"]},
@@ -56,4 +56,3 @@
     "last_updated": {"type": "string", "format": "date"}
   }
 }
-

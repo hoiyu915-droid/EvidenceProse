@@ -5,12 +5,15 @@
       "name": "Decision-question architecture",
       "category": "architecture",
       "statement": "Reorganise source material around reader decision questions instead of mirroring journal section order.",
-      "status": "hypothesis",
+      "status": "candidate",
       "applies_when": ["The article explains evidence for a clinical or scientific decision."],
       "does_not_apply_when": ["The requested output is a formal structured abstract or reporting checklist."],
-      "support": [{"sample_id": "S001", "observation_ids": ["O001"]}],
+      "support": [
+        {"sample_id": "S001", "observation_ids": ["O001"]},
+        {"sample_id": "S002", "observation_ids": ["O001"]}
+      ],
       "counterexamples": [],
-      "confidence": "low",
+      "confidence": "moderate",
       "validator_potential": "manual",
       "last_updated": "2026-08-10"
     },
@@ -19,12 +22,15 @@
       "name": "Dual result and boundary streams",
       "category": "calibration",
       "statement": "Maintain a result stream and an evidence-boundary stream; let the latter constrain the final conclusion.",
-      "status": "hypothesis",
+      "status": "candidate",
       "applies_when": ["Evidence has favourable findings and material design limitations."],
       "does_not_apply_when": [],
-      "support": [{"sample_id": "S001", "observation_ids": ["O002"]}],
+      "support": [
+        {"sample_id": "S001", "observation_ids": ["O002"]},
+        {"sample_id": "S002", "observation_ids": ["O002"]}
+      ],
       "counterexamples": [],
-      "confidence": "low",
+      "confidence": "moderate",
       "validator_potential": "partial",
       "last_updated": "2026-08-10"
     },
@@ -33,12 +39,15 @@
       "name": "Explanatory spine",
       "category": "mechanism",
       "statement": "Select one evidence-bounded tension or mechanism that connects the major findings without converting inference into fact.",
-      "status": "hypothesis",
+      "status": "candidate",
       "applies_when": ["Several findings can be coherently connected by a supported or explicitly inferred mechanism."],
       "does_not_apply_when": ["The source does not support a coherent connection between findings."],
-      "support": [{"sample_id": "S001", "observation_ids": ["O003"]}],
+      "support": [
+        {"sample_id": "S001", "observation_ids": ["O003"]},
+        {"sample_id": "S002", "observation_ids": ["O003"]}
+      ],
       "counterexamples": [],
-      "confidence": "low",
+      "confidence": "moderate",
       "validator_potential": "manual",
       "last_updated": "2026-08-10"
     },
@@ -47,12 +56,15 @@
       "name": "Result-meaning-ceiling transform",
       "category": "claim_transform",
       "statement": "Expand major results through the sequence: result, clinical or scientific meaning, and interpretive ceiling.",
-      "status": "hypothesis",
+      "status": "candidate",
       "applies_when": ["A numerical or observational result needs interpretation for a non-specialist reader."],
       "does_not_apply_when": ["The output is a data table with no interpretive prose."],
-      "support": [{"sample_id": "S001", "observation_ids": ["O004"]}],
+      "support": [
+        {"sample_id": "S001", "observation_ids": ["O004"]},
+        {"sample_id": "S002", "observation_ids": ["O004"]}
+      ],
       "counterexamples": [],
-      "confidence": "low",
+      "confidence": "moderate",
       "validator_potential": "partial",
       "last_updated": "2026-08-10"
     },
@@ -61,12 +73,15 @@
       "name": "Paired brakes",
       "category": "calibration",
       "statement": "Pair every decision-relevant favourable finding with the most relevant limitation or failure-side result.",
-      "status": "hypothesis",
+      "status": "candidate",
       "applies_when": ["A favourable result could be mistaken for stronger efficacy, safety, durability, or equivalence."],
       "does_not_apply_when": [],
-      "support": [{"sample_id": "S001", "observation_ids": ["O005"]}],
+      "support": [
+        {"sample_id": "S001", "observation_ids": ["O005"]},
+        {"sample_id": "S002", "observation_ids": ["O005"]}
+      ],
       "counterexamples": [],
-      "confidence": "low",
+      "confidence": "moderate",
       "validator_potential": "partial",
       "last_updated": "2026-08-10"
     },
@@ -75,12 +90,15 @@
       "name": "Source-layer preservation",
       "category": "provenance",
       "statement": "Preserve in prose whether a claim is pooled, review-wide, single-study, source interpretation, or explainer inference.",
-      "status": "hypothesis",
+      "status": "candidate",
       "applies_when": ["The evidence package contains claims from more than one authority layer."],
       "does_not_apply_when": [],
-      "support": [{"sample_id": "S001", "observation_ids": ["O006"]}],
+      "support": [
+        {"sample_id": "S001", "observation_ids": ["O006"]},
+        {"sample_id": "S002", "observation_ids": ["O006"]}
+      ],
       "counterexamples": [],
-      "confidence": "low",
+      "confidence": "moderate",
       "validator_potential": "automatable",
       "last_updated": "2026-08-10"
     },
@@ -88,12 +106,17 @@
       "rule_id": "R007",
       "name": "Method as evidence",
       "category": "limitations",
-      "statement": "Expose selection, overlap, denominator, and reporting anomalies when they materially affect trust in the result.",
-      "status": "hypothesis",
-      "applies_when": ["A review-process detail changes the effective evidence base or auditability."],
+      "statement": "Expose selection, overlap, denominator, and reporting anomalies in an auditable output channel when they materially affect trust in the result.",
+      "status": "conditional",
+      "applies_when": ["A review-process detail changes the effective evidence base or auditability, and the output package has an explicit audit channel."],
       "does_not_apply_when": ["The method detail is immaterial to interpretation and would only add procedural trivia."],
       "support": [{"sample_id": "S001", "observation_ids": ["O007"]}],
-      "counterexamples": [],
+      "counterexamples": [
+        {
+          "sample_id": "S002",
+          "description": "The long-form article omits the internally inconsistent PRISMA arithmetic; only companion card C06 surfaces it. This qualifies the rule by output channel rather than supporting mandatory inclusion in every prose surface."
+        }
+      ],
       "confidence": "low",
       "validator_potential": "partial",
       "last_updated": "2026-08-10"
@@ -103,26 +126,32 @@
       "name": "Control-bearing limitations",
       "category": "limitations",
       "statement": "A reported limitation must alter a permitted conclusion, its generalisability, or the required next evidence; otherwise its narrative role is incomplete.",
-      "status": "hypothesis",
+      "status": "candidate",
       "applies_when": ["The article reports limitations or evidence gaps."],
       "does_not_apply_when": [],
-      "support": [{"sample_id": "S001", "observation_ids": ["O008"]}],
+      "support": [
+        {"sample_id": "S001", "observation_ids": ["O008"]},
+        {"sample_id": "S002", "observation_ids": ["O008"]}
+      ],
       "counterexamples": [],
-      "confidence": "low",
+      "confidence": "moderate",
       "validator_potential": "partial",
       "last_updated": "2026-08-10"
     },
     {
       "rule_id": "R009",
-      "name": "Clinical boundary ending",
-      "category": "clinical_positioning",
-      "statement": "End by defining the evidence-permitted clinical role and prohibited equivalence claims, not by merely repeating the main estimate.",
-      "status": "hypothesis",
-      "applies_when": ["The topic concerns a clinical intervention, diagnostic strategy, or treatment choice."],
-      "does_not_apply_when": ["The article has no clinical decision consequence."],
-      "support": [{"sample_id": "S001", "observation_ids": ["O009"]}],
+      "name": "Decision boundary ending",
+      "category": "decision_positioning",
+      "statement": "End by defining the action, role, or claim boundary permitted by the total evidence, not by merely repeating the main finding.",
+      "status": "candidate",
+      "applies_when": ["The evidence has a clinical, policy, operational, or scientific decision consequence."],
+      "does_not_apply_when": [],
+      "support": [
+        {"sample_id": "S001", "observation_ids": ["O009"]},
+        {"sample_id": "S002", "observation_ids": ["O009"]}
+      ],
       "counterexamples": [],
-      "confidence": "low",
+      "confidence": "moderate",
       "validator_potential": "partial",
       "last_updated": "2026-08-10"
     },
@@ -131,15 +160,31 @@
       "name": "Separate review conduct from substrate strength",
       "category": "evidence_grade",
       "statement": "Evaluate review conduct separately from the strength, independence, size, duration, and generalisability of the underlying evidence.",
-      "status": "hypothesis",
+      "status": "candidate",
       "applies_when": ["The source is a systematic review, meta-analysis, guideline, or other secondary synthesis."],
       "does_not_apply_when": ["The source is a single primary study and no review-level conduct is being assessed."],
-      "support": [{"sample_id": "S001", "observation_ids": ["O010"]}],
+      "support": [
+        {"sample_id": "S001", "observation_ids": ["O010"]},
+        {"sample_id": "S002", "observation_ids": ["O010"]}
+      ],
+      "counterexamples": [],
+      "confidence": "moderate",
+      "validator_potential": "partial",
+      "last_updated": "2026-08-10"
+    },
+    {
+      "rule_id": "R011",
+      "name": "Report frequency is not effect magnitude",
+      "category": "quantitative_semantics",
+      "statement": "When a narrative synthesis counts how many studies reported a category, label those counts as potentially overlapping report frequencies and never convert them into prevalence, causal importance, effect size, or efficacy ranking.",
+      "status": "hypothesis",
+      "applies_when": ["A review presents counts of reports mentioning causes, outcomes, barriers, themes, or strategies without quantitative pooling."],
+      "does_not_apply_when": ["The categories are explicitly mutually exclusive and the source defines a valid denominator for the intended proportion."],
+      "support": [{"sample_id": "S002", "observation_ids": ["O011"]}],
       "counterexamples": [],
       "confidence": "low",
-      "validator_potential": "partial",
+      "validator_potential": "automatable",
       "last_updated": "2026-08-10"
     }
   ]
 }
-

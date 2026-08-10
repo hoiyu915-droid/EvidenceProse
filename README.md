@@ -7,10 +7,10 @@ The project is deliberately data-first. A polished article is not treated as a t
 ## Current status
 
 - Phase: pattern induction
-- Samples: 1 (`S001`)
-- Candidate rules: 10 (`R001`–`R010`)
+- Samples: 2 (`S001`–`S002`)
+- Rule catalogue: 11 (`R001`–`R011`): 9 candidates, 1 conditional rule, 1 hypothesis
 - Stable generation rules: 0
-- First domain: clinical systematic review and meta-analysis
+- Domains observed: clinical intervention meta-analysis and public-health systems narrative review
 - Primary output language: Traditional Chinese
 
 No candidate rule is production-authoritative yet.
@@ -38,6 +38,10 @@ data/
   samples/S001/
     article.md                exact observed prose sample
     sample.json               provenance, observations and cautions
+  samples/S002/
+    article.md                second exact observed prose sample
+    sample.json               source, artifact receipts and observations
+    card_storyboard.json      queue binding plus semantic/strict render audit
 docs/
   induction_protocol.md       how repeated examples update the model
   terminology.md              evidence and rule-state vocabulary
@@ -59,6 +63,7 @@ tests/
 5. Promote a rule only after independent support and held-out reconstruction.
 6. Make limitations change the permitted conclusion instead of leaving them as a decorative final paragraph.
 7. Keep generation and validation contracts machine-readable.
+8. Audit companion cards twice: once for source meaning and once for exact render-contract compliance.
 
 ## Validation
 
@@ -72,4 +77,3 @@ python scripts/validate_registry.py
 ## Scope boundary
 
 EvidenceProse does not currently generate publication-ready articles. The first stage accumulates enough independent examples to distinguish invariant writing logic from topic-specific choices and accidental errors.
-
