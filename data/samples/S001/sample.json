@@ -78,6 +78,12 @@
       "kind": "evidence_grade",
       "description": "Review conduct quality is separated from the strength and generalisability of the underlying observational evidence.",
       "evidence_locations": ["article:引用來源", "article:中等證據強度"]
+    },
+    {
+      "observation_id": "O011",
+      "kind": "voice_register",
+      "description": "The prose uses a calm, evidence-proportional register: it states the pooled result plainly, attributes single-study signals, and places non-equivalence and durability limits in the same narrative field rather than using promotional or alarmist language.",
+      "evidence_locations": ["article:一句話總結", "article:免疫學上有一個值得注意的現象", "article:這篇文章對臨床角色的定位"]
     }
   ],
   "contamination_notes": [

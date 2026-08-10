@@ -7,10 +7,12 @@ The project is deliberately data-first. A polished article is not treated as a t
 ## Current status
 
 - Phase: pattern induction
-- Samples: 2 (`S001`–`S002`)
-- Rule catalogue: 11 (`R001`–`R011`): 9 candidates, 1 conditional rule, 1 hypothesis
+- Samples: 3 (`S001`–`S003`)
+- Processing-rule catalogue: 13 (`R001`–`R013`): 9 candidates, 1 conditional rule, 3 hypotheses
+- Article-register catalogue: 5 (`V001`–`V005`), all hypotheses
+- Batch result index: 3 (`B001`–`B003`), keeping method and voice findings separate
 - Stable generation rules: 0
-- Domains observed: clinical intervention meta-analysis and public-health systems narrative review
+- Domains observed: clinical intervention meta-analysis, public-health systems narrative review, and single-centre observational rehabilitation research
 - Primary output language: Traditional Chinese
 
 No candidate rule is production-authoritative yet.
@@ -34,7 +36,9 @@ Reviewed article + source provenance
 ```text
 data/
   registry.json               cumulative sample/rule registry
-  rules/rules.json            candidate rule catalogue
+  rules/rules.json            processing-method rule catalogue (`R###`)
+  voice/voice_rules.json      article-register rule catalogue (`V###`)
+  batch_results.json          cumulative three-batch result index (`B###`)
   samples/S001/
     article.md                exact observed prose sample
     sample.json               provenance, observations and cautions
@@ -42,11 +46,18 @@ data/
     article.md                second exact observed prose sample
     sample.json               source, artifact receipts and observations
     card_storyboard.json      queue binding plus semantic/strict render audit
+  samples/S003/
+    article.md                third exact observed prose sample
+    sample.json               primary-study provenance and induced observations
+    card_storyboard.json      two-track card audit with visual-data failure record
 docs/
+  batch_results.md            human-readable three-batch summary
   induction_protocol.md       how repeated examples update the model
-  terminology.md              evidence and rule-state vocabulary
+  terminology.md              evidence, method/voice and rule-state vocabulary
 schemas/
   rule.schema.json
+  voice_rule.schema.json
+  batch_results.schema.json
   sample.schema.json
 scripts/
   validate_registry.py        dependency-free fail-closed validator
@@ -64,6 +75,8 @@ tests/
 6. Make limitations change the permitted conclusion instead of leaving them as a decorative final paragraph.
 7. Keep generation and validation contracts machine-readable.
 8. Audit companion cards twice: once for source meaning and once for exact render-contract compliance.
+9. Name the exact outcome domain and denominator before translating a number into prose.
+10. Keep the processing method (`R###`) and article voice/register (`V###`) as separate induction layers.
 
 ## Validation
 

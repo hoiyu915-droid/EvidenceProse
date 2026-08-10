@@ -26,6 +26,7 @@
   "summary": {
     "cards": 6,
     "semantic_passes": 6,
+    "semantic_failures": 0,
     "strict_render_passes": 0,
     "strict_render_failures": 6,
     "interpretation": "The cardset is source-aligned in meaning but not compliant with the queue's verbatim visible-text contract."

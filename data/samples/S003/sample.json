@@ -1,0 +1,153 @@
+{
+  "sample_id": "S003",
+  "title": "運動參與頻率與淋巴瘤病人的癌因性疲憊：只有身體疲勞有關,情感與認知沒有",
+  "language": "zh-Hant",
+  "article_path": "data/samples/S003/article.md",
+  "card_storyboard_path": "data/samples/S003/card_storyboard.json",
+  "source": {
+    "citation": "Inoue S, Kawamitsu K, Okuno S, Yokote T, Shirado K, Kiyasu J. Frequency of exercise and cancer-related fatigue among patients with lymphoma. BJC Reports. 2026.",
+    "doi": "10.1038/s44276-026-00246-6",
+    "pdf_sha256": "7bb9c6da0547b1213bc87a0ae74f2119653c7c51c6a9cd186299dbbe1dd81dc7",
+    "verification_state": "full_text_audited"
+  },
+  "study_profile": {
+    "study_type": "single-centre retrospective cohort study",
+    "synthesis_mode": "group comparison and adjusted multivariable linear regression with sensitivity analysis",
+    "included_reports": 1,
+    "total_participants": 130,
+    "quantitative_datasets": 1,
+    "follow_up": "from chemotherapy initiation to hospital discharge",
+    "not_applicable_reasons": {}
+  },
+  "artifact_receipts": [
+    {
+      "artifact_id": "A001",
+      "kind": "source_pdf",
+      "filename": "44276_2026_Article_246.pdf",
+      "sha256": "7bb9c6da0547b1213bc87a0ae74f2119653c7c51c6a9cd186299dbbe1dd81dc7",
+      "role": "Canonical full-text source used for factual, table and figure audit."
+    },
+    {
+      "artifact_id": "A002",
+      "kind": "canonical_render_queue",
+      "filename": "TP_20260810_s44276_026_00246_6__imagegen_queue(2).json",
+      "sha256": "d88d8931ec9613c3178b2b4c423a5359216624cb54b1d8e81c6f07ca6eaaa059",
+      "role": "Canonical queue matched to rendered cards C01-C06 by exact title sequence."
+    },
+    {
+      "artifact_id": "A003",
+      "kind": "alternate_render_queue",
+      "filename": "TZ01_20260810_BJCR00246__imagegen_queue(2).json",
+      "sha256": "036ab3b6acf93297584548f72d33be08718d4aae885348bca677f567ac67ebd5",
+      "role": "Rejected as the card specification because its C01-C06 titles do not match the rendered cards."
+    },
+    {
+      "artifact_id": "A004",
+      "kind": "rendered_cardset",
+      "filename": "ordered C01-C06 JPEG SHA-256 manifest",
+      "sha256": "65cdb0558d741039a23a2b6bb1e035219dab9321bb22ff185ea82fb4776b35de",
+      "role": "Digest of the ordered per-image SHA-256 manifest recorded in card_storyboard.json."
+    }
+  ],
+  "observations": [
+    {
+      "observation_id": "O001",
+      "kind": "architecture",
+      "description": "The article reorganises a primary-study report into reader questions about the research question, intervention, result, explanation, and causal boundary.",
+      "evidence_locations": ["article:研究在問什麼", "article:研究怎麼做的", "article:主要發現", "article:為什麼不能說是療效"]
+    },
+    {
+      "observation_id": "O002",
+      "kind": "calibration",
+      "description": "The higher-frequency association is accompanied by a boundary stream covering baseline imbalance, loss of significance in sensitivity analysis, reverse causation, single-centre design and absent long-term follow-up.",
+      "evidence_locations": ["article:一句話總結", "article:主要發現", "article:為什麼不能說是運動降低了疲勞"]
+    },
+    {
+      "observation_id": "O003",
+      "kind": "mechanism",
+      "description": "Reverse causation and inseparability of exercise frequency from cumulative exercise volume form the explanatory tension connecting participation and fatigue.",
+      "evidence_locations": ["article:這個關聯可能怎麼解釋", "article:為什麼不能說是運動降低了疲勞", "card:C06"]
+    },
+    {
+      "observation_id": "O004",
+      "kind": "claim_transform",
+      "description": "The main coefficient is translated into direction and domain, then capped by the non-significant sensitivity analysis and the observational design.",
+      "evidence_locations": ["article:主要發現", "card:C01", "card:C04"]
+    },
+    {
+      "observation_id": "O005",
+      "kind": "calibration",
+      "description": "The significant primary physical-CFS model is paired with non-significant affective, cognitive and total outcomes, a non-significant sensitivity model, and pre-existing baseline differences.",
+      "evidence_locations": ["article:主要發現", "card:C03", "card:C04"]
+    },
+    {
+      "observation_id": "O006",
+      "kind": "provenance",
+      "description": "The prose distinguishes raw HF/LF medians, the main adjusted model, a sensitivity analysis, source-author mechanisms and explainer-level cautions.",
+      "evidence_locations": ["article:主要發現", "article:這個關聯可能怎麼解釋"]
+    },
+    {
+      "observation_id": "O007",
+      "kind": "limitations",
+      "description": "Two source-level reporting discrepancies are preserved rather than silently resolved: text versus table sensitivity p-values and Figure 2 versus Table 1 subgroup counts.",
+      "evidence_locations": ["source_pdf:Results and Table 4", "source_pdf:Figure 2 and Table 1", "article:主要發現", "article:為什麼不能說是運動降低了疲勞"]
+    },
+    {
+      "observation_id": "O008",
+      "kind": "limitations",
+      "description": "Each limitation removes a stronger claim: causality, independent frequency effect, durability, or broad external validity.",
+      "evidence_locations": ["article:為什麼不能說是運動降低了疲勞"]
+    },
+    {
+      "observation_id": "O009",
+      "kind": "decision_positioning",
+      "description": "The ending permits an association claim and a need for prospective long-term study while prohibiting a treatment-efficacy claim.",
+      "evidence_locations": ["article:為什麼不能說是運動降低了疲勞", "card:C06"]
+    },
+    {
+      "observation_id": "O010",
+      "kind": "evidence_grade",
+      "description": "The evidence grade lists adjusted modelling and sensitivity analysis as strengths while retaining the causal limits of a single-centre retrospective cohort.",
+      "evidence_locations": ["article:證據分級"]
+    },
+    {
+      "observation_id": "O011",
+      "kind": "quantitative_semantics",
+      "description": "The supported association is confined to the physical CFS domain; affective, cognitive and total CFS do not inherit that result.",
+      "evidence_locations": ["article:一句話總結", "article:主要發現", "card:C04"]
+    },
+    {
+      "observation_id": "O012",
+      "kind": "quantitative_semantics",
+      "description": "Non-participation percentages are identified as proportions of reasons among sessions where exercise was not performed, not patient prevalence.",
+      "evidence_locations": ["source_pdf:Figure 2 continuation", "article:主要發現", "card:C05"]
+    },
+    {
+      "observation_id": "O013",
+      "kind": "companion_artifact",
+      "description": "Five cards preserve source meaning and one card reverses the observed fatigue direction; all six fail the queue's strict no-unlisted-visible-text contract.",
+      "evidence_locations": ["card_storyboard:C01-C06"]
+    },
+    {
+      "observation_id": "O014",
+      "kind": "voice_register",
+      "description": "The prose is direct and reader-facing but keeps a measured observational stance: the primary-model association is named with its outcome domain, then immediately narrowed by sensitivity loss, reverse causation and the ban on efficacy language.",
+      "evidence_locations": ["article:一句話總結", "article:主要發現", "article:為什麼不能說是「運動降低了疲勞」"]
+    }
+  ],
+  "contamination_notes": [
+    {
+      "note_id": "C001",
+      "location": "主要發現",
+      "issue": "The phrase '運動頻率每提高一單位' does not tell readers that exercise frequency was encoded as a proportion from 0 to 1; it can be misread as a one-percentage-point effect.",
+      "preferred_handling": "Report B=-2.10 for the study's 0-to-1 frequency variable, or explicitly explain that a one-unit contrast spans the full proportion scale rather than one percentage point."
+    },
+    {
+      "note_id": "C002",
+      "location": "標題與一句話總結",
+      "issue": "Saying that only physical fatigue '有關' without naming the primary model compresses the robustness hierarchy; the association was no longer conventionally significant after adding baseline ECOG-PS.",
+      "preferred_handling": "State that only physical CFS was significant in the primary adjusted model and immediately disclose that the ECOG-PS sensitivity analysis crossed the conventional significance threshold."
+    }
+  ],
+  "analysis_date": "2026-08-10"
+}

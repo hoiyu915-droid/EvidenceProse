@@ -10,7 +10,8 @@
       "does_not_apply_when": ["The requested output is a formal structured abstract or reporting checklist."],
       "support": [
         {"sample_id": "S001", "observation_ids": ["O001"]},
-        {"sample_id": "S002", "observation_ids": ["O001"]}
+        {"sample_id": "S002", "observation_ids": ["O001"]},
+        {"sample_id": "S003", "observation_ids": ["O001"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
@@ -27,7 +28,8 @@
       "does_not_apply_when": [],
       "support": [
         {"sample_id": "S001", "observation_ids": ["O002"]},
-        {"sample_id": "S002", "observation_ids": ["O002"]}
+        {"sample_id": "S002", "observation_ids": ["O002"]},
+        {"sample_id": "S003", "observation_ids": ["O002"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
@@ -44,7 +46,8 @@
       "does_not_apply_when": ["The source does not support a coherent connection between findings."],
       "support": [
         {"sample_id": "S001", "observation_ids": ["O003"]},
-        {"sample_id": "S002", "observation_ids": ["O003"]}
+        {"sample_id": "S002", "observation_ids": ["O003"]},
+        {"sample_id": "S003", "observation_ids": ["O003"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
@@ -61,7 +64,8 @@
       "does_not_apply_when": ["The output is a data table with no interpretive prose."],
       "support": [
         {"sample_id": "S001", "observation_ids": ["O004"]},
-        {"sample_id": "S002", "observation_ids": ["O004"]}
+        {"sample_id": "S002", "observation_ids": ["O004"]},
+        {"sample_id": "S003", "observation_ids": ["O004"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
@@ -78,7 +82,8 @@
       "does_not_apply_when": [],
       "support": [
         {"sample_id": "S001", "observation_ids": ["O005"]},
-        {"sample_id": "S002", "observation_ids": ["O005"]}
+        {"sample_id": "S002", "observation_ids": ["O005"]},
+        {"sample_id": "S003", "observation_ids": ["O005"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
@@ -95,7 +100,8 @@
       "does_not_apply_when": [],
       "support": [
         {"sample_id": "S001", "observation_ids": ["O006"]},
-        {"sample_id": "S002", "observation_ids": ["O006"]}
+        {"sample_id": "S002", "observation_ids": ["O006"]},
+        {"sample_id": "S003", "observation_ids": ["O006"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
@@ -110,14 +116,17 @@
       "status": "conditional",
       "applies_when": ["A review-process detail changes the effective evidence base or auditability, and the output package has an explicit audit channel."],
       "does_not_apply_when": ["The method detail is immaterial to interpretation and would only add procedural trivia."],
-      "support": [{"sample_id": "S001", "observation_ids": ["O007"]}],
+      "support": [
+        {"sample_id": "S001", "observation_ids": ["O007"]},
+        {"sample_id": "S003", "observation_ids": ["O007"]}
+      ],
       "counterexamples": [
         {
           "sample_id": "S002",
           "description": "The long-form article omits the internally inconsistent PRISMA arithmetic; only companion card C06 surfaces it. This qualifies the rule by output channel rather than supporting mandatory inclusion in every prose surface."
         }
       ],
-      "confidence": "low",
+      "confidence": "moderate",
       "validator_potential": "partial",
       "last_updated": "2026-08-10"
     },
@@ -131,7 +140,8 @@
       "does_not_apply_when": [],
       "support": [
         {"sample_id": "S001", "observation_ids": ["O008"]},
-        {"sample_id": "S002", "observation_ids": ["O008"]}
+        {"sample_id": "S002", "observation_ids": ["O008"]},
+        {"sample_id": "S003", "observation_ids": ["O008"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
@@ -148,7 +158,8 @@
       "does_not_apply_when": [],
       "support": [
         {"sample_id": "S001", "observation_ids": ["O009"]},
-        {"sample_id": "S002", "observation_ids": ["O009"]}
+        {"sample_id": "S002", "observation_ids": ["O009"]},
+        {"sample_id": "S003", "observation_ids": ["O009"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
@@ -181,6 +192,34 @@
       "applies_when": ["A review presents counts of reports mentioning causes, outcomes, barriers, themes, or strategies without quantitative pooling."],
       "does_not_apply_when": ["The categories are explicitly mutually exclusive and the source defines a valid denominator for the intended proportion."],
       "support": [{"sample_id": "S002", "observation_ids": ["O011"]}],
+      "counterexamples": [],
+      "confidence": "low",
+      "validator_potential": "automatable",
+      "last_updated": "2026-08-10"
+    },
+    {
+      "rule_id": "R012",
+      "name": "Outcome-domain specificity",
+      "category": "quantitative_semantics",
+      "statement": "When an association or effect is supported for only one subscale or outcome domain, name that domain in the headline and conclusion and do not promote it to the umbrella outcome.",
+      "status": "hypothesis",
+      "applies_when": ["A multidomain outcome has materially different results across subscales or domains."],
+      "does_not_apply_when": ["The source establishes a valid composite outcome and the claim is explicitly about that composite."],
+      "support": [{"sample_id": "S003", "observation_ids": ["O011"]}],
+      "counterexamples": [],
+      "confidence": "low",
+      "validator_potential": "partial",
+      "last_updated": "2026-08-10"
+    },
+    {
+      "rule_id": "R013",
+      "name": "Denominator and unit naming",
+      "category": "quantitative_semantics",
+      "statement": "Name the denominator and observational unit whenever a percentage of sessions, events, reasons, or reports could be mistaken for participant prevalence.",
+      "status": "hypothesis",
+      "applies_when": ["A reported proportion uses a denominator other than participants or a denominator that is easy to misread."],
+      "does_not_apply_when": ["The denominator and unit are unambiguous in the same sentence or table header."],
+      "support": [{"sample_id": "S003", "observation_ids": ["O012"]}],
       "counterexamples": [],
       "confidence": "low",
       "validator_potential": "automatable",

@@ -13,6 +13,7 @@ Every completed explainer becomes one immutable sample (`S###`). A sample contai
 - study and topic characteristics;
 - observable editorial decisions;
 - evidence linking the sample to candidate rules;
+- a separate article-register observation so processing method and visible voice are not learned as one undifferentiated style;
 - suspected technical errors or overclaims that must not be learned.
 - receipts for any source PDF, alternative queues, canonical render queue, and rendered companion artifacts used in the analysis.
 
@@ -35,7 +36,9 @@ If cards or other rendered companions are present, keep two verdicts separate:
 
 Scene descriptions authorise objects and composition, not extra visible labels. A semantically sensible label still fails a `no_unlisted_visible_text` contract when it is absent from the authorised list.
 
-### 3. Describe before generalising
+A semantic audit must also inspect data-bearing geometry. A plotted point, scale position, arrow direction, or colour encoding can contradict an otherwise correct text box; such a card fails semantic fidelity even if every prose claim is accurate.
+
+### 3. Describe method and voice before generalising
 
 Record concrete writing decisions such as:
 
@@ -47,11 +50,18 @@ Record concrete writing decisions such as:
 - how limitations alter clinical positioning;
 - what information is deliberately omitted.
 
+Record the visible article register separately, including:
+
+- how certainty is calibrated in the same paragraph as a result;
+- whether a claim is attributed to the review, one study, the authors, or the explainer;
+- whether headings address reader questions and translate technical terms into plain language;
+- whether the prose is dense, promotional, alarmist, neutral, or explicitly boundary-bearing.
+
 Descriptions must be recoverable from an excerpt or a precise location in the sample.
 
-### 4. Update rule evidence
+### 4. Update method and voice evidence separately
 
-For every candidate rule, classify the new sample as one of:
+For every `R###` processing rule and `V###` voice rule, classify the new sample as one of:
 
 - `supports`: the behaviour is present under the stated conditions;
 - `qualifies`: the behaviour is present but needs a narrower condition;
@@ -60,11 +70,15 @@ For every candidate rule, classify the new sample as one of:
 
 Absence is not automatically contradiction.
 
+The same sample may support a method rule while only qualifying a voice rule. Do not merge the two ledgers merely because they occur in the same paragraph.
+
 ### 5. Detect contamination
 
 Technically incorrect, unsupported, or overly strong sentences are recorded in `contamination_notes`. They remain part of the observed sample but cannot support a preferred writing rule.
 
 Typical examples include confusing odds with risk, extending a treatment duration beyond the source, or treating zero observed heterogeneity as proof of identical effects.
+
+Ambiguous coefficient units and headline wording that suppresses a failed sensitivity analysis are also contamination candidates: polished phrasing is not allowed to flatten the source's robustness hierarchy.
 
 ### 6. Recalculate rule state
 
@@ -96,6 +110,8 @@ A rule may enter the generation contract only when all are true:
 5. The rule does not encode a known contamination note.
 6. Its required inputs can be represented in the evidence ledger.
 7. Its output can be audited manually or by a validator.
+
+For voice rules, the held-out reconstruction must preserve the evidence boundary without copying a sample's topic-specific vocabulary or persona.
 
 ## Repository readiness gate
 

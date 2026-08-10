@@ -131,6 +131,12 @@
       "kind": "companion_artifact",
       "description": "The rendered cards are semantically aligned with the paper but all six fail the queue's strict no-unlisted-visible-text contract because scene labels, duplicated fragments, or extra numbers were rendered beyond the authorised text list.",
       "evidence_locations": ["card_storyboard:C01-C06"]
+    },
+    {
+      "observation_id": "O014",
+      "kind": "voice_register",
+      "description": "The prose adopts a systems-level but non-alarmist stance: it translates stock-outs into patient and system consequences, attributes local observations, and repeatedly blocks causal, global and universal-intervention readings.",
+      "evidence_locations": ["article:一句話總結", "article:斷貨之後，病人承受什麼", "article:結論很清楚，證據邊界也要清楚"]
     }
   ],
   "contamination_notes": [

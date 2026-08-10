@@ -76,7 +76,7 @@
         "required": ["observation_id", "kind", "description", "evidence_locations"],
         "properties": {
           "observation_id": {"type": "string", "pattern": "^O[0-9]{3}$"},
-          "kind": {"enum": ["architecture", "claim_transform", "calibration", "provenance", "mechanism", "limitations", "decision_positioning", "evidence_grade", "quantitative_semantics", "companion_artifact"]},
+          "kind": {"enum": ["architecture", "claim_transform", "calibration", "provenance", "mechanism", "limitations", "decision_positioning", "evidence_grade", "quantitative_semantics", "companion_artifact", "voice_register"]},
           "description": {"type": "string", "minLength": 1},
           "evidence_locations": {"type": "array", "minItems": 1, "items": {"type": "string"}}
         }
