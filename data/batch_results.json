@@ -1,7 +1,7 @@
 {
   "schema_version": "0.1.0",
-  "last_updated": "2026-08-10",
-  "batch_count": 4,
+  "last_updated": "2026-08-11",
+  "batch_count": 5,
   "batches": [
     {
       "batch_id": "B001",
@@ -89,20 +89,45 @@
       "qualified_rule_ids": [],
       "induced_voice_rule_ids": ["V001", "V002", "V003", "V004", "V005"],
       "contamination_note_ids": ["C001", "C002"]
+    },
+    {
+      "batch_id": "B005",
+      "sample_id": "S005",
+      "topic": "LitTraceQA 多階段科學文獻問答基準",
+      "source_class": "benchmark_development_preprint_and_corpus_audit",
+      "canonical_queue_family": "TP",
+      "article_result": "LitTraceQA 把找對論文、定位證據與答對分開評分，三段全對才算 joint success；公開開發集與 4,978 題本地集合仍處於 benchmark-development 階段，不能寫成治理完備的正式公開 release。",
+      "method_result": "依問題—三段輸出—五種證據—建構—資料輪廓—評分—發布缺口重排；把建構期 hardness metadata 與 RAG 成績、資料規模與公開狀態、證據物件類型與證據強度分開。",
+      "voice_result": "診斷式、技術密度高但不宣傳；以『不是』『不能把』和具體失敗例緊貼每個易誤讀統計，最後只保留可借鏡的評分框架，不宣稱基準已完工。",
+      "companion_audit": {
+        "status": "semantic_partial_strict_fail",
+        "cards": 6,
+        "semantic_passes": 4,
+        "semantic_failures": 2,
+        "strict_render_passes": 0,
+        "strict_render_failures": 6,
+        "semantic_failure_ids": ["C02", "C05"],
+        "targeted_correction_ids": ["C01", "C02", "C05"],
+        "semantic_failure_note": "C02 invents evidence-status grades for object classes; C05 fabricates venue-chart ordering and omits dominant ICCV. C01 is source-aligned but violates the exact text contract."
+      },
+      "induced_rule_ids": ["R016", "R017", "R018"],
+      "qualified_rule_ids": [],
+      "induced_voice_rule_ids": ["V001", "V002", "V003", "V004", "V005"],
+      "contamination_note_ids": ["C001", "C002", "C003"]
     }
   ],
   "cross_batch_summary": {
     "method_layer": {
       "candidate_rule_ids": ["R001", "R002", "R003", "R004", "R005", "R006", "R008", "R009", "R010"],
       "conditional_rule_ids": ["R007"],
-      "hypothesis_rule_ids": ["R011", "R012", "R013", "R014", "R015"],
+      "hypothesis_rule_ids": ["R011", "R012", "R013", "R014", "R015", "R016", "R017", "R018"],
       "stable_rule_ids": [],
-      "current_reading": "四批已形成跨研究設計重複出現的處理骨架；本批新增研究地圖與代理結果的語義防火牆，但仍不足以把任何規則直接升格為生產生成契約。"
+      "current_reading": "五批已形成跨研究設計重複出現的處理骨架；本批新增視覺數值閉合、合取成功語義與建構 metadata／模型成績分流，但仍不足以把任何規則直接升格為生產生成契約。"
     },
     "voice_layer": {
       "rule_ids": ["V001", "V002", "V003", "V004", "V005"],
       "status": "hypothesis",
-      "current_reading": "四批都呈現證據比例式、歸因清楚、邊界貼近結果、讀者導向且高密度但不煽情的語態；目前先作為觀察到的共同語態，不與方法規則混寫。"
+      "current_reading": "五批都呈現證據比例式、歸因清楚、邊界貼近結果、讀者導向且高密度但不煽情的語態；目前先作為觀察到的共同語態，不與方法規則混寫。"
     },
     "next_gate": "新增不同來源與研究設計的樣本，先做看不到參考文章的 held-out reconstruction，再考慮把方法或語態規則提升為 conditional 或 stable。"
   }

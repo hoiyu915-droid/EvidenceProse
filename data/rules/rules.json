@@ -12,7 +12,8 @@
         {"sample_id": "S001", "observation_ids": ["O001"]},
         {"sample_id": "S002", "observation_ids": ["O001"]},
         {"sample_id": "S003", "observation_ids": ["O001"]},
-        {"sample_id": "S004", "observation_ids": ["O001"]}
+        {"sample_id": "S004", "observation_ids": ["O001"]},
+        {"sample_id": "S005", "observation_ids": ["O001"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
@@ -31,7 +32,8 @@
         {"sample_id": "S001", "observation_ids": ["O002"]},
         {"sample_id": "S002", "observation_ids": ["O002"]},
         {"sample_id": "S003", "observation_ids": ["O002"]},
-        {"sample_id": "S004", "observation_ids": ["O002"]}
+        {"sample_id": "S004", "observation_ids": ["O002"]},
+        {"sample_id": "S005", "observation_ids": ["O002"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
@@ -50,7 +52,8 @@
         {"sample_id": "S001", "observation_ids": ["O003"]},
         {"sample_id": "S002", "observation_ids": ["O003"]},
         {"sample_id": "S003", "observation_ids": ["O003"]},
-        {"sample_id": "S004", "observation_ids": ["O003"]}
+        {"sample_id": "S004", "observation_ids": ["O003"]},
+        {"sample_id": "S005", "observation_ids": ["O003"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
@@ -69,7 +72,8 @@
         {"sample_id": "S001", "observation_ids": ["O004"]},
         {"sample_id": "S002", "observation_ids": ["O004"]},
         {"sample_id": "S003", "observation_ids": ["O004"]},
-        {"sample_id": "S004", "observation_ids": ["O004"]}
+        {"sample_id": "S004", "observation_ids": ["O004"]},
+        {"sample_id": "S005", "observation_ids": ["O004"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
@@ -88,7 +92,8 @@
         {"sample_id": "S001", "observation_ids": ["O005"]},
         {"sample_id": "S002", "observation_ids": ["O005"]},
         {"sample_id": "S003", "observation_ids": ["O005"]},
-        {"sample_id": "S004", "observation_ids": ["O005"]}
+        {"sample_id": "S004", "observation_ids": ["O005"]},
+        {"sample_id": "S005", "observation_ids": ["O005"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
@@ -107,7 +112,8 @@
         {"sample_id": "S001", "observation_ids": ["O006"]},
         {"sample_id": "S002", "observation_ids": ["O006"]},
         {"sample_id": "S003", "observation_ids": ["O006"]},
-        {"sample_id": "S004", "observation_ids": ["O006"]}
+        {"sample_id": "S004", "observation_ids": ["O006"]},
+        {"sample_id": "S005", "observation_ids": ["O006"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
@@ -125,7 +131,8 @@
       "support": [
         {"sample_id": "S001", "observation_ids": ["O007"]},
         {"sample_id": "S003", "observation_ids": ["O007"]},
-        {"sample_id": "S004", "observation_ids": ["O007"]}
+        {"sample_id": "S004", "observation_ids": ["O007"]},
+        {"sample_id": "S005", "observation_ids": ["O007"]}
       ],
       "counterexamples": [
         {
@@ -149,7 +156,8 @@
         {"sample_id": "S001", "observation_ids": ["O008"]},
         {"sample_id": "S002", "observation_ids": ["O008"]},
         {"sample_id": "S003", "observation_ids": ["O008"]},
-        {"sample_id": "S004", "observation_ids": ["O008"]}
+        {"sample_id": "S004", "observation_ids": ["O008"]},
+        {"sample_id": "S005", "observation_ids": ["O008"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
@@ -168,7 +176,8 @@
         {"sample_id": "S001", "observation_ids": ["O009"]},
         {"sample_id": "S002", "observation_ids": ["O009"]},
         {"sample_id": "S003", "observation_ids": ["O009"]},
-        {"sample_id": "S004", "observation_ids": ["O009"]}
+        {"sample_id": "S004", "observation_ids": ["O009"]},
+        {"sample_id": "S005", "observation_ids": ["O009"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
@@ -262,6 +271,48 @@
       "confidence": "low",
       "validator_potential": "partial",
       "last_updated": "2026-08-10"
+    },
+    {
+      "rule_id": "R016",
+      "name": "Visual encoding must close against the numeric ledger",
+      "category": "quantitative_semantics",
+      "statement": "Treat category inclusion, order, length, area and other chart geometry as quantitative claims; every visual encoding must reconcile with the source ledger even when adjacent labels are correct.",
+      "status": "hypothesis",
+      "applies_when": ["A companion visual uses bars, blocks, areas, ranks, axes or other geometry to encode sourced numbers."],
+      "does_not_apply_when": ["The visual is explicitly non-quantitative and cannot reasonably be read as magnitude or rank."],
+      "support": [{"sample_id": "S005", "observation_ids": ["O015"]}],
+      "counterexamples": [],
+      "confidence": "low",
+      "validator_potential": "partial",
+      "last_updated": "2026-08-11"
+    },
+    {
+      "rule_id": "R017",
+      "name": "Conjunctive success semantics",
+      "category": "quantitative_semantics",
+      "statement": "When a composite success criterion requires every stage to pass, name it as a logical conjunction and never translate it into an average, union, or compensatory score.",
+      "status": "hypothesis",
+      "applies_when": ["A benchmark, checklist or pipeline defines success as all required components being correct."],
+      "does_not_apply_when": ["The source explicitly defines a weighted or averaged composite score."],
+      "support": [{"sample_id": "S005", "observation_ids": ["O012"]}],
+      "counterexamples": [],
+      "confidence": "low",
+      "validator_potential": "automatable",
+      "last_updated": "2026-08-11"
+    },
+    {
+      "rule_id": "R018",
+      "name": "Construction metadata is not model performance",
+      "category": "quantitative_semantics",
+      "statement": "Keep construction-time filtering outcomes and hardness metadata separate from retrieval-augmented, end-to-end or leaderboard performance measured under a different information condition.",
+      "status": "hypothesis",
+      "applies_when": ["A dataset reports outcomes from generators, challengers, filters or validators used during construction."],
+      "does_not_apply_when": ["The same models were evaluated under the stated benchmark protocol and the statistic is explicitly a performance result."],
+      "support": [{"sample_id": "S005", "observation_ids": ["O011"]}],
+      "counterexamples": [],
+      "confidence": "low",
+      "validator_potential": "partial",
+      "last_updated": "2026-08-11"
     }
   ]
 }
