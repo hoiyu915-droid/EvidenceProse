@@ -17,14 +17,14 @@ class RegistryTests(unittest.TestCase):
         self.assertEqual(
             validate(),
             {
-                "samples": 4,
-                "rules": 15,
+                "samples": 5,
+                "rules": 18,
                 "stable_rules": 0,
                 "voice_rules": 5,
-                "batches": 4,
-                "contamination_notes": 10,
-                "strict_render_failures": 18,
-                "semantic_failures": 2,
+                "batches": 5,
+                "contamination_notes": 13,
+                "strict_render_failures": 24,
+                "semantic_failures": 4,
             },
         )
 
@@ -79,13 +79,30 @@ class RegistryTests(unittest.TestCase):
         self.assertIn("158", " ".join(c05["semantic_violations"]))
         self.assertIn("142", " ".join(c05["semantic_violations"]))
 
+    def test_fifth_sample_preserves_trace_and_visual_data_failures(self) -> None:
+        sample = json.loads((ROOT / "data/samples/S005/sample.json").read_text(encoding="utf-8"))
+        article = (ROOT / sample["article_path"]).read_text(encoding="utf-8")
+        storyboard = json.loads((ROOT / sample["card_storyboard_path"]).read_text(encoding="utf-8"))
+        self.assertIn("答案對，不代表整條證據鏈都對", article)
+        self.assertIn("三個正交的схема軸", article)
+        self.assertEqual(storyboard["canonical_queue"]["plan_id"], "TP_20260811_2608_07370")
+        self.assertEqual(storyboard["summary"]["semantic_failures"], 2)
+        self.assertEqual(storyboard["summary"]["targeted_correction_ids"], ["C01", "C02", "C05"])
+        c01 = next(card for card in storyboard["cards"] if card["card_id"] == "C01")
+        c02 = next(card for card in storyboard["cards"] if card["card_id"] == "C02")
+        c05 = next(card for card in storyboard["cards"] if card["card_id"] == "C05")
+        self.assertEqual(c01["semantic_audit"], "pass")
+        self.assertEqual(c02["semantic_audit"], "fail")
+        self.assertEqual(c05["semantic_audit"], "fail")
+        self.assertIn("ICCV", " ".join(c05["semantic_violations"]))
+
     def test_method_and_voice_layers_are_recorded_separately(self) -> None:
         registry = json.loads((ROOT / "data/registry.json").read_text(encoding="utf-8"))
         batches = json.loads((ROOT / "data/batch_results.json").read_text(encoding="utf-8"))
         voice_rules = json.loads((ROOT / "data/voice/voice_rules.json").read_text(encoding="utf-8"))["rules"]
-        self.assertEqual(registry["batch_ids"], ["B001", "B002", "B003", "B004"])
+        self.assertEqual(registry["batch_ids"], ["B001", "B002", "B003", "B004", "B005"])
         self.assertEqual(registry["voice_rule_ids"], ["V001", "V002", "V003", "V004", "V005"])
-        self.assertEqual([batch["sample_id"] for batch in batches["batches"]], ["S001", "S002", "S003", "S004"])
+        self.assertEqual([batch["sample_id"] for batch in batches["batches"]], ["S001", "S002", "S003", "S004", "S005"])
         self.assertTrue(all(rule["status"] == "hypothesis" for rule in voice_rules))
         self.assertNotIn("V001", registry["rule_ids"])
 
