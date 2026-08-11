@@ -9,6 +9,7 @@ This protocol extracts repeatable writing logic from multiple completed science 
 Every completed explainer becomes one immutable sample (`S###`). A sample contains:
 
 - the exact observed article;
+- a SHA-256 digest that makes later article mutation detectable;
 - source identity and verification state;
 - study and topic characteristics;
 - observable editorial decisions;
@@ -23,7 +24,7 @@ The article and the interpretation record are stored separately. Updating a rule
 
 ### 1. Bind the source
 
-Record the paper identity, DOI or other stable identifier, source digest when available, verification state, and the date of analysis.
+Record the paper identity, DOI or other stable identifier, source digest when available, verification state, and the date of analysis. Record the committed article digest separately; a later interpretive correction belongs in metadata or a new sample, not in a silent rewrite of the observed article.
 
 When multiple render queues are supplied, bind cards to a queue before auditing them. Use exact title sequence and content identity, record both accepted and rejected queue digests, and never choose a queue merely because its topic is similar.
 
@@ -98,6 +99,12 @@ hypothesis -> candidate -> conditional -> stable
 - `rejected`: evidence shows the proposed rule should not govern generation.
 
 No fixed sample count automatically creates a stable rule.
+
+## Registry integrity
+
+A sample addition is atomic across the sample record, immutable article digest, rule receipts, voice receipts, cumulative batch result and ordered registry indexes. Dates in a rule catalogue cannot predate evidence cited by that rule. Storyboard counts and failure IDs must be derived from the card records rather than copied from memory.
+
+The dependency-free validator is the executable form of these structural constraints. It deliberately rejects unregistered sample directories, stale catalogues, broken artifact or queue bindings, batch mirrors that drift from their sample, and contamination notes that disappear between ledgers.
 
 ## Promotion gate
 

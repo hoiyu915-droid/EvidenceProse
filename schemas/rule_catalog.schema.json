@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://evidenceprose.local/schemas/rule_catalog.schema.json",
+  "title": "EvidenceProse processing-rule catalogue",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "last_updated", "rules"],
+  "properties": {
+    "schema_version": {"type": "string", "minLength": 1},
+    "last_updated": {"type": "string", "format": "date"},
+    "rules": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "rule.schema.json"}
+    }
+  }
+}

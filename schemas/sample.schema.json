@@ -9,6 +9,7 @@
     "title",
     "language",
     "article_path",
+    "article_sha256",
     "source",
     "study_profile",
     "observations",
@@ -20,6 +21,7 @@
     "title": {"type": "string", "minLength": 1},
     "language": {"type": "string", "const": "zh-Hant"},
     "article_path": {"type": "string", "pattern": "^data/samples/S[0-9]{3}/article\\.md$"},
+    "article_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
     "source": {
       "type": "object",
       "additionalProperties": false,

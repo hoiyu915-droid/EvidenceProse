@@ -40,7 +40,18 @@
         }
       }
     },
-    "counterexamples": {"type": "array"},
+    "counterexamples": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["sample_id", "description"],
+        "properties": {
+          "sample_id": {"type": "string", "pattern": "^S[0-9]{3}$"},
+          "description": {"type": "string", "minLength": 1}
+        }
+      }
+    },
     "confidence": {"enum": ["low", "moderate", "high"]},
     "validator_potential": {"enum": ["none", "manual", "partial", "automatable"]},
     "last_updated": {"type": "string", "format": "date"}

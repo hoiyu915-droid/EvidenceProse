@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://evidenceprose.local/schemas/voice_rule_catalog.schema.json",
+  "title": "EvidenceProse article-register rule catalogue",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "last_updated", "layer", "not_persona", "definition", "rules"],
+  "properties": {
+    "schema_version": {"type": "string", "minLength": 1},
+    "last_updated": {"type": "string", "format": "date"},
+    "layer": {"const": "article_register"},
+    "not_persona": {"const": true},
+    "definition": {"type": "string", "minLength": 1},
+    "rules": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "voice_rule.schema.json"}
+    }
+  }
+}

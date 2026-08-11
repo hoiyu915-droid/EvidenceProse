@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://evidenceprose.local/schemas/registry.schema.json",
+  "title": "EvidenceProse registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "project_phase",
+    "primary_language",
+    "sample_ids",
+    "rule_ids",
+    "stable_rule_ids",
+    "voice_rule_ids",
+    "stable_voice_rule_ids",
+    "batch_ids",
+    "rules_path",
+    "batch_results_path",
+    "voice_rules_path",
+    "last_updated"
+  ],
+  "properties": {
+    "schema_version": {"type": "string", "minLength": 1},
+    "project_phase": {"type": "string", "minLength": 1},
+    "primary_language": {"const": "zh-Hant"},
+    "sample_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^S[0-9]{3}$"}},
+    "rule_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^R[0-9]{3}$"}},
+    "stable_rule_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^R[0-9]{3}$"}},
+    "voice_rule_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^V[0-9]{3}$"}},
+    "stable_voice_rule_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^V[0-9]{3}$"}},
+    "batch_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^B[0-9]{3}$"}},
+    "rules_path": {"const": "data/rules/rules.json"},
+    "batch_results_path": {"const": "data/batch_results.json"},
+    "voice_rules_path": {"const": "data/voice/voice_rules.json"},
+    "last_updated": {"type": "string", "format": "date"}
+  }
+}

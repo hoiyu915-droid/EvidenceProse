@@ -3,6 +3,7 @@
   "title": "LitTraceQA：答案對，不代表整條證據鏈都對",
   "language": "zh-Hant",
   "article_path": "data/samples/S005/article.md",
+  "article_sha256": "d196e6eb0aee86ff20a25199da9461ea8b7f39f5d59e9fd337ce162bea5d49b5",
   "card_storyboard_path": "data/samples/S005/card_storyboard.json",
   "source": {
     "citation": "Liu X, Wang Y, Shi P, et al. LitTraceQA: A Benchmark for Multi-Stage Grounding and Verification in Scientific Question Answering. arXiv:2608.07370v1. 2026.",

@@ -1,15 +1,31 @@
 from __future__ import annotations
 
 import json
+import shutil
 import sys
+import tempfile
 import unittest
+from contextlib import contextmanager
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from scripts.validate_registry import validate  # noqa: E402
+from scripts.validate_registry import ValidationError, validate  # noqa: E402
+
+
+@contextmanager
+def copied_registry() -> Path:
+    with tempfile.TemporaryDirectory() as directory:
+        root = Path(directory) / "EvidenceProse"
+        shutil.copytree(ROOT / "data", root / "data")
+        shutil.copytree(ROOT / "schemas", root / "schemas")
+        yield root
+
+
+def rewrite_json(path: Path, document: object) -> None:
+    path.write_text(json.dumps(document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
 class RegistryTests(unittest.TestCase):
@@ -18,10 +34,14 @@ class RegistryTests(unittest.TestCase):
             validate(),
             {
                 "samples": 5,
+                "observations": 68,
                 "rules": 18,
                 "stable_rules": 0,
                 "voice_rules": 5,
+                "stable_voice_rules": 0,
                 "batches": 5,
+                "artifact_receipts": 16,
+                "cards": 24,
                 "contamination_notes": 13,
                 "strict_render_failures": 24,
                 "semantic_failures": 4,
@@ -110,6 +130,61 @@ class RegistryTests(unittest.TestCase):
         rules = json.loads((ROOT / "data/rules/rules.json").read_text(encoding="utf-8"))["rules"]
         self.assertTrue(rules)
         self.assertFalse(any(rule["status"] == "stable" for rule in rules))
+
+    def test_article_digest_detects_observed_prose_mutation(self) -> None:
+        with copied_registry() as root:
+            article_path = root / "data/samples/S001/article.md"
+            article_path.write_text(article_path.read_text(encoding="utf-8") + "\nmutated\n", encoding="utf-8")
+            with self.assertRaisesRegex(ValidationError, "article digest mismatch"):
+                validate(root)
+
+    def test_unregistered_sample_directory_is_rejected(self) -> None:
+        with copied_registry() as root:
+            shutil.copytree(root / "data/samples/S005", root / "data/samples/S006")
+            with self.assertRaisesRegex(ValidationError, "do not exactly match sample directories"):
+                validate(root)
+
+    def test_rule_timestamp_cannot_predate_its_evidence(self) -> None:
+        with copied_registry() as root:
+            path = root / "data/rules/rules.json"
+            document = json.loads(path.read_text(encoding="utf-8"))
+            document["rules"][0]["last_updated"] = "2026-08-10"
+            rewrite_json(path, document)
+            with self.assertRaisesRegex(ValidationError, "predates referenced evidence"):
+                validate(root)
+
+    def test_batch_contamination_ledger_cannot_drift(self) -> None:
+        with copied_registry() as root:
+            path = root / "data/batch_results.json"
+            document = json.loads(path.read_text(encoding="utf-8"))
+            document["batches"][4]["contamination_note_ids"] = ["C001"]
+            rewrite_json(path, document)
+            with self.assertRaisesRegex(ValidationError, "contamination notes do not match"):
+                validate(root)
+
+    def test_batch_card_counts_must_match_storyboard(self) -> None:
+        with copied_registry() as root:
+            path = root / "data/batch_results.json"
+            document = json.loads(path.read_text(encoding="utf-8"))
+            document["batches"][4]["companion_audit"]["semantic_failures"] = 1
+            rewrite_json(path, document)
+            with self.assertRaisesRegex(ValidationError, "does not match storyboard"):
+                validate(root)
+
+    def test_complete_schema_catalog_is_present(self) -> None:
+        self.assertEqual(
+            {path.name for path in (ROOT / "schemas").glob("*.json")},
+            {
+                "batch_results.schema.json",
+                "card_storyboard.schema.json",
+                "registry.schema.json",
+                "rule.schema.json",
+                "rule_catalog.schema.json",
+                "sample.schema.json",
+                "voice_rule.schema.json",
+                "voice_rule_catalog.schema.json",
+            },
+        )
 
 
 if __name__ == "__main__":
