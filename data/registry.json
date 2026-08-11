@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.5.0",
+  "schema_version": "0.6.0",
   "project_phase": "pattern_induction",
   "primary_language": "zh-Hant",
   "sample_ids": ["S001", "S002", "S003", "S004", "S005"],
@@ -8,6 +8,7 @@
   "voice_rule_ids": ["V001", "V002", "V003", "V004", "V005"],
   "stable_voice_rule_ids": [],
   "batch_ids": ["B001", "B002", "B003", "B004", "B005"],
+  "rules_path": "data/rules/rules.json",
   "batch_results_path": "data/batch_results.json",
   "voice_rules_path": "data/voice/voice_rules.json",
   "last_updated": "2026-08-11"

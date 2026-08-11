@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
-"""Fail-closed structural validation for the EvidenceProse induction registry."""
+"""Fail-closed structural validation for the EvidenceProse registry."""
 
 from __future__ import annotations
 
+import argparse
+import hashlib
 import json
 import re
 import sys
+from datetime import date
 from pathlib import Path
+from typing import Any, Iterable
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -17,19 +21,31 @@ BATCH_ID = re.compile(r"^B\d{3}$")
 OBSERVATION_ID = re.compile(r"^O\d{3}$")
 ARTIFACT_ID = re.compile(r"^A\d{3}$")
 CARD_ID = re.compile(r"^C\d{2}$")
+CONTAMINATION_ID = re.compile(r"^C\d{3}$")
 SHA256 = re.compile(r"^[a-f0-9]{64}$")
+
 RULE_STATES = {"hypothesis", "candidate", "conditional", "stable", "contradicted", "rejected"}
+METHOD_CATEGORIES = {
+    "architecture",
+    "claim_transform",
+    "calibration",
+    "provenance",
+    "mechanism",
+    "limitations",
+    "decision_positioning",
+    "evidence_grade",
+    "quantitative_semantics",
+}
+OBSERVATION_KINDS = METHOD_CATEGORIES | {"companion_artifact", "voice_register"}
+VOICE_CATEGORIES = {"stance", "attribution", "sentence_posture", "reader_address", "density"}
+CONFIDENCE_LEVELS = {"low", "moderate", "high"}
+VALIDATOR_POTENTIALS = {"none", "manual", "partial", "automatable"}
+VERIFICATION_STATES = {"metadata_only", "abstract", "full_text", "full_text_audited"}
+ARTIFACT_KINDS = {"source_pdf", "canonical_render_queue", "alternate_render_queue", "rendered_cardset"}
 
 
 class ValidationError(Exception):
     """Raised when the registry is internally inconsistent."""
-
-
-def load_json(path: Path) -> object:
-    try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
-        raise ValidationError(f"cannot load {path.relative_to(ROOT)}: {exc}") from exc
 
 
 def require(condition: bool, message: str) -> None:
@@ -37,245 +53,722 @@ def require(condition: bool, message: str) -> None:
         raise ValidationError(message)
 
 
-def validate() -> dict[str, int]:
-    registry = load_json(ROOT / "data/registry.json")
-    rules_doc = load_json(ROOT / "data/rules/rules.json")
-    voice_rules_doc = load_json(ROOT / "data/voice/voice_rules.json")
-    batch_doc = load_json(ROOT / "data/batch_results.json")
+def relative(path: Path, root: Path) -> str:
+    try:
+        return path.relative_to(root).as_posix()
+    except ValueError:
+        return str(path)
+
+
+def load_json(path: Path, root: Path) -> Any:
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValidationError(f"cannot load {relative(path, root)}: {exc}") from exc
+
+
+def parse_date(value: object, label: str) -> date:
+    require(isinstance(value, str), f"{label} must be an ISO date")
+    try:
+        return date.fromisoformat(value)
+    except ValueError as exc:
+        raise ValidationError(f"{label} must be an ISO date: {value!r}") from exc
+
+
+def non_empty_text(value: object, label: str) -> str:
+    require(isinstance(value, str) and bool(value.strip()), f"{label} must be non-empty text")
+    return value
+
+
+def string_list(value: object, label: str, *, non_empty: bool = False) -> list[str]:
+    require(isinstance(value, list), f"{label} must be an array")
+    if non_empty:
+        require(bool(value), f"{label} must not be empty")
+    require(all(isinstance(item, str) and item.strip() for item in value), f"{label} must contain non-empty strings")
+    require(len(value) == len(set(value)), f"{label} contains duplicates")
+    return value
+
+
+def exact_keys(document: dict[str, Any], required: set[str], optional: set[str], label: str) -> None:
+    missing = required - document.keys()
+    unexpected = document.keys() - required - optional
+    require(not missing, f"{label} is missing fields: {sorted(missing)}")
+    require(not unexpected, f"{label} has unexpected fields: {sorted(unexpected)}")
+
+
+def integer(value: object, label: str, *, minimum: int = 0) -> int:
+    require(isinstance(value, int) and not isinstance(value, bool) and value >= minimum, f"{label} must be an integer >= {minimum}")
+    return value
+
+
+def repository_file(root: Path, raw_path: object, label: str) -> Path:
+    path_text = non_empty_text(raw_path, label)
+    require(not Path(path_text).is_absolute(), f"{label} must be repository-relative")
+    root = root.resolve()
+    path = (root / path_text).resolve()
+    try:
+        path.relative_to(root)
+    except ValueError as exc:
+        raise ValidationError(f"{label} escapes the repository: {path_text}") from exc
+    require(path.is_file(), f"{label} is missing: {path_text}")
+    return path
+
+
+def file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def validate_support(
+    rule: dict[str, Any],
+    rule_id: str,
+    observations_by_sample: dict[str, dict[str, str]],
+    sample_dates: dict[str, date],
+    expected_kind: str | None,
+) -> tuple[set[str], set[str], date | None]:
+    support = rule.get("support")
+    require(isinstance(support, list), f"{rule_id} support must be an array")
+    support_samples: set[str] = set()
+    evidence_dates: list[date] = []
+    for receipt in support:
+        require(isinstance(receipt, dict), f"{rule_id} support receipt must be an object")
+        exact_keys(receipt, {"sample_id", "observation_ids"}, set(), f"{rule_id} support receipt")
+        sample_id = receipt.get("sample_id")
+        require(sample_id in observations_by_sample, f"{rule_id} references unknown sample {sample_id!r}")
+        require(sample_id not in support_samples, f"{rule_id} has duplicate support receipt for {sample_id}")
+        observation_ids = string_list(receipt.get("observation_ids"), f"{rule_id}/{sample_id} observation_ids", non_empty=True)
+        missing = set(observation_ids) - set(observations_by_sample[sample_id])
+        require(not missing, f"{rule_id}/{sample_id} references unknown observations: {sorted(missing)}")
+        if expected_kind is not None:
+            wrong_kinds = {
+                observation_id: observations_by_sample[sample_id][observation_id]
+                for observation_id in observation_ids
+                if observations_by_sample[sample_id][observation_id] != expected_kind
+            }
+            require(not wrong_kinds, f"{rule_id}/{sample_id} support has wrong observation kinds: {wrong_kinds}")
+        support_samples.add(sample_id)
+        evidence_dates.append(sample_dates[sample_id])
+
+    counterexamples = rule.get("counterexamples")
+    require(isinstance(counterexamples, list), f"{rule_id} counterexamples must be an array")
+    counterexample_samples: set[str] = set()
+    for counterexample in counterexamples:
+        require(isinstance(counterexample, dict), f"{rule_id} counterexample must be an object")
+        exact_keys(counterexample, {"sample_id", "description"}, set(), f"{rule_id} counterexample")
+        sample_id = counterexample.get("sample_id")
+        require(sample_id in observations_by_sample, f"{rule_id} counterexample references unknown sample {sample_id!r}")
+        require(sample_id not in counterexample_samples, f"{rule_id} has duplicate counterexample for {sample_id}")
+        non_empty_text(counterexample.get("description"), f"{rule_id}/{sample_id} counterexample description")
+        counterexample_samples.add(sample_id)
+        evidence_dates.append(sample_dates[sample_id])
+
+    overlap = support_samples & counterexample_samples
+    require(not overlap, f"{rule_id} treats samples as both support and counterexample: {sorted(overlap)}")
+    return support_samples, counterexample_samples, max(evidence_dates) if evidence_dates else None
+
+
+def validate(root: Path = ROOT) -> dict[str, int]:
+    root = root.resolve()
+    registry = load_json(root / "data/registry.json", root)
     require(isinstance(registry, dict), "registry must be an object")
-    require(isinstance(rules_doc, dict) and isinstance(rules_doc.get("rules"), list), "rules document must contain a rules array")
-    require(isinstance(voice_rules_doc, dict) and isinstance(voice_rules_doc.get("rules"), list), "voice rules document must contain a rules array")
-    require(isinstance(batch_doc, dict) and isinstance(batch_doc.get("batches"), list), "batch results document must contain a batches array")
+    exact_keys(
+        registry,
+        {
+            "schema_version",
+            "project_phase",
+            "primary_language",
+            "sample_ids",
+            "rule_ids",
+            "stable_rule_ids",
+            "voice_rule_ids",
+            "stable_voice_rule_ids",
+            "batch_ids",
+            "rules_path",
+            "batch_results_path",
+            "voice_rules_path",
+            "last_updated",
+        },
+        set(),
+        "registry",
+    )
+    non_empty_text(registry.get("schema_version"), "registry schema_version")
+    non_empty_text(registry.get("project_phase"), "registry project_phase")
+    require(registry.get("primary_language") == "zh-Hant", "registry primary_language must be zh-Hant")
+    registry_date = parse_date(registry.get("last_updated"), "registry last_updated")
 
-    sample_ids = registry.get("sample_ids")
-    rule_ids = registry.get("rule_ids")
-    stable_rule_ids = registry.get("stable_rule_ids")
-    voice_rule_ids = registry.get("voice_rule_ids")
-    stable_voice_rule_ids = registry.get("stable_voice_rule_ids")
-    batch_ids = registry.get("batch_ids")
-    require(isinstance(sample_ids, list) and sample_ids, "registry sample_ids must be a non-empty array")
-    require(isinstance(rule_ids, list), "registry rule_ids must be an array")
-    require(isinstance(stable_rule_ids, list), "registry stable_rule_ids must be an array")
-    require(isinstance(voice_rule_ids, list), "registry voice_rule_ids must be an array")
-    require(isinstance(stable_voice_rule_ids, list), "registry stable_voice_rule_ids must be an array")
-    require(isinstance(batch_ids, list) and batch_ids, "registry batch_ids must be a non-empty array")
-    require(len(sample_ids) == len(set(sample_ids)), "duplicate sample_ids in registry")
-    require(len(rule_ids) == len(set(rule_ids)), "duplicate rule_ids in registry")
-    require(len(voice_rule_ids) == len(set(voice_rule_ids)), "duplicate voice_rule_ids in registry")
-    require(len(batch_ids) == len(set(batch_ids)), "duplicate batch_ids in registry")
+    rules_path = repository_file(root, registry.get("rules_path"), "registry rules_path")
+    voice_rules_path = repository_file(root, registry.get("voice_rules_path"), "registry voice_rules_path")
+    batch_path = repository_file(root, registry.get("batch_results_path"), "registry batch_results_path")
+    rules_doc = load_json(rules_path, root)
+    voice_rules_doc = load_json(voice_rules_path, root)
+    batch_doc = load_json(batch_path, root)
+    require(isinstance(rules_doc, dict), "rules document must be an object")
+    require(isinstance(voice_rules_doc, dict), "voice rules document must be an object")
+    require(isinstance(batch_doc, dict), "batch results document must be an object")
+    exact_keys(rules_doc, {"schema_version", "last_updated", "rules"}, set(), "rules document")
+    exact_keys(voice_rules_doc, {"schema_version", "last_updated", "layer", "not_persona", "definition", "rules"}, set(), "voice rules document")
+    exact_keys(batch_doc, {"schema_version", "last_updated", "batch_count", "batches", "cross_batch_summary"}, set(), "batch results document")
+    non_empty_text(rules_doc.get("schema_version"), "rules schema_version")
+    non_empty_text(voice_rules_doc.get("schema_version"), "voice rules schema_version")
+    non_empty_text(batch_doc.get("schema_version"), "batch schema_version")
+    rules_date = parse_date(rules_doc.get("last_updated"), "rules last_updated")
+    voice_rules_date = parse_date(voice_rules_doc.get("last_updated"), "voice rules last_updated")
+    batch_date = parse_date(batch_doc.get("last_updated"), "batch last_updated")
+    require(voice_rules_doc.get("layer") == "article_register", "voice rules layer must be article_register")
+    require(voice_rules_doc.get("not_persona") is True, "voice rules not_persona must be true")
+    non_empty_text(voice_rules_doc.get("definition"), "voice rules definition")
 
-    observations_by_sample: dict[str, set[str]] = {}
+    sample_ids = string_list(registry.get("sample_ids"), "registry sample_ids", non_empty=True)
+    rule_ids = string_list(registry.get("rule_ids"), "registry rule_ids")
+    stable_rule_ids = string_list(registry.get("stable_rule_ids"), "registry stable_rule_ids")
+    voice_rule_ids = string_list(registry.get("voice_rule_ids"), "registry voice_rule_ids")
+    stable_voice_rule_ids = string_list(registry.get("stable_voice_rule_ids"), "registry stable_voice_rule_ids")
+    batch_ids = string_list(registry.get("batch_ids"), "registry batch_ids", non_empty=True)
+    require(all(SAMPLE_ID.fullmatch(value) for value in sample_ids), "registry contains invalid sample id")
+    require(all(RULE_ID.fullmatch(value) for value in rule_ids), "registry contains invalid rule id")
+    require(all(VOICE_RULE_ID.fullmatch(value) for value in voice_rule_ids), "registry contains invalid voice rule id")
+    require(all(BATCH_ID.fullmatch(value) for value in batch_ids), "registry contains invalid batch id")
+    require(sample_ids == sorted(sample_ids), "registry sample_ids must be ordered")
+    require(rule_ids == sorted(rule_ids), "registry rule_ids must be ordered")
+    require(voice_rule_ids == sorted(voice_rule_ids), "registry voice_rule_ids must be ordered")
+    require(batch_ids == sorted(batch_ids), "registry batch_ids must be ordered")
+
+    sample_root = root / "data/samples"
+    require(sample_root.is_dir(), "data/samples directory is missing")
+    discovered_sample_ids = sorted(
+        path.name for path in sample_root.iterdir() if path.is_dir() and (path / "sample.json").is_file()
+    )
+    require(discovered_sample_ids == sample_ids, "registered samples do not exactly match sample directories")
+
+    observations_by_sample: dict[str, dict[str, str]] = {}
+    contamination_ids_by_sample: dict[str, list[str]] = {}
+    sample_dates: dict[str, date] = {}
+    storyboard_summaries: dict[str, dict[str, Any]] = {}
+    storyboard_failures: dict[str, dict[str, list[str]]] = {}
     contamination_count = 0
+    artifact_count = 0
+    card_count = 0
     strict_render_failures = 0
     semantic_failures = 0
+
+    sample_required = {
+        "sample_id",
+        "title",
+        "language",
+        "article_path",
+        "article_sha256",
+        "source",
+        "study_profile",
+        "observations",
+        "contamination_notes",
+        "analysis_date",
+    }
+    sample_optional = {"card_storyboard_path", "artifact_receipts"}
+
     for sample_id in sample_ids:
-        require(isinstance(sample_id, str) and SAMPLE_ID.fullmatch(sample_id) is not None, f"invalid sample id: {sample_id!r}")
-        sample_path = ROOT / f"data/samples/{sample_id}/sample.json"
-        sample = load_json(sample_path)
+        sample_path = root / f"data/samples/{sample_id}/sample.json"
+        sample = load_json(sample_path, root)
         require(isinstance(sample, dict), f"{sample_id} sample must be an object")
+        exact_keys(sample, sample_required, sample_optional, f"{sample_id} sample")
         require(sample.get("sample_id") == sample_id, f"{sample_id} identity mismatch")
-        article_path = sample.get("article_path")
-        require(isinstance(article_path, str), f"{sample_id} article_path must be a string")
-        require((ROOT / article_path).is_file(), f"{sample_id} article file is missing: {article_path}")
+        non_empty_text(sample.get("title"), f"{sample_id} title")
+        require(sample.get("language") == "zh-Hant", f"{sample_id} language must be zh-Hant")
+        sample_date = parse_date(sample.get("analysis_date"), f"{sample_id} analysis_date")
+        require(sample_date <= registry_date, f"{sample_id} analysis_date is newer than registry last_updated")
+        sample_dates[sample_id] = sample_date
+
+        expected_article_path = f"data/samples/{sample_id}/article.md"
+        require(sample.get("article_path") == expected_article_path, f"{sample_id} article_path must be {expected_article_path}")
+        article_path = repository_file(root, sample.get("article_path"), f"{sample_id} article_path")
+        article_digest = sample.get("article_sha256")
+        require(isinstance(article_digest, str) and SHA256.fullmatch(article_digest) is not None, f"{sample_id} article_sha256 is invalid")
+        require(file_sha256(article_path) == article_digest, f"{sample_id} article digest mismatch")
+
+        source = sample.get("source")
+        require(isinstance(source, dict), f"{sample_id} source must be an object")
+        exact_keys(source, {"citation", "doi", "verification_state"}, {"pdf_sha256"}, f"{sample_id} source")
+        non_empty_text(source.get("citation"), f"{sample_id} source citation")
+        doi = non_empty_text(source.get("doi"), f"{sample_id} source doi")
+        require(doi.startswith("10."), f"{sample_id} source doi is invalid")
+        verification_state = source.get("verification_state")
+        require(verification_state in VERIFICATION_STATES, f"{sample_id} verification_state is invalid")
+        pdf_digest = source.get("pdf_sha256")
+        if pdf_digest is not None:
+            require(isinstance(pdf_digest, str) and SHA256.fullmatch(pdf_digest) is not None, f"{sample_id} source pdf_sha256 is invalid")
+        if verification_state in {"full_text", "full_text_audited"}:
+            require(pdf_digest is not None, f"{sample_id} full-text verification requires pdf_sha256")
 
         study_profile = sample.get("study_profile")
         require(isinstance(study_profile, dict), f"{sample_id} study_profile must be an object")
+        exact_keys(
+            study_profile,
+            {"study_type", "synthesis_mode", "included_reports", "total_participants", "quantitative_datasets", "follow_up", "not_applicable_reasons"},
+            set(),
+            f"{sample_id} study_profile",
+        )
+        non_empty_text(study_profile.get("study_type"), f"{sample_id} study_type")
+        non_empty_text(study_profile.get("synthesis_mode"), f"{sample_id} synthesis_mode")
+        integer(study_profile.get("included_reports"), f"{sample_id} included_reports")
+        for field in ("total_participants", "quantitative_datasets"):
+            value = study_profile.get(field)
+            if value is not None:
+                integer(value, f"{sample_id} {field}")
+        follow_up = study_profile.get("follow_up")
+        require(follow_up is None or isinstance(follow_up, str) and follow_up.strip(), f"{sample_id} follow_up must be null or non-empty text")
         not_applicable_reasons = study_profile.get("not_applicable_reasons")
         require(isinstance(not_applicable_reasons, dict), f"{sample_id} not_applicable_reasons must be an object")
-        for nullable_field in ("total_participants", "quantitative_datasets", "follow_up"):
-            if study_profile.get(nullable_field) is None:
-                reason = not_applicable_reasons.get(nullable_field)
-                require(isinstance(reason, str) and reason.strip(), f"{sample_id} null {nullable_field} requires a reason")
+        nullable_fields = {"total_participants", "quantitative_datasets", "follow_up"}
+        require(set(not_applicable_reasons).issubset(nullable_fields), f"{sample_id} has unknown not_applicable reason fields")
+        for field in nullable_fields:
+            reason = not_applicable_reasons.get(field)
+            if study_profile.get(field) is None:
+                non_empty_text(reason, f"{sample_id} null {field} reason")
+            else:
+                require(reason is None, f"{sample_id} has a stale not_applicable reason for {field}")
 
         artifact_receipts = sample.get("artifact_receipts", [])
         require(isinstance(artifact_receipts, list), f"{sample_id} artifact_receipts must be an array")
         artifact_ids: set[str] = set()
+        receipts_by_kind: dict[str, list[dict[str, Any]]] = {}
         for receipt in artifact_receipts:
             require(isinstance(receipt, dict), f"{sample_id} artifact receipt must be an object")
+            exact_keys(receipt, {"artifact_id", "kind", "filename", "sha256", "role"}, set(), f"{sample_id} artifact receipt")
             artifact_id = receipt.get("artifact_id")
             require(isinstance(artifact_id, str) and ARTIFACT_ID.fullmatch(artifact_id) is not None, f"{sample_id} invalid artifact id")
             require(artifact_id not in artifact_ids, f"{sample_id} duplicate artifact {artifact_id}")
+            kind = receipt.get("kind")
+            require(kind in ARTIFACT_KINDS, f"{sample_id}/{artifact_id} invalid artifact kind")
+            non_empty_text(receipt.get("filename"), f"{sample_id}/{artifact_id} filename")
             digest = receipt.get("sha256")
             require(isinstance(digest, str) and SHA256.fullmatch(digest) is not None, f"{sample_id}/{artifact_id} invalid sha256")
+            non_empty_text(receipt.get("role"), f"{sample_id}/{artifact_id} role")
             artifact_ids.add(artifact_id)
+            receipts_by_kind.setdefault(kind, []).append(receipt)
+        artifact_count += len(artifact_receipts)
+        if "source_pdf" in receipts_by_kind:
+            require(len(receipts_by_kind["source_pdf"]) == 1, f"{sample_id} must not have multiple source_pdf receipts")
+            require(receipts_by_kind["source_pdf"][0]["sha256"] == pdf_digest, f"{sample_id} source_pdf receipt does not match source digest")
 
-        storyboard_path = sample.get("card_storyboard_path")
-        if storyboard_path is not None:
-            require(isinstance(storyboard_path, str), f"{sample_id} card_storyboard_path must be a string")
-            storyboard = load_json(ROOT / storyboard_path)
-            require(isinstance(storyboard, dict) and storyboard.get("sample_id") == sample_id, f"{sample_id} storyboard identity mismatch")
+        storyboard_path_value = sample.get("card_storyboard_path")
+        expected_storyboard_file = root / f"data/samples/{sample_id}/card_storyboard.json"
+        require(expected_storyboard_file.is_file() == (storyboard_path_value is not None), f"{sample_id} storyboard file and sample pointer disagree")
+        if storyboard_path_value is not None:
+            expected_storyboard_path = f"data/samples/{sample_id}/card_storyboard.json"
+            require(storyboard_path_value == expected_storyboard_path, f"{sample_id} card_storyboard_path must be {expected_storyboard_path}")
+            storyboard_path = repository_file(root, storyboard_path_value, f"{sample_id} card_storyboard_path")
+            storyboard = load_json(storyboard_path, root)
+            require(isinstance(storyboard, dict), f"{sample_id} storyboard must be an object")
+            exact_keys(storyboard, {"sample_id", "audit_policy", "canonical_queue", "rejected_queue", "cards", "summary"}, set(), f"{sample_id} storyboard")
+            require(storyboard.get("sample_id") == sample_id, f"{sample_id} storyboard identity mismatch")
+            require(len(receipts_by_kind.get("source_pdf", [])) == 1, f"{sample_id} storyboard requires one source_pdf receipt")
+            require(len(receipts_by_kind.get("canonical_render_queue", [])) == 1, f"{sample_id} storyboard requires one canonical_render_queue receipt")
+            require(len(receipts_by_kind.get("rendered_cardset", [])) == 1, f"{sample_id} storyboard requires one rendered_cardset receipt")
+            require(bool(receipts_by_kind.get("alternate_render_queue")), f"{sample_id} storyboard requires an alternate_render_queue receipt for the rejected queue")
+
+            audit_policy = storyboard.get("audit_policy")
+            require(isinstance(audit_policy, dict), f"{sample_id} audit_policy must be an object")
+            exact_keys(audit_policy, {"semantic_track", "strict_render_track", "global_constraints_checked"}, set(), f"{sample_id} audit_policy")
+            non_empty_text(audit_policy.get("semantic_track"), f"{sample_id} semantic_track")
+            non_empty_text(audit_policy.get("strict_render_track"), f"{sample_id} strict_render_track")
+            string_list(audit_policy.get("global_constraints_checked"), f"{sample_id} global_constraints_checked")
+
+            canonical_queue = storyboard.get("canonical_queue")
+            require(isinstance(canonical_queue, dict), f"{sample_id} canonical_queue must be an object")
+            exact_keys(canonical_queue, {"filename", "sha256", "plan_id", "binding_basis"}, set(), f"{sample_id} canonical_queue")
+            for field in ("filename", "plan_id", "binding_basis"):
+                non_empty_text(canonical_queue.get(field), f"{sample_id} canonical_queue {field}")
+            require(isinstance(canonical_queue.get("sha256"), str) and SHA256.fullmatch(canonical_queue["sha256"]) is not None, f"{sample_id} canonical queue digest is invalid")
+            canonical_receipt = receipts_by_kind["canonical_render_queue"][0]
+            require(canonical_queue["filename"] == canonical_receipt["filename"], f"{sample_id} canonical queue filename does not match receipt")
+            require(canonical_queue["sha256"] == canonical_receipt["sha256"], f"{sample_id} canonical queue digest does not match receipt")
+
+            rejected_queue = storyboard.get("rejected_queue")
+            require(isinstance(rejected_queue, dict), f"{sample_id} rejected_queue must be an object")
+            exact_keys(rejected_queue, {"filename", "sha256", "reason"}, set(), f"{sample_id} rejected_queue")
+            non_empty_text(rejected_queue.get("filename"), f"{sample_id} rejected queue filename")
+            non_empty_text(rejected_queue.get("reason"), f"{sample_id} rejected queue reason")
+            require(isinstance(rejected_queue.get("sha256"), str) and SHA256.fullmatch(rejected_queue["sha256"]) is not None, f"{sample_id} rejected queue digest is invalid")
+            alternate_receipts = receipts_by_kind.get("alternate_render_queue", [])
+            require(any(receipt["filename"] == rejected_queue["filename"] and receipt["sha256"] == rejected_queue["sha256"] for receipt in alternate_receipts), f"{sample_id} rejected queue does not match an alternate receipt")
+
             cards = storyboard.get("cards")
             require(isinstance(cards, list) and cards, f"{sample_id} storyboard requires cards")
-            card_ids: set[str] = set()
-            observed_failures = 0
-            observed_semantic_failures = 0
+            card_ids: list[str] = []
+            observed_strict_failures: list[str] = []
+            observed_semantic_failures: list[str] = []
+            targeted_failures: list[str] = []
+            required_card_fields = {
+                "card_id",
+                "title",
+                "visible_text",
+                "allowed_visible_numbers",
+                "main_visual_scene",
+                "image_filename",
+                "image_sha256",
+                "semantic_audit",
+                "strict_render_audit",
+            }
+            optional_card_fields = {"semantic_violations", "targeted_audit", "required_correction"}
             for card in cards:
                 require(isinstance(card, dict), f"{sample_id} storyboard card must be an object")
+                exact_keys(card, required_card_fields, optional_card_fields, f"{sample_id} storyboard card")
                 card_id = card.get("card_id")
                 require(isinstance(card_id, str) and CARD_ID.fullmatch(card_id) is not None, f"{sample_id} invalid card id")
                 require(card_id not in card_ids, f"{sample_id} duplicate card {card_id}")
+                non_empty_text(card.get("title"), f"{sample_id}/{card_id} title")
+                string_list(card.get("visible_text"), f"{sample_id}/{card_id} visible_text", non_empty=True)
+                string_list(card.get("allowed_visible_numbers"), f"{sample_id}/{card_id} allowed_visible_numbers")
+                non_empty_text(card.get("main_visual_scene"), f"{sample_id}/{card_id} main_visual_scene")
+                non_empty_text(card.get("image_filename"), f"{sample_id}/{card_id} image_filename")
                 image_digest = card.get("image_sha256")
                 require(isinstance(image_digest, str) and SHA256.fullmatch(image_digest) is not None, f"{sample_id}/{card_id} invalid image sha256")
+
                 strict_audit = card.get("strict_render_audit")
-                require(isinstance(strict_audit, dict) and strict_audit.get("status") in {"pass", "fail"}, f"{sample_id}/{card_id} invalid strict render audit")
+                require(isinstance(strict_audit, dict), f"{sample_id}/{card_id} strict render audit must be an object")
+                exact_keys(strict_audit, {"status", "violations"}, set(), f"{sample_id}/{card_id} strict render audit")
+                require(strict_audit.get("status") in {"pass", "fail"}, f"{sample_id}/{card_id} invalid strict render status")
+                violations = strict_audit.get("violations")
+                require(isinstance(violations, list), f"{sample_id}/{card_id} strict violations must be an array")
+                require(all(isinstance(item, str) and item.strip() for item in violations), f"{sample_id}/{card_id} strict violations must be non-empty text")
+                if strict_audit["status"] == "fail":
+                    require(bool(violations), f"{sample_id}/{card_id} failed strict audit requires violations")
+                    observed_strict_failures.append(card_id)
+                else:
+                    require(not violations, f"{sample_id}/{card_id} passed strict audit cannot retain violations")
+
                 semantic_audit = card.get("semantic_audit")
                 require(semantic_audit in {"pass", "fail"}, f"{sample_id}/{card_id} invalid semantic audit")
+                semantic_violations = card.get("semantic_violations", [])
+                require(isinstance(semantic_violations, list), f"{sample_id}/{card_id} semantic violations must be an array")
+                require(all(isinstance(item, str) and item.strip() for item in semantic_violations), f"{sample_id}/{card_id} semantic violations must be non-empty text")
                 if semantic_audit == "fail":
-                    semantic_violations = card.get("semantic_violations")
-                    require(isinstance(semantic_violations, list) and semantic_violations, f"{sample_id}/{card_id} failed semantic audit requires violations")
-                    observed_semantic_failures += 1
-                if strict_audit["status"] == "fail":
-                    violations = strict_audit.get("violations")
-                    require(isinstance(violations, list) and violations, f"{sample_id}/{card_id} failed audit requires violations")
-                    observed_failures += 1
-                card_ids.add(card_id)
+                    require(bool(semantic_violations), f"{sample_id}/{card_id} failed semantic audit requires violations")
+                    observed_semantic_failures.append(card_id)
+                else:
+                    require(not semantic_violations, f"{sample_id}/{card_id} passed semantic audit cannot retain violations")
+
+                targeted_audit = card.get("targeted_audit")
+                if targeted_audit is not None:
+                    targeted_audit = non_empty_text(targeted_audit, f"{sample_id}/{card_id} targeted_audit")
+                    if targeted_audit.startswith("fail"):
+                        targeted_failures.append(card_id)
+                correction = card.get("required_correction")
+                require(correction is None or isinstance(correction, str) and correction.strip(), f"{sample_id}/{card_id} required_correction must be null or non-empty text")
+                card_ids.append(card_id)
+
+            expected_card_ids = [f"C{index:02d}" for index in range(1, len(cards) + 1)]
+            require(card_ids == expected_card_ids, f"{sample_id} card ids must be contiguous and ordered")
             summary = storyboard.get("summary")
             require(isinstance(summary, dict), f"{sample_id} storyboard summary must be an object")
-            require(summary.get("cards") == len(cards), f"{sample_id} storyboard card count mismatch")
-            require(summary.get("strict_render_failures") == observed_failures, f"{sample_id} strict-render failure count mismatch")
-            require(summary.get("strict_render_passes") == len(cards) - observed_failures, f"{sample_id} strict-render pass count mismatch")
-            require(summary.get("semantic_failures") == observed_semantic_failures, f"{sample_id} semantic failure count mismatch")
-            require(summary.get("semantic_passes") == len(cards) - observed_semantic_failures, f"{sample_id} semantic pass count mismatch")
-            strict_render_failures += observed_failures
-            semantic_failures += observed_semantic_failures
+            exact_keys(
+                summary,
+                {"cards", "strict_render_failures", "strict_render_passes", "semantic_failures", "semantic_passes", "interpretation"},
+                {"targeted_correction_ids"},
+                f"{sample_id} storyboard summary",
+            )
+            integer(summary.get("cards"), f"{sample_id} storyboard card count", minimum=1)
+            require(summary["cards"] == len(cards), f"{sample_id} storyboard card count mismatch")
+            expected_counts = {
+                "strict_render_failures": len(observed_strict_failures),
+                "strict_render_passes": len(cards) - len(observed_strict_failures),
+                "semantic_failures": len(observed_semantic_failures),
+                "semantic_passes": len(cards) - len(observed_semantic_failures),
+            }
+            for field, expected in expected_counts.items():
+                integer(summary.get(field), f"{sample_id} {field}")
+                require(summary[field] == expected, f"{sample_id} {field} count mismatch")
+            non_empty_text(summary.get("interpretation"), f"{sample_id} storyboard interpretation")
+            summary_targeted = string_list(summary.get("targeted_correction_ids", []), f"{sample_id} targeted_correction_ids")
+            require(set(summary_targeted).issubset(targeted_failures), f"{sample_id} targeted correction ids do not match failed targeted audits")
+            corrections_by_card = {card["card_id"]: card.get("required_correction") for card in cards}
+            require(all(corrections_by_card[card_id] for card_id in summary_targeted), f"{sample_id} targeted correction ids require correction instructions")
+            storyboard_summaries[sample_id] = summary
+            storyboard_failures[sample_id] = {
+                "semantic": observed_semantic_failures,
+                "strict": observed_strict_failures,
+                "targeted": summary_targeted,
+            }
+            card_count += len(cards)
+            strict_render_failures += len(observed_strict_failures)
+            semantic_failures += len(observed_semantic_failures)
+        else:
+            card_artifact_kinds = {"canonical_render_queue", "alternate_render_queue", "rendered_cardset"} & receipts_by_kind.keys()
+            require(not card_artifact_kinds, f"{sample_id} has card artifact receipts without a storyboard")
 
         observations = sample.get("observations")
         require(isinstance(observations, list) and observations, f"{sample_id} requires observations")
-        observation_ids: set[str] = set()
+        observation_kinds: dict[str, str] = {}
         for observation in observations:
             require(isinstance(observation, dict), f"{sample_id} observation must be an object")
+            exact_keys(observation, {"observation_id", "kind", "description", "evidence_locations"}, set(), f"{sample_id} observation")
             observation_id = observation.get("observation_id")
             require(isinstance(observation_id, str) and OBSERVATION_ID.fullmatch(observation_id) is not None, f"{sample_id} invalid observation id")
-            require(observation_id not in observation_ids, f"{sample_id} duplicate observation {observation_id}")
-            locations = observation.get("evidence_locations")
-            require(isinstance(locations, list) and locations, f"{sample_id}/{observation_id} requires evidence locations")
-            observation_ids.add(observation_id)
-        observations_by_sample[sample_id] = observation_ids
+            require(observation_id not in observation_kinds, f"{sample_id} duplicate observation {observation_id}")
+            kind = observation.get("kind")
+            require(kind in OBSERVATION_KINDS, f"{sample_id}/{observation_id} invalid observation kind")
+            non_empty_text(observation.get("description"), f"{sample_id}/{observation_id} description")
+            string_list(observation.get("evidence_locations"), f"{sample_id}/{observation_id} evidence_locations", non_empty=True)
+            observation_kinds[observation_id] = kind
+        observations_by_sample[sample_id] = observation_kinds
 
         contamination_notes = sample.get("contamination_notes")
         require(isinstance(contamination_notes, list), f"{sample_id} contamination_notes must be an array")
-        contamination_count += len(contamination_notes)
+        note_ids: list[str] = []
+        for note in contamination_notes:
+            require(isinstance(note, dict), f"{sample_id} contamination note must be an object")
+            exact_keys(note, {"note_id", "location", "issue", "preferred_handling"}, set(), f"{sample_id} contamination note")
+            note_id = note.get("note_id")
+            require(isinstance(note_id, str) and CONTAMINATION_ID.fullmatch(note_id) is not None, f"{sample_id} invalid contamination id")
+            require(note_id not in note_ids, f"{sample_id} duplicate contamination note {note_id}")
+            for field in ("location", "issue", "preferred_handling"):
+                non_empty_text(note.get(field), f"{sample_id}/{note_id} {field}")
+            note_ids.append(note_id)
+        contamination_ids_by_sample[sample_id] = note_ids
+        contamination_count += len(note_ids)
 
-    rules = rules_doc["rules"]
+    latest_sample_date = max(sample_dates.values())
+    require(registry_date == latest_sample_date, "registry last_updated must equal the latest sample analysis_date")
+    require(rules_date == registry_date, "rules last_updated must match registry last_updated")
+    require(voice_rules_date == registry_date, "voice rules last_updated must match registry last_updated")
+    require(batch_date == registry_date, "batch last_updated must match registry last_updated")
+
+    rules = rules_doc.get("rules")
+    require(isinstance(rules, list), "rules document must contain a rules array")
     actual_rule_ids: list[str] = []
     actual_stable_ids: list[str] = []
+    rule_support_samples: dict[str, set[str]] = {}
+    rule_counterexample_samples: dict[str, set[str]] = {}
+    rule_statuses: dict[str, str] = {}
     for rule in rules:
         require(isinstance(rule, dict), "each rule must be an object")
+        exact_keys(
+            rule,
+            {"rule_id", "name", "category", "statement", "status", "applies_when", "does_not_apply_when", "support", "counterexamples", "confidence", "validator_potential", "last_updated"},
+            set(),
+            "method rule",
+        )
         rule_id = rule.get("rule_id")
         require(isinstance(rule_id, str) and RULE_ID.fullmatch(rule_id) is not None, f"invalid rule id: {rule_id!r}")
         require(rule_id not in actual_rule_ids, f"duplicate rule {rule_id}")
         actual_rule_ids.append(rule_id)
+        non_empty_text(rule.get("name"), f"{rule_id} name")
+        non_empty_text(rule.get("statement"), f"{rule_id} statement")
+        category = rule.get("category")
+        require(category in METHOD_CATEGORIES, f"{rule_id} has invalid category {category!r}")
         status = rule.get("status")
         require(status in RULE_STATES, f"{rule_id} has invalid state {status!r}")
+        rule_statuses[rule_id] = status
         if status == "stable":
             actual_stable_ids.append(rule_id)
-
-        support = rule.get("support")
-        require(isinstance(support, list), f"{rule_id} support must be an array")
-        for receipt in support:
-            require(isinstance(receipt, dict), f"{rule_id} support receipt must be an object")
-            sample_id = receipt.get("sample_id")
-            require(sample_id in observations_by_sample, f"{rule_id} references unknown sample {sample_id!r}")
-            observation_ids = receipt.get("observation_ids")
-            require(isinstance(observation_ids, list) and observation_ids, f"{rule_id}/{sample_id} requires observation ids")
-            missing = set(observation_ids) - observations_by_sample[sample_id]
-            require(not missing, f"{rule_id}/{sample_id} references unknown observations: {sorted(missing)}")
-
-        if status == "stable":
-            support_samples = {receipt.get("sample_id") for receipt in support}
-            require(len(support_samples) >= 2, f"{rule_id} cannot be stable without multiple independent samples")
+        string_list(rule.get("applies_when"), f"{rule_id} applies_when")
+        does_not_apply = string_list(rule.get("does_not_apply_when"), f"{rule_id} does_not_apply_when")
+        require(rule.get("confidence") in CONFIDENCE_LEVELS, f"{rule_id} has invalid confidence")
+        require(rule.get("validator_potential") in VALIDATOR_POTENTIALS, f"{rule_id} has invalid validator_potential")
+        support_samples, counterexample_samples, latest_evidence_date = validate_support(
+            rule, rule_id, observations_by_sample, sample_dates, category
+        )
+        rule_support_samples[rule_id] = support_samples
+        rule_counterexample_samples[rule_id] = counterexample_samples
+        updated = parse_date(rule.get("last_updated"), f"{rule_id} last_updated")
+        if latest_evidence_date is not None:
+            require(updated >= latest_evidence_date, f"{rule_id} last_updated predates referenced evidence")
+        require(updated <= rules_date, f"{rule_id} last_updated is newer than the rules catalogue")
+        if status in {"candidate", "stable"}:
+            require(len(support_samples) >= 2, f"{rule_id} cannot be {status} without multiple independent samples")
+        if status == "conditional":
+            require(bool(support_samples), f"{rule_id} conditional rule requires support")
+            require(bool(does_not_apply or counterexample_samples), f"{rule_id} conditional rule requires an explicit boundary")
+        if status in {"contradicted", "rejected"}:
+            require(bool(counterexample_samples), f"{rule_id} {status} rule requires counterexamples")
 
     require(actual_rule_ids == rule_ids, "registry rule_ids do not exactly match ordered rule catalogue")
     require(actual_stable_ids == stable_rule_ids, "registry stable_rule_ids do not match stable rule states")
 
-    voice_rules = voice_rules_doc["rules"]
+    voice_rules = voice_rules_doc.get("rules")
+    require(isinstance(voice_rules, list), "voice rules document must contain a rules array")
     actual_voice_rule_ids: list[str] = []
     actual_stable_voice_ids: list[str] = []
+    voice_support_samples: dict[str, set[str]] = {}
     for rule in voice_rules:
         require(isinstance(rule, dict), "each voice rule must be an object")
+        exact_keys(
+            rule,
+            {"rule_id", "name", "category", "statement", "register_markers", "status", "applies_when", "does_not_apply_when", "support", "counterexamples", "confidence", "validator_potential", "last_updated"},
+            set(),
+            "voice rule",
+        )
         rule_id = rule.get("rule_id")
         require(isinstance(rule_id, str) and VOICE_RULE_ID.fullmatch(rule_id) is not None, f"invalid voice rule id: {rule_id!r}")
         require(rule_id not in actual_voice_rule_ids, f"duplicate voice rule {rule_id}")
         actual_voice_rule_ids.append(rule_id)
+        non_empty_text(rule.get("name"), f"{rule_id} name")
+        non_empty_text(rule.get("statement"), f"{rule_id} statement")
+        require(rule.get("category") in VOICE_CATEGORIES, f"{rule_id} has invalid category")
+        string_list(rule.get("register_markers"), f"{rule_id} register_markers")
         status = rule.get("status")
         require(status in RULE_STATES, f"{rule_id} has invalid state {status!r}")
         if status == "stable":
             actual_stable_voice_ids.append(rule_id)
-
-        register_markers = rule.get("register_markers")
-        require(isinstance(register_markers, list), f"{rule_id} register_markers must be an array")
-        support = rule.get("support")
-        require(isinstance(support, list), f"{rule_id} support must be an array")
-        for receipt in support:
-            require(isinstance(receipt, dict), f"{rule_id} support receipt must be an object")
-            sample_id = receipt.get("sample_id")
-            require(sample_id in observations_by_sample, f"{rule_id} references unknown sample {sample_id!r}")
-            observation_ids = receipt.get("observation_ids")
-            require(isinstance(observation_ids, list) and observation_ids, f"{rule_id}/{sample_id} requires observation ids")
-            missing = set(observation_ids) - observations_by_sample[sample_id]
-            require(not missing, f"{rule_id}/{sample_id} references unknown observations: {sorted(missing)}")
-
-        if status == "stable":
-            support_samples = {receipt.get("sample_id") for receipt in support}
-            require(len(support_samples) >= 2, f"{rule_id} cannot be stable without multiple independent samples")
+        string_list(rule.get("applies_when"), f"{rule_id} applies_when")
+        does_not_apply = string_list(rule.get("does_not_apply_when"), f"{rule_id} does_not_apply_when")
+        require(rule.get("confidence") in CONFIDENCE_LEVELS, f"{rule_id} has invalid confidence")
+        require(rule.get("validator_potential") in VALIDATOR_POTENTIALS, f"{rule_id} has invalid validator_potential")
+        support_samples, counterexample_samples, latest_evidence_date = validate_support(
+            rule, rule_id, observations_by_sample, sample_dates, "voice_register"
+        )
+        voice_support_samples[rule_id] = support_samples
+        updated = parse_date(rule.get("last_updated"), f"{rule_id} last_updated")
+        if latest_evidence_date is not None:
+            require(updated >= latest_evidence_date, f"{rule_id} last_updated predates referenced evidence")
+        require(updated <= voice_rules_date, f"{rule_id} last_updated is newer than the voice catalogue")
+        if status in {"candidate", "stable"}:
+            require(len(support_samples) >= 2, f"{rule_id} cannot be {status} without multiple independent samples")
+        if status == "conditional":
+            require(bool(support_samples), f"{rule_id} conditional rule requires support")
+            require(bool(does_not_apply or counterexample_samples), f"{rule_id} conditional rule requires an explicit boundary")
+        if status in {"contradicted", "rejected"}:
+            require(bool(counterexample_samples), f"{rule_id} {status} rule requires counterexamples")
 
     require(actual_voice_rule_ids == voice_rule_ids, "registry voice_rule_ids do not exactly match ordered voice rule catalogue")
     require(actual_stable_voice_ids == stable_voice_rule_ids, "registry stable_voice_rule_ids do not match stable voice rule states")
 
-    batches = batch_doc["batches"]
+    batches = batch_doc.get("batches")
+    require(isinstance(batches, list), "batch results document must contain a batches array")
     require(batch_doc.get("batch_count") == len(batches), "batch_count does not match batch array")
     actual_batch_ids: list[str] = []
+    batch_sample_ids: list[str] = []
     for batch in batches:
         require(isinstance(batch, dict), "each batch result must be an object")
+        exact_keys(
+            batch,
+            {"batch_id", "sample_id", "topic", "source_class", "article_result", "method_result", "voice_result", "companion_audit", "induced_rule_ids", "qualified_rule_ids", "induced_voice_rule_ids", "contamination_note_ids"},
+            {"canonical_queue_family"},
+            "batch result",
+        )
         batch_id = batch.get("batch_id")
         require(isinstance(batch_id, str) and BATCH_ID.fullmatch(batch_id) is not None, f"invalid batch id: {batch_id!r}")
         require(batch_id not in actual_batch_ids, f"duplicate batch {batch_id}")
         actual_batch_ids.append(batch_id)
         sample_id = batch.get("sample_id")
         require(sample_id in observations_by_sample, f"{batch_id} references unknown sample {sample_id!r}")
+        require(sample_id not in batch_sample_ids, f"multiple batches reference sample {sample_id}")
+        batch_sample_ids.append(sample_id)
         for field in ("topic", "source_class", "article_result", "method_result", "voice_result"):
-            require(isinstance(batch.get(field), str) and batch[field].strip(), f"{batch_id} {field} must be non-empty text")
+            non_empty_text(batch.get(field), f"{batch_id} {field}")
+        queue_family = batch.get("canonical_queue_family")
+        require(queue_family is None or isinstance(queue_family, str) and queue_family.strip(), f"{batch_id} canonical_queue_family must be null or non-empty text")
+
         companion_audit = batch.get("companion_audit")
         require(isinstance(companion_audit, dict), f"{batch_id} companion_audit must be an object")
-        if "cards" in companion_audit:
-            cards = companion_audit.get("cards")
-            require(isinstance(cards, int) and cards >= 0, f"{batch_id} companion card count must be a non-negative integer")
-            for field in ("semantic_passes", "semantic_failures", "strict_render_passes", "strict_render_failures"):
-                value = companion_audit.get(field)
-                require(isinstance(value, int) and value >= 0, f"{batch_id} {field} must be a non-negative integer")
-            require(companion_audit["semantic_passes"] + companion_audit["semantic_failures"] == cards, f"{batch_id} semantic card count mismatch")
-            require(companion_audit["strict_render_passes"] + companion_audit["strict_render_failures"] == cards, f"{batch_id} strict-render card count mismatch")
-        for field in ("induced_rule_ids", "qualified_rule_ids"):
-            ids = batch.get(field)
-            require(isinstance(ids, list), f"{batch_id} {field} must be an array")
-            require(set(ids).issubset(set(rule_ids)), f"{batch_id} {field} references unknown processing rules")
-        voice_ids = batch.get("induced_voice_rule_ids")
-        require(isinstance(voice_ids, list), f"{batch_id} induced_voice_rule_ids must be an array")
-        require(set(voice_ids).issubset(set(voice_rule_ids)), f"{batch_id} induced_voice_rule_ids references unknown voice rules")
-        contamination_ids = batch.get("contamination_note_ids")
-        require(isinstance(contamination_ids, list), f"{batch_id} contamination_note_ids must be an array")
+        non_empty_text(companion_audit.get("status"), f"{batch_id} companion audit status")
+        if sample_id in storyboard_summaries:
+            exact_keys(
+                companion_audit,
+                {"status", "cards", "semantic_passes", "semantic_failures", "strict_render_passes", "strict_render_failures"},
+                {"semantic_failure_ids", "targeted_correction_ids", "semantic_failure_note"},
+                f"{batch_id} companion_audit",
+            )
+            summary = storyboard_summaries[sample_id]
+            for field in ("cards", "semantic_passes", "semantic_failures", "strict_render_passes", "strict_render_failures"):
+                integer(companion_audit.get(field), f"{batch_id} {field}")
+                require(companion_audit[field] == summary[field], f"{batch_id} {field} does not match storyboard")
+            semantic_failure_ids = string_list(companion_audit.get("semantic_failure_ids", []), f"{batch_id} semantic_failure_ids")
+            require(semantic_failure_ids == storyboard_failures[sample_id]["semantic"], f"{batch_id} semantic failure ids do not match storyboard")
+            targeted_ids = string_list(companion_audit.get("targeted_correction_ids", []), f"{batch_id} targeted_correction_ids")
+            require(targeted_ids == storyboard_failures[sample_id]["targeted"], f"{batch_id} targeted correction ids do not match storyboard")
+            if companion_audit.get("semantic_failure_note") is not None:
+                non_empty_text(companion_audit["semantic_failure_note"], f"{batch_id} semantic_failure_note")
+        else:
+            exact_keys(companion_audit, {"status", "note"}, set(), f"{batch_id} companion_audit")
+            non_empty_text(companion_audit.get("note"), f"{batch_id} companion audit note")
+
+        induced_rule_ids = string_list(batch.get("induced_rule_ids"), f"{batch_id} induced_rule_ids")
+        qualified_rule_ids = string_list(batch.get("qualified_rule_ids"), f"{batch_id} qualified_rule_ids")
+        induced_voice_rule_ids = string_list(batch.get("induced_voice_rule_ids"), f"{batch_id} induced_voice_rule_ids")
+        require(set(induced_rule_ids).issubset(rule_ids), f"{batch_id} induced_rule_ids reference unknown processing rules")
+        require(set(qualified_rule_ids).issubset(rule_ids), f"{batch_id} qualified_rule_ids reference unknown processing rules")
+        require(set(induced_voice_rule_ids).issubset(voice_rule_ids), f"{batch_id} induced_voice_rule_ids reference unknown voice rules")
+        for rule_id in induced_rule_ids:
+            require(sample_id in rule_support_samples[rule_id], f"{batch_id} induces {rule_id} without support from {sample_id}")
+        for rule_id in qualified_rule_ids:
+            require(sample_id in rule_counterexample_samples[rule_id], f"{batch_id} qualifies {rule_id} without a counterexample from {sample_id}")
+        for rule_id in induced_voice_rule_ids:
+            require(sample_id in voice_support_samples[rule_id], f"{batch_id} induces {rule_id} without support from {sample_id}")
+        contamination_ids = string_list(batch.get("contamination_note_ids"), f"{batch_id} contamination_note_ids")
+        require(contamination_ids == contamination_ids_by_sample[sample_id], f"{batch_id} contamination notes do not match {sample_id}")
 
     require(actual_batch_ids == batch_ids, "registry batch_ids do not exactly match ordered batch result index")
+    require(batch_sample_ids == sample_ids, "batch sample order does not exactly match registry sample order")
+
+    cross_batch_summary = batch_doc.get("cross_batch_summary")
+    require(isinstance(cross_batch_summary, dict), "cross_batch_summary must be an object")
+    exact_keys(cross_batch_summary, {"method_layer", "voice_layer", "next_gate"}, set(), "cross_batch_summary")
+    method_layer = cross_batch_summary.get("method_layer")
+    require(isinstance(method_layer, dict), "cross_batch_summary method_layer must be an object")
+    exact_keys(method_layer, {"candidate_rule_ids", "conditional_rule_ids", "hypothesis_rule_ids", "stable_rule_ids", "current_reading"}, set(), "method_layer")
+    for state, field in (("candidate", "candidate_rule_ids"), ("conditional", "conditional_rule_ids"), ("hypothesis", "hypothesis_rule_ids"), ("stable", "stable_rule_ids")):
+        summary_ids = string_list(method_layer.get(field), f"method_layer {field}")
+        expected_ids = [rule_id for rule_id in rule_ids if rule_statuses[rule_id] == state]
+        require(summary_ids == expected_ids, f"method_layer {field} does not match rule catalogue")
+    non_empty_text(method_layer.get("current_reading"), "method_layer current_reading")
+    voice_layer = cross_batch_summary.get("voice_layer")
+    require(isinstance(voice_layer, dict), "cross_batch_summary voice_layer must be an object")
+    exact_keys(voice_layer, {"rule_ids", "status", "current_reading"}, set(), "voice_layer")
+    require(string_list(voice_layer.get("rule_ids"), "voice_layer rule_ids") == voice_rule_ids, "voice_layer rule_ids do not match catalogue")
+    non_empty_text(voice_layer.get("status"), "voice_layer status")
+    non_empty_text(voice_layer.get("current_reading"), "voice_layer current_reading")
+    non_empty_text(cross_batch_summary.get("next_gate"), "cross_batch_summary next_gate")
+
+    schema_root = root / "schemas"
+    require(schema_root.is_dir(), "schemas directory is missing")
+    schemas = sorted(schema_root.glob("*.json"))
+    require(bool(schemas), "schemas directory must contain JSON schema documents")
+    for schema_path in schemas:
+        schema = load_json(schema_path, root)
+        require(isinstance(schema, dict), f"{relative(schema_path, root)} must contain an object")
+        require(schema.get("$schema") == "https://json-schema.org/draft/2020-12/schema", f"{relative(schema_path, root)} must use JSON Schema 2020-12")
+        non_empty_text(schema.get("$id"), f"{relative(schema_path, root)} $id")
 
     return {
         "samples": len(sample_ids),
+        "observations": sum(len(value) for value in observations_by_sample.values()),
         "rules": len(rules),
         "stable_rules": len(actual_stable_ids),
         "voice_rules": len(voice_rules),
+        "stable_voice_rules": len(actual_stable_voice_ids),
         "batches": len(batches),
+        "artifact_receipts": artifact_count,
+        "cards": card_count,
         "contamination_notes": contamination_count,
         "strict_render_failures": strict_render_failures,
         "semantic_failures": semantic_failures,
     }
 
 
-def main() -> int:
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--root", type=Path, default=ROOT, help="repository root (defaults to this checkout)")
+    parser.add_argument("--json", action="store_true", help="emit a machine-readable result")
+    return parser
+
+
+def main(argv: Iterable[str] | None = None) -> int:
+    args = build_parser().parse_args(argv)
     try:
-        counts = validate()
+        counts = validate(args.root)
     except ValidationError as exc:
-        print(f"FAIL: {exc}", file=sys.stderr)
+        if args.json:
+            print(json.dumps({"status": "fail", "error": str(exc)}, ensure_ascii=False, sort_keys=True))
+        else:
+            print(f"FAIL: {exc}", file=sys.stderr)
         return 1
-    print("PASS: " + ", ".join(f"{key}={value}" for key, value in counts.items()))
+    if args.json:
+        print(json.dumps({"status": "pass", "counts": counts}, ensure_ascii=False, sort_keys=True))
+    else:
+        print("PASS: " + ", ".join(f"{key}={value}" for key, value in counts.items()))
     return 0
 
 

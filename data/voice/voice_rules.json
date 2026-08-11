@@ -1,5 +1,6 @@
 {
   "schema_version": "0.1.0",
+  "last_updated": "2026-08-11",
   "layer": "article_register",
   "not_persona": true,
   "definition": "Voice rules describe the visible stance, attribution habits, sentence posture and reader-facing density of the explainer. They do not override evidence provenance, study-design limits or the processing workflow.",
@@ -23,7 +24,7 @@
       "counterexamples": [],
       "confidence": "low",
       "validator_potential": "manual",
-      "last_updated": "2026-08-10"
+      "last_updated": "2026-08-11"
     },
     {
       "rule_id": "V002",
@@ -44,7 +45,7 @@
       "counterexamples": [],
       "confidence": "low",
       "validator_potential": "manual",
-      "last_updated": "2026-08-10"
+      "last_updated": "2026-08-11"
     },
     {
       "rule_id": "V003",
@@ -65,7 +66,7 @@
       "counterexamples": [],
       "confidence": "low",
       "validator_potential": "manual",
-      "last_updated": "2026-08-10"
+      "last_updated": "2026-08-11"
     },
     {
       "rule_id": "V004",
@@ -86,7 +87,7 @@
       "counterexamples": [],
       "confidence": "low",
       "validator_potential": "manual",
-      "last_updated": "2026-08-10"
+      "last_updated": "2026-08-11"
     },
     {
       "rule_id": "V005",
@@ -107,7 +108,7 @@
       "counterexamples": [],
       "confidence": "low",
       "validator_potential": "manual",
-      "last_updated": "2026-08-10"
+      "last_updated": "2026-08-11"
     }
   ]
 }
