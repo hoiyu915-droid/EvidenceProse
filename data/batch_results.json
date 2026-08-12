@@ -1,7 +1,7 @@
 {
   "schema_version": "0.1.0",
   "last_updated": "2026-08-12",
-  "batch_count": 6,
+  "batch_count": 7,
   "batches": [
     {
       "batch_id": "B001",
@@ -18,8 +18,18 @@
       },
       "induced_rule_ids": [],
       "qualified_rule_ids": [],
-      "induced_voice_rule_ids": ["V001", "V002", "V003", "V004", "V005"],
-      "contamination_note_ids": ["C001", "C002", "C003"]
+      "induced_voice_rule_ids": [
+        "V001",
+        "V002",
+        "V003",
+        "V004",
+        "V005"
+      ],
+      "contamination_note_ids": [
+        "C001",
+        "C002",
+        "C003"
+      ]
     },
     {
       "batch_id": "B002",
@@ -38,10 +48,24 @@
         "strict_render_passes": 0,
         "strict_render_failures": 6
       },
-      "induced_rule_ids": ["R011"],
-      "qualified_rule_ids": ["R007"],
-      "induced_voice_rule_ids": ["V001", "V002", "V003", "V004", "V005"],
-      "contamination_note_ids": ["C001", "C002", "C003"]
+      "induced_rule_ids": [
+        "R011"
+      ],
+      "qualified_rule_ids": [
+        "R007"
+      ],
+      "induced_voice_rule_ids": [
+        "V001",
+        "V002",
+        "V003",
+        "V004",
+        "V005"
+      ],
+      "contamination_note_ids": [
+        "C001",
+        "C002",
+        "C003"
+      ]
     },
     {
       "batch_id": "B003",
@@ -59,12 +83,26 @@
         "semantic_failures": 1,
         "strict_render_passes": 0,
         "strict_render_failures": 6,
-        "semantic_failure_ids": ["C03"]
+        "semantic_failure_ids": [
+          "C03"
+        ]
       },
-      "induced_rule_ids": ["R012", "R013"],
+      "induced_rule_ids": [
+        "R012",
+        "R013"
+      ],
       "qualified_rule_ids": [],
-      "induced_voice_rule_ids": ["V001", "V002", "V003", "V004", "V005"],
-      "contamination_note_ids": ["C001", "C002"]
+      "induced_voice_rule_ids": [
+        "V001",
+        "V002",
+        "V003",
+        "V004",
+        "V005"
+      ],
+      "contamination_note_ids": [
+        "C001",
+        "C002"
+      ]
     },
     {
       "batch_id": "B004",
@@ -82,13 +120,27 @@
         "semantic_failures": 1,
         "strict_render_passes": 0,
         "strict_render_failures": 6,
-        "semantic_failure_ids": ["C05"],
+        "semantic_failure_ids": [
+          "C05"
+        ],
         "semantic_failure_note": "C05 adds fictional watch readings 158 and 142 that are absent from the queue and source paper."
       },
-      "induced_rule_ids": ["R014", "R015"],
+      "induced_rule_ids": [
+        "R014",
+        "R015"
+      ],
       "qualified_rule_ids": [],
-      "induced_voice_rule_ids": ["V001", "V002", "V003", "V004", "V005"],
-      "contamination_note_ids": ["C001", "C002"]
+      "induced_voice_rule_ids": [
+        "V001",
+        "V002",
+        "V003",
+        "V004",
+        "V005"
+      ],
+      "contamination_note_ids": [
+        "C001",
+        "C002"
+      ]
     },
     {
       "batch_id": "B005",
@@ -106,14 +158,35 @@
         "semantic_failures": 2,
         "strict_render_passes": 0,
         "strict_render_failures": 6,
-        "semantic_failure_ids": ["C02", "C05"],
-        "targeted_correction_ids": ["C01", "C02", "C05"],
+        "semantic_failure_ids": [
+          "C02",
+          "C05"
+        ],
+        "targeted_correction_ids": [
+          "C01",
+          "C02",
+          "C05"
+        ],
         "semantic_failure_note": "C02 invents evidence-status grades for object classes; C05 fabricates venue-chart ordering and omits dominant ICCV. C01 is source-aligned but violates the exact text contract."
       },
-      "induced_rule_ids": ["R016", "R017", "R018"],
+      "induced_rule_ids": [
+        "R016",
+        "R017",
+        "R018"
+      ],
       "qualified_rule_ids": [],
-      "induced_voice_rule_ids": ["V001", "V002", "V003", "V004", "V005"],
-      "contamination_note_ids": ["C001", "C002", "C003"]
+      "induced_voice_rule_ids": [
+        "V001",
+        "V002",
+        "V003",
+        "V004",
+        "V005"
+      ],
+      "contamination_note_ids": [
+        "C001",
+        "C002",
+        "C003"
+      ]
     },
     {
       "batch_id": "B006",
@@ -131,28 +204,129 @@
         "semantic_failures": 2,
         "strict_render_passes": 0,
         "strict_render_failures": 6,
-        "semantic_failure_ids": ["C01", "C06"],
-        "targeted_correction_ids": ["C01", "C06"],
+        "semantic_failure_ids": [
+          "C01",
+          "C06"
+        ],
+        "targeted_correction_ids": [
+          "C01",
+          "C06"
+        ],
         "semantic_failure_note": "C01 replaces the 2-minute step and arm-curl/chair-stand measures with 6-minute walk and knee-extension labels; C06 repeats the knee-extension substitution and abbreviates the 8-foot up-and-go path."
       },
-      "induced_rule_ids": ["R019", "R020"],
+      "induced_rule_ids": [
+        "R019",
+        "R020"
+      ],
       "qualified_rule_ids": [],
-      "induced_voice_rule_ids": ["V001", "V002", "V003", "V004", "V005"],
-      "contamination_note_ids": ["C001", "C002", "C003", "C004"]
+      "induced_voice_rule_ids": [
+        "V001",
+        "V002",
+        "V003",
+        "V004",
+        "V005"
+      ],
+      "contamination_note_ids": [
+        "C001",
+        "C002",
+        "C003",
+        "C004"
+      ]
+    },
+    {
+      "batch_id": "B007",
+      "sample_id": "S007",
+      "topic": "膀胱過動症的數位介入",
+      "source_class": "systematic_review_meta_analysis_of_randomized_trials",
+      "canonical_queue_family": "TP",
+      "article_result": "7 項 RCT、544 人顯示排尿頻率、急迫性尿失禁與生活品質可能改善，但主觀症狀未達顯著、部分結果異質性極高，多數試驗偏倚風險高；尚不能確立最佳模式、療程或長期依從性。",
+      "method_result": "依依從性背景 → 介入分類 → 客觀／主觀症狀 → 生活品質／退組 → 療程 → 偏倚與臨床定位重排；把總體與子群估計、探索性最大點估計與治療排名、短期退組與長期依從性、研究分布導出的療程與最佳處方分開。",
+      "voice_result": "以「可能」「沒有過門檻」「不能當答案」「不是定案」形成相鄰煞車；先給具體效果量，再立即交代少數試驗、高異質性、低確定性或代理指標邊界。",
+      "companion_audit": {
+        "status": "semantic_partial_strict_fail",
+        "cards": 6,
+        "semantic_passes": 4,
+        "semantic_failures": 2,
+        "strict_render_passes": 0,
+        "strict_render_failures": 6,
+        "semantic_failure_ids": [
+          "C03",
+          "C06"
+        ],
+        "targeted_correction_ids": [
+          "C01",
+          "C03",
+          "C05",
+          "C06"
+        ],
+        "semantic_failure_note": "C03 assigns the overall pooled SMD direction to telemedicine; C06 invents a first-, second- and third-line treatment ladder. C01 and C05 are source-aligned but add unlisted text."
+      },
+      "induced_rule_ids": [
+        "R021",
+        "R022",
+        "R023",
+        "R024"
+      ],
+      "qualified_rule_ids": [],
+      "induced_voice_rule_ids": [
+        "V001",
+        "V002",
+        "V003",
+        "V004",
+        "V005"
+      ],
+      "contamination_note_ids": [
+        "C001",
+        "C002",
+        "C003"
+      ]
     }
   ],
   "cross_batch_summary": {
     "method_layer": {
-      "candidate_rule_ids": ["R001", "R002", "R003", "R004", "R005", "R006", "R008", "R009", "R010"],
-      "conditional_rule_ids": ["R007"],
-      "hypothesis_rule_ids": ["R011", "R012", "R013", "R014", "R015", "R016", "R017", "R018", "R019", "R020"],
+      "candidate_rule_ids": [
+        "R001",
+        "R002",
+        "R003",
+        "R004",
+        "R005",
+        "R006",
+        "R008",
+        "R009",
+        "R010"
+      ],
+      "conditional_rule_ids": [
+        "R007"
+      ],
+      "hypothesis_rule_ids": [
+        "R011",
+        "R012",
+        "R013",
+        "R014",
+        "R015",
+        "R016",
+        "R017",
+        "R018",
+        "R019",
+        "R020",
+        "R021",
+        "R022",
+        "R023",
+        "R024"
+      ],
       "stable_rule_ids": [],
-      "current_reading": "六批已形成跨研究設計重複出現的處理骨架；第五批的視覺數值閉合、合取成功語義與建構 metadata／模型成績分流，在第六批進一步延伸為 AHR 與預後區辨力分流、樣條平台與介入門檻分流。所有新增量化語義仍是單一樣本假說，尚不足以升格為生產生成契約。"
+      "current_reading": "七批已形成跨研究設計重複出現的處理骨架；第七批新增總體／子群估計分流、探索性子群／治療排名分流、短期退組／長期依從性分流，以及研究分布療程／最佳處方分流。所有新增量化語義仍是單一樣本假說，尚不足以升格為生產生成契約。"
     },
     "voice_layer": {
-      "rule_ids": ["V001", "V002", "V003", "V004", "V005"],
+      "rule_ids": [
+        "V001",
+        "V002",
+        "V003",
+        "V004",
+        "V005"
+      ],
       "status": "hypothesis",
-      "current_reading": "六批都呈現證據比例式、歸因清楚、邊界貼近結果、讀者導向且高密度但不煽情的語態；目前先作為觀察到的共同語態，不與方法規則混寫。"
+      "current_reading": "七批都呈現證據比例式、歸因清楚、邊界貼近結果、讀者導向且高密度但不煽情的語態；目前先作為觀察到的共同語態，不與方法規則混寫。"
     },
     "next_gate": "新增不同來源與研究設計的樣本，先做看不到參考文章的 held-out reconstruction，再考慮把方法或語態規則提升為 conditional 或 stable。"
   }
