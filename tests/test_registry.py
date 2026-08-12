@@ -33,18 +33,18 @@ class RegistryTests(unittest.TestCase):
         self.assertEqual(
             validate(),
             {
-                "samples": 5,
-                "observations": 68,
-                "rules": 18,
+                "samples": 6,
+                "observations": 83,
+                "rules": 20,
                 "stable_rules": 0,
                 "voice_rules": 5,
                 "stable_voice_rules": 0,
-                "batches": 5,
-                "artifact_receipts": 16,
-                "cards": 24,
-                "contamination_notes": 13,
-                "strict_render_failures": 24,
-                "semantic_failures": 4,
+                "batches": 6,
+                "artifact_receipts": 20,
+                "cards": 30,
+                "contamination_notes": 17,
+                "strict_render_failures": 30,
+                "semantic_failures": 6,
             },
         )
 
@@ -116,13 +116,34 @@ class RegistryTests(unittest.TestCase):
         self.assertEqual(c05["semantic_audit"], "fail")
         self.assertIn("ICCV", " ".join(c05["semantic_violations"]))
 
+    def test_sixth_sample_preserves_title_binding_and_measurement_failures(self) -> None:
+        sample = json.loads((ROOT / "data/samples/S006/sample.json").read_text(encoding="utf-8"))
+        article = (ROOT / sample["article_path"]).read_text(encoding="utf-8")
+        storyboard = json.loads((ROOT / sample["card_storyboard_path"]).read_text(encoding="utf-8"))
+        self.assertIn("體能表現如何預測老年人全因死亡率", article)
+        self.assertIn("13,423", article)
+        self.assertEqual(storyboard["canonical_queue"]["plan_id"], "TA07-20260812-014757-3db3a7b4")
+        self.assertEqual(storyboard["summary"]["semantic_failures"], 2)
+        self.assertEqual(storyboard["summary"]["targeted_correction_ids"], ["C01", "C06"])
+        c01 = next(card for card in storyboard["cards"] if card["card_id"] == "C01")
+        c06 = next(card for card in storyboard["cards"] if card["card_id"] == "C06")
+        self.assertIn("6分鐘", " ".join(c01["semantic_violations"]))
+        self.assertIn("膝伸展", " ".join(c06["semantic_violations"]))
+
+    def test_sixth_batch_adds_calibrated_quantitative_rules(self) -> None:
+        rules = {rule["rule_id"]: rule for rule in json.loads((ROOT / "data/rules/rules.json").read_text(encoding="utf-8"))["rules"]}
+        self.assertEqual(rules["R019"]["status"], "hypothesis")
+        self.assertEqual(rules["R020"]["status"], "hypothesis")
+        self.assertEqual(rules["R019"]["support"][0]["sample_id"], "S006")
+        self.assertEqual(rules["R020"]["support"][0]["observation_ids"], ["O015"])
+
     def test_method_and_voice_layers_are_recorded_separately(self) -> None:
         registry = json.loads((ROOT / "data/registry.json").read_text(encoding="utf-8"))
         batches = json.loads((ROOT / "data/batch_results.json").read_text(encoding="utf-8"))
         voice_rules = json.loads((ROOT / "data/voice/voice_rules.json").read_text(encoding="utf-8"))["rules"]
-        self.assertEqual(registry["batch_ids"], ["B001", "B002", "B003", "B004", "B005"])
+        self.assertEqual(registry["batch_ids"], ["B001", "B002", "B003", "B004", "B005", "B006"])
         self.assertEqual(registry["voice_rule_ids"], ["V001", "V002", "V003", "V004", "V005"])
-        self.assertEqual([batch["sample_id"] for batch in batches["batches"]], ["S001", "S002", "S003", "S004", "S005"])
+        self.assertEqual([batch["sample_id"] for batch in batches["batches"]], ["S001", "S002", "S003", "S004", "S005", "S006"])
         self.assertTrue(all(rule["status"] == "hypothesis" for rule in voice_rules))
         self.assertNotIn("V001", registry["rule_ids"])
 
@@ -140,7 +161,7 @@ class RegistryTests(unittest.TestCase):
 
     def test_unregistered_sample_directory_is_rejected(self) -> None:
         with copied_registry() as root:
-            shutil.copytree(root / "data/samples/S005", root / "data/samples/S006")
+            shutil.copytree(root / "data/samples/S006", root / "data/samples/S007")
             with self.assertRaisesRegex(ValidationError, "do not exactly match sample directories"):
                 validate(root)
 

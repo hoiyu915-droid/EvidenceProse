@@ -9,14 +9,14 @@ The project is deliberately data-first. A polished article is not treated as a t
 ## Current status
 
 - Phase: pattern induction
-- Samples: 5 (`S001`–`S005`)
-- Processing-rule catalogue: 18 (`R001`–`R018`): 9 candidates, 1 conditional rule, 8 hypotheses
+- Samples: 6 (`S001`–`S006`)
+- Processing-rule catalogue: 20 (`R001`–`R020`): 9 candidates, 1 conditional rule, 10 hypotheses
 - Article-register catalogue: 5 (`V001`–`V005`), all hypotheses
-- Batch result index: 5 (`B001`–`B005`), keeping method and voice findings separate
-- Recorded observations: 68; contamination notes: 13
-- Audited companion cards: 24 (4 semantic failures; 24 strict-render failures)
+- Batch result index: 6 (`B001`–`B006`), keeping method and voice findings separate
+- Recorded observations: 83; contamination notes: 17
+- Audited companion cards: 30 (6 semantic failures; 30 strict-render failures)
 - Stable generation rules: 0
-- Domains observed: clinical intervention meta-analysis, public-health systems narrative review, single-centre observational rehabilitation research, footwear scoping review, and scientific-QA benchmark development
+- Domains observed: clinical intervention meta-analysis, public-health systems narrative review, single-centre observational rehabilitation research, footwear scoping review, scientific-QA benchmark development, and a Taiwan older-adult mortality cohort
 - Primary output language: Traditional Chinese
 
 No candidate rule is production-authoritative yet.
@@ -42,7 +42,7 @@ data/
   registry.json               canonical paths and ordered ID indexes
   rules/rules.json            processing-method rule catalogue (`R###`)
   voice/voice_rules.json      article-register rule catalogue (`V###`)
-  batch_results.json          cumulative five-batch result index (`B###`)
+  batch_results.json          cumulative six-batch result index (`B###`)
   samples/S001/
     article.md                exact observed prose sample
     sample.json               provenance, article digest, observations and cautions
@@ -62,8 +62,12 @@ data/
     article.md                fifth exact observed prose sample
     sample.json               benchmark-paper provenance and induced observations
     card_storyboard.json      two-track audit of unauthorised text and visual-data fabrication
+  samples/S006/
+    article.md                sixth exact observed prose sample
+    sample.json               Taiwan cohort provenance, AHR semantics and contamination notes
+    card_storyboard.json      title-bound audit of test-label substitutions and strict text failures
 docs/
-  batch_results.md            human-readable five-batch summary
+  batch_results.md            human-readable six-batch summary
   induction_protocol.md       how repeated examples update the model
   terminology.md              evidence, method/voice and rule-state vocabulary
 schemas/

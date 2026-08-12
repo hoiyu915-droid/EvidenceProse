@@ -1,6 +1,6 @@
 {
   "schema_version": "0.1.0",
-  "last_updated": "2026-08-11",
+  "last_updated": "2026-08-12",
   "layer": "article_register",
   "not_persona": true,
   "definition": "Voice rules describe the visible stance, attribution habits, sentence posture and reader-facing density of the explainer. They do not override evidence provenance, study-design limits or the processing workflow.",
@@ -19,12 +19,13 @@
         {"sample_id": "S002", "observation_ids": ["O014"]},
         {"sample_id": "S003", "observation_ids": ["O014"]},
         {"sample_id": "S004", "observation_ids": ["O014"]},
-        {"sample_id": "S005", "observation_ids": ["O014"]}
+        {"sample_id": "S005", "observation_ids": ["O014"]},
+        {"sample_id": "S006", "observation_ids": ["O014"]}
       ],
       "counterexamples": [],
       "confidence": "low",
       "validator_potential": "manual",
-      "last_updated": "2026-08-11"
+      "last_updated": "2026-08-12"
     },
     {
       "rule_id": "V002",
@@ -40,12 +41,13 @@
         {"sample_id": "S002", "observation_ids": ["O014"]},
         {"sample_id": "S003", "observation_ids": ["O014"]},
         {"sample_id": "S004", "observation_ids": ["O014"]},
-        {"sample_id": "S005", "observation_ids": ["O014"]}
+        {"sample_id": "S005", "observation_ids": ["O014"]},
+        {"sample_id": "S006", "observation_ids": ["O014"]}
       ],
       "counterexamples": [],
       "confidence": "low",
       "validator_potential": "manual",
-      "last_updated": "2026-08-11"
+      "last_updated": "2026-08-12"
     },
     {
       "rule_id": "V003",
@@ -61,12 +63,13 @@
         {"sample_id": "S002", "observation_ids": ["O014"]},
         {"sample_id": "S003", "observation_ids": ["O014"]},
         {"sample_id": "S004", "observation_ids": ["O014"]},
-        {"sample_id": "S005", "observation_ids": ["O014"]}
+        {"sample_id": "S005", "observation_ids": ["O014"]},
+        {"sample_id": "S006", "observation_ids": ["O014"]}
       ],
       "counterexamples": [],
       "confidence": "low",
       "validator_potential": "manual",
-      "last_updated": "2026-08-11"
+      "last_updated": "2026-08-12"
     },
     {
       "rule_id": "V004",
@@ -82,12 +85,13 @@
         {"sample_id": "S002", "observation_ids": ["O014"]},
         {"sample_id": "S003", "observation_ids": ["O014"]},
         {"sample_id": "S004", "observation_ids": ["O014"]},
-        {"sample_id": "S005", "observation_ids": ["O014"]}
+        {"sample_id": "S005", "observation_ids": ["O014"]},
+        {"sample_id": "S006", "observation_ids": ["O014"]}
       ],
       "counterexamples": [],
       "confidence": "low",
       "validator_potential": "manual",
-      "last_updated": "2026-08-11"
+      "last_updated": "2026-08-12"
     },
     {
       "rule_id": "V005",
@@ -103,12 +107,13 @@
         {"sample_id": "S002", "observation_ids": ["O014"]},
         {"sample_id": "S003", "observation_ids": ["O014"]},
         {"sample_id": "S004", "observation_ids": ["O014"]},
-        {"sample_id": "S005", "observation_ids": ["O014"]}
+        {"sample_id": "S005", "observation_ids": ["O014"]},
+        {"sample_id": "S006", "observation_ids": ["O014"]}
       ],
       "counterexamples": [],
       "confidence": "low",
       "validator_potential": "manual",
-      "last_updated": "2026-08-11"
+      "last_updated": "2026-08-12"
     }
   ]
 }
