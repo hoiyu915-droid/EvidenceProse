@@ -33,18 +33,18 @@ class RegistryTests(unittest.TestCase):
         self.assertEqual(
             validate(),
             {
-                "samples": 6,
-                "observations": 83,
-                "rules": 20,
+                "samples": 7,
+                "observations": 99,
+                "rules": 24,
                 "stable_rules": 0,
                 "voice_rules": 5,
                 "stable_voice_rules": 0,
-                "batches": 6,
-                "artifact_receipts": 20,
-                "cards": 30,
-                "contamination_notes": 17,
-                "strict_render_failures": 30,
-                "semantic_failures": 6,
+                "batches": 7,
+                "artifact_receipts": 24,
+                "cards": 36,
+                "contamination_notes": 20,
+                "strict_render_failures": 36,
+                "semantic_failures": 8,
             },
         )
 
@@ -137,13 +137,33 @@ class RegistryTests(unittest.TestCase):
         self.assertEqual(rules["R019"]["support"][0]["sample_id"], "S006")
         self.assertEqual(rules["R020"]["support"][0]["observation_ids"], ["O015"])
 
+    def test_seventh_sample_preserves_subgroup_and_pathway_failures(self) -> None:
+        sample = json.loads((ROOT / "data/samples/S007/sample.json").read_text(encoding="utf-8"))
+        article = (ROOT / sample["article_path"]).read_text(encoding="utf-8")
+        storyboard = json.loads((ROOT / sample["card_storyboard_path"]).read_text(encoding="utf-8"))
+        self.assertIn("數位介入對膀胱過動症症狀與生活品質的效果", article)
+        self.assertIn("7 項 RCT、544 人", article)
+        self.assertEqual(storyboard["canonical_queue"]["plan_id"], "TA07-20260812-041247-175271ce")
+        self.assertEqual(storyboard["summary"]["semantic_failures"], 2)
+        self.assertEqual(storyboard["summary"]["targeted_correction_ids"], ["C01", "C03", "C05", "C06"])
+        c03 = next(card for card in storyboard["cards"] if card["card_id"] == "C03")
+        c06 = next(card for card in storyboard["cards"] if card["card_id"] == "C06")
+        self.assertIn("遠距照護", " ".join(c03["semantic_violations"]))
+        self.assertIn("治療分線框架", " ".join(c06["semantic_violations"]))
+
+    def test_seventh_batch_adds_subgroup_and_adherence_rules(self) -> None:
+        rules = {rule["rule_id"]: rule for rule in json.loads((ROOT / "data/rules/rules.json").read_text(encoding="utf-8"))["rules"]}
+        for rule_id in ("R021", "R022", "R023", "R024"):
+            self.assertEqual(rules[rule_id]["status"], "hypothesis")
+            self.assertEqual(rules[rule_id]["support"][0]["sample_id"], "S007")
+
     def test_method_and_voice_layers_are_recorded_separately(self) -> None:
         registry = json.loads((ROOT / "data/registry.json").read_text(encoding="utf-8"))
         batches = json.loads((ROOT / "data/batch_results.json").read_text(encoding="utf-8"))
         voice_rules = json.loads((ROOT / "data/voice/voice_rules.json").read_text(encoding="utf-8"))["rules"]
-        self.assertEqual(registry["batch_ids"], ["B001", "B002", "B003", "B004", "B005", "B006"])
+        self.assertEqual(registry["batch_ids"], ["B001", "B002", "B003", "B004", "B005", "B006", "B007"])
         self.assertEqual(registry["voice_rule_ids"], ["V001", "V002", "V003", "V004", "V005"])
-        self.assertEqual([batch["sample_id"] for batch in batches["batches"]], ["S001", "S002", "S003", "S004", "S005", "S006"])
+        self.assertEqual([batch["sample_id"] for batch in batches["batches"]], ["S001", "S002", "S003", "S004", "S005", "S006", "S007"])
         self.assertTrue(all(rule["status"] == "hypothesis" for rule in voice_rules))
         self.assertNotIn("V001", registry["rule_ids"])
 
@@ -161,7 +181,7 @@ class RegistryTests(unittest.TestCase):
 
     def test_unregistered_sample_directory_is_rejected(self) -> None:
         with copied_registry() as root:
-            shutil.copytree(root / "data/samples/S006", root / "data/samples/S007")
+            shutil.copytree(root / "data/samples/S007", root / "data/samples/S008")
             with self.assertRaisesRegex(ValidationError, "do not exactly match sample directories"):
                 validate(root)
 

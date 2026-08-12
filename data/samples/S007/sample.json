@@ -1,0 +1,172 @@
+{
+  "sample_id": "S007",
+  "title": "數位介入對膀胱過動症症狀與生活品質的效果：系統性回顧與統合分析",
+  "language": "zh-Hant",
+  "article_path": "data/samples/S007/article.md",
+  "article_sha256": "07b25cfdd0e8cc4cc6bf75dd661f92ef53686c728b0a543becc3be1fc2372579",
+  "card_storyboard_path": "data/samples/S007/card_storyboard.json",
+  "source": {
+    "citation": "Wang N, Fan F, Ou Y, et al. Effects of Digital Interventions on Symptom Improvement and Quality of Life in Patients With Overactive Bladder: Systematic Review and Meta-Analysis. J Med Internet Res. 2026;28:e88971.",
+    "doi": "10.2196/88971",
+    "pdf_sha256": "2efbd674598525665b4495ff387c489a0e0dac55883248f2348ea985997dfbac",
+    "verification_state": "full_text_audited"
+  },
+  "study_profile": {
+    "study_type": "systematic review and meta-analysis of randomized controlled trials of digital interventions for overactive bladder",
+    "synthesis_mode": "random-effects pooling of MD, SMD and RR with prespecified delivery-supervision and duration subgroup analyses plus RoB 2 and GRADE assessment",
+    "included_reports": 7,
+    "total_participants": 544,
+    "quantitative_datasets": 7,
+    "follow_up": "Intervention durations ranged from 12 weeks to 1 year; most studies lasted 12 weeks.",
+    "not_applicable_reasons": {}
+  },
+  "artifact_receipts": [
+    {
+      "artifact_id": "A001",
+      "kind": "source_pdf",
+      "filename": "PDF 3(1).pdf",
+      "sha256": "2efbd674598525665b4495ff387c489a0e0dac55883248f2348ea985997dfbac",
+      "role": "Full JMIR article used to audit trial counts, pooled estimates, subgroup interpretation, risk of bias, limitations and clinical positioning."
+    },
+    {
+      "artifact_id": "A002",
+      "kind": "canonical_render_queue",
+      "filename": "TP_20260812_jmir_88971__imagegen_queue(2).json",
+      "sha256": "f2f080f192ab28246a525b24d0467ad6e8bba0276c5cad5de69d011726491f70",
+      "role": "Canonical queue matched to the rendered six-card title sequence C01-C06."
+    },
+    {
+      "artifact_id": "A003",
+      "kind": "alternate_render_queue",
+      "filename": "TZ01_20260812_JMIR_e88971__imagegen_queue(2).json",
+      "sha256": "336a0d1009cebeebd55177d813da1f7e98c651114d37f664a04a22a32a5f6f01",
+      "role": "Rejected because its six titles describe a different card plan from the uploaded renders."
+    },
+    {
+      "artifact_id": "A004",
+      "kind": "rendered_cardset",
+      "filename": "ordered C01-C06 card_id/title/image_sha256 manifest",
+      "sha256": "695f67a95fdd4077b13e2f8b550d7ca48fbe1f84506866ea1d7dcac45b0456f9",
+      "role": "Digest of the title-bound C01-C06 image manifest recorded in card_storyboard.json."
+    }
+  ],
+  "observations": [
+    {
+      "observation_id": "O001",
+      "kind": "architecture",
+      "description": "The explainer moves from adherence context and review construction to intervention taxonomy, objective and subjective outcomes, quality of life, attrition, duration, limitations and clinical positioning instead of mirroring the source page order.",
+      "evidence_locations": ["article:內容", "article:客觀症狀指標", "article:主觀症狀量表分數", "article:臨床定位"]
+    },
+    {
+      "observation_id": "O002",
+      "kind": "calibration",
+      "description": "Every favourable signal is paired with its evidence brake: few trials for bladder-diary outcomes, high heterogeneity for subjective symptoms and quality of life, or low certainty and short follow-up for attrition.",
+      "evidence_locations": ["article:客觀症狀指標", "article:主觀症狀量表分數", "article:生活品質", "article:退出率"]
+    },
+    {
+      "observation_id": "O003",
+      "kind": "mechanism",
+      "description": "The article distinguishes symptom intensification from service value: telemedicine can remain useful through access and care efficiency even when its symptom estimate is close to control.",
+      "evidence_locations": ["article:主觀症狀量表分數", "source:Clinical Positioning of Telemedicine", "card:C03"]
+    },
+    {
+      "observation_id": "O004",
+      "kind": "claim_transform",
+      "description": "MD, SMD and RR are translated with confidence intervals, outcome names, significance status and heterogeneity rather than being converted into generic percentages of improvement.",
+      "evidence_locations": ["article:客觀症狀指標", "article:主觀症狀量表分數", "article:生活品質", "article:退出率"]
+    },
+    {
+      "observation_id": "O005",
+      "kind": "calibration",
+      "description": "The registered review methods and random-effects synthesis are explicitly separated from the thin substrate of seven small trials, five at high overall risk of bias and several low- or very-low-certainty outcomes.",
+      "evidence_locations": ["article:偏倚風險與整體限制", "article:證據分級", "card:C01"]
+    },
+    {
+      "observation_id": "O006",
+      "kind": "provenance",
+      "description": "Pooled results, subgroup estimates, single-study quality-of-life effects, author hypotheses about duration and future stepped care, and the explainer's clinical translation are kept as distinct source layers.",
+      "evidence_locations": ["article:主觀症狀量表分數", "article:生活品質", "article:療程長度的子群分析", "article:臨床定位"]
+    },
+    {
+      "observation_id": "O007",
+      "kind": "limitations",
+      "description": "Bias, imprecision, small-study effects, intervention heterogeneity and the multicomponent inability to isolate a digital ingredient are treated as controls on what can be concluded, not as a detached checklist.",
+      "evidence_locations": ["article:偏倚風險與整體限制", "article:臨床定位", "source:Limitations"]
+    },
+    {
+      "observation_id": "O008",
+      "kind": "limitations",
+      "description": "The limitations prohibit claims that every symptom improves, that a digital mode is best, that 6-13 weeks is an optimal prescription, or that short-term attrition establishes durable adherence.",
+      "evidence_locations": ["article:客觀症狀指標", "article:退出率", "article:療程長度的子群分析", "article:臨床定位"]
+    },
+    {
+      "observation_id": "O009",
+      "kind": "decision_positioning",
+      "description": "Digital intervention is positioned as a potentially useful care option or tool that still requires larger, longer and more rigorous trials, not as a replacement for standard OAB care or a settled treatment ladder.",
+      "evidence_locations": ["article:臨床定位", "source:Conclusions", "card:C06"]
+    },
+    {
+      "observation_id": "O010",
+      "kind": "evidence_grade",
+      "description": "Prospective registration, PRISMA, RoB 2, GRADE and prespecified subgroup analyses strengthen review conduct, while seven small trials, high risk of bias, extreme heterogeneity and absent publication-bias testing keep certainty limited.",
+      "evidence_locations": ["article:偏倚風險與整體限制", "article:證據分級"]
+    },
+    {
+      "observation_id": "O011",
+      "kind": "quantitative_semantics",
+      "description": "The pooled overall subjective-symptom SMD cannot be relabelled as the telemedicine subgroup effect; the render's direction caption does exactly this even though the source reports telemedicine near zero.",
+      "evidence_locations": ["article:主觀症狀量表分數", "card:C03", "source:Figure 4"]
+    },
+    {
+      "observation_id": "O012",
+      "kind": "quantitative_semantics",
+      "description": "The largest exploratory subgroup point estimate is not a treatment ranking when its confidence interval crosses no effect, heterogeneity is 97%, only two therapeutically different studies contribute, and a quality-of-life estimate comes from one study.",
+      "evidence_locations": ["article:主觀症狀量表分數", "article:生活品質", "card:C05"]
+    },
+    {
+      "observation_id": "O013",
+      "kind": "companion_artifact",
+      "description": "Four cards are semantically aligned and two fail: C03 misassigns the overall SMD to telemedicine, while C06 invents a first-, second- and third-line treatment ladder. All six fail the exact visible-text render contract because each adds unlisted labels or explanatory text.",
+      "evidence_locations": ["card_storyboard:C01-C06", "card:C03", "card:C06"]
+    },
+    {
+      "observation_id": "O014",
+      "kind": "voice_register",
+      "description": "The register is clinically readable, cautious and contrast-driven: '可能', '不能解讀成', '探索性' and '不是定案' are placed next to the result they constrain rather than deferred to the end.",
+      "evidence_locations": ["article:一句話總結", "article:主觀症狀量表分數", "article:退出率", "article:臨床定位"]
+    },
+    {
+      "observation_id": "O015",
+      "kind": "quantitative_semantics",
+      "description": "No detected short-term attrition difference is not evidence of improved long-term adherence; attrition is a crude proxy and most included trials were short.",
+      "evidence_locations": ["article:退出率", "card:C04", "source:Optimal Duration and Attrition"]
+    },
+    {
+      "observation_id": "O016",
+      "kind": "quantitative_semantics",
+      "description": "A duration subgroup associated with symptom reduction can be described as a supportive exploratory signal, but its study-distribution-derived cutoffs cannot be converted into an established optimal treatment duration.",
+      "evidence_locations": ["article:療程長度的子群分析", "card:C05", "source:Optimal Duration and Attrition"]
+    }
+  ],
+  "contamination_notes": [
+    {
+      "note_id": "C001",
+      "location": "臨床定位",
+      "issue": "『退出率上也沒有顯示額外負擔』 compresses a low-certainty, nonsignificant short-term attrition comparison into a broader burden statement.",
+      "preferred_handling": "State that no short-term attrition difference was detected, name the low certainty, and keep patient burden and long-term engagement as unresolved outcomes."
+    },
+    {
+      "note_id": "C002",
+      "location": "臨床定位",
+      "issue": "The proposed sequence of teleconsultation followed by app self-management is an author-described future hybrid or stepped-care direction, not a treatment pathway tested by the included trials.",
+      "preferred_handling": "Attribute the sequence to the authors as a future implementation proposal and avoid presenting it as an established current pathway."
+    },
+    {
+      "note_id": "C003",
+      "location": "證據分級",
+      "issue": "『結論方向一致』 is too broad because subjective symptoms and nocturia were nonsignificant, several estimates were extremely heterogeneous, and certainty varied from moderate to very low.",
+      "preferred_handling": "Name the outcomes with favourable signals and separately state which outcomes were nonsignificant, heterogeneous or very-low certainty."
+    }
+  ],
+  "analysis_date": "2026-08-12"
+}

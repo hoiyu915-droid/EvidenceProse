@@ -20,7 +20,8 @@
         {"sample_id": "S003", "observation_ids": ["O014"]},
         {"sample_id": "S004", "observation_ids": ["O014"]},
         {"sample_id": "S005", "observation_ids": ["O014"]},
-        {"sample_id": "S006", "observation_ids": ["O014"]}
+        {"sample_id": "S006", "observation_ids": ["O014"]},
+        {"sample_id": "S007", "observation_ids": ["O014"]}
       ],
       "counterexamples": [],
       "confidence": "low",
@@ -42,7 +43,8 @@
         {"sample_id": "S003", "observation_ids": ["O014"]},
         {"sample_id": "S004", "observation_ids": ["O014"]},
         {"sample_id": "S005", "observation_ids": ["O014"]},
-        {"sample_id": "S006", "observation_ids": ["O014"]}
+        {"sample_id": "S006", "observation_ids": ["O014"]},
+        {"sample_id": "S007", "observation_ids": ["O014"]}
       ],
       "counterexamples": [],
       "confidence": "low",
@@ -64,7 +66,8 @@
         {"sample_id": "S003", "observation_ids": ["O014"]},
         {"sample_id": "S004", "observation_ids": ["O014"]},
         {"sample_id": "S005", "observation_ids": ["O014"]},
-        {"sample_id": "S006", "observation_ids": ["O014"]}
+        {"sample_id": "S006", "observation_ids": ["O014"]},
+        {"sample_id": "S007", "observation_ids": ["O014"]}
       ],
       "counterexamples": [],
       "confidence": "low",
@@ -86,7 +89,8 @@
         {"sample_id": "S003", "observation_ids": ["O014"]},
         {"sample_id": "S004", "observation_ids": ["O014"]},
         {"sample_id": "S005", "observation_ids": ["O014"]},
-        {"sample_id": "S006", "observation_ids": ["O014"]}
+        {"sample_id": "S006", "observation_ids": ["O014"]},
+        {"sample_id": "S007", "observation_ids": ["O014"]}
       ],
       "counterexamples": [],
       "confidence": "low",
@@ -108,7 +112,8 @@
         {"sample_id": "S003", "observation_ids": ["O014"]},
         {"sample_id": "S004", "observation_ids": ["O014"]},
         {"sample_id": "S005", "observation_ids": ["O014"]},
-        {"sample_id": "S006", "observation_ids": ["O014"]}
+        {"sample_id": "S006", "observation_ids": ["O014"]},
+        {"sample_id": "S007", "observation_ids": ["O014"]}
       ],
       "counterexamples": [],
       "confidence": "low",

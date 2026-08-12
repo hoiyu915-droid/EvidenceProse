@@ -16,7 +16,8 @@
         {"sample_id": "S003", "observation_ids": ["O001"]},
         {"sample_id": "S004", "observation_ids": ["O001"]},
         {"sample_id": "S005", "observation_ids": ["O001"]},
-        {"sample_id": "S006", "observation_ids": ["O001"]}
+        {"sample_id": "S006", "observation_ids": ["O001"]},
+        {"sample_id": "S007", "observation_ids": ["O001"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
@@ -37,7 +38,8 @@
         {"sample_id": "S003", "observation_ids": ["O002"]},
         {"sample_id": "S004", "observation_ids": ["O002"]},
         {"sample_id": "S005", "observation_ids": ["O002"]},
-        {"sample_id": "S006", "observation_ids": ["O002"]}
+        {"sample_id": "S006", "observation_ids": ["O002"]},
+        {"sample_id": "S007", "observation_ids": ["O002"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
@@ -58,7 +60,8 @@
         {"sample_id": "S003", "observation_ids": ["O003"]},
         {"sample_id": "S004", "observation_ids": ["O003"]},
         {"sample_id": "S005", "observation_ids": ["O003"]},
-        {"sample_id": "S006", "observation_ids": ["O003"]}
+        {"sample_id": "S006", "observation_ids": ["O003"]},
+        {"sample_id": "S007", "observation_ids": ["O003"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
@@ -79,7 +82,8 @@
         {"sample_id": "S003", "observation_ids": ["O004"]},
         {"sample_id": "S004", "observation_ids": ["O004"]},
         {"sample_id": "S005", "observation_ids": ["O004"]},
-        {"sample_id": "S006", "observation_ids": ["O004"]}
+        {"sample_id": "S006", "observation_ids": ["O004"]},
+        {"sample_id": "S007", "observation_ids": ["O004"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
@@ -100,7 +104,8 @@
         {"sample_id": "S003", "observation_ids": ["O005"]},
         {"sample_id": "S004", "observation_ids": ["O005"]},
         {"sample_id": "S005", "observation_ids": ["O005"]},
-        {"sample_id": "S006", "observation_ids": ["O005"]}
+        {"sample_id": "S006", "observation_ids": ["O005"]},
+        {"sample_id": "S007", "observation_ids": ["O005"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
@@ -121,7 +126,8 @@
         {"sample_id": "S003", "observation_ids": ["O006"]},
         {"sample_id": "S004", "observation_ids": ["O006"]},
         {"sample_id": "S005", "observation_ids": ["O006"]},
-        {"sample_id": "S006", "observation_ids": ["O006"]}
+        {"sample_id": "S006", "observation_ids": ["O006"]},
+        {"sample_id": "S007", "observation_ids": ["O006"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
@@ -166,7 +172,8 @@
         {"sample_id": "S003", "observation_ids": ["O008"]},
         {"sample_id": "S004", "observation_ids": ["O008"]},
         {"sample_id": "S005", "observation_ids": ["O008"]},
-        {"sample_id": "S006", "observation_ids": ["O008"]}
+        {"sample_id": "S006", "observation_ids": ["O008"]},
+        {"sample_id": "S007", "observation_ids": ["O008"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
@@ -187,7 +194,8 @@
         {"sample_id": "S003", "observation_ids": ["O009"]},
         {"sample_id": "S004", "observation_ids": ["O009"]},
         {"sample_id": "S005", "observation_ids": ["O009"]},
-        {"sample_id": "S006", "observation_ids": ["O009"]}
+        {"sample_id": "S006", "observation_ids": ["O009"]},
+        {"sample_id": "S007", "observation_ids": ["O009"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
@@ -205,12 +213,13 @@
       "support": [
         {"sample_id": "S001", "observation_ids": ["O010"]},
         {"sample_id": "S002", "observation_ids": ["O010"]},
-        {"sample_id": "S004", "observation_ids": ["O010"]}
+        {"sample_id": "S004", "observation_ids": ["O010"]},
+        {"sample_id": "S007", "observation_ids": ["O010"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
       "validator_potential": "partial",
-      "last_updated": "2026-08-10"
+      "last_updated": "2026-08-12"
     },
     {
       "rule_id": "R011",
@@ -347,6 +356,62 @@
       "applies_when": ["A restricted-spline or similar observational model shows a plateau in a particular sex-by-test or subgroup combination."],
       "does_not_apply_when": ["A validated intervention study directly establishes a threshold with prespecified clinical consequences."],
       "support": [{"sample_id": "S006", "observation_ids": ["O015"]}],
+      "counterexamples": [],
+      "confidence": "low",
+      "validator_potential": "partial",
+      "last_updated": "2026-08-12"
+    },
+    {
+      "rule_id": "R021",
+      "name": "Pooled estimate is not a subgroup estimate",
+      "category": "quantitative_semantics",
+      "statement": "Do not assign an overall pooled estimate, confidence interval or direction label to a named subgroup whose own estimate is different.",
+      "status": "hypothesis",
+      "applies_when": ["A synthesis reports both an overall estimate and subgroup-specific estimates, or a visual places an overall result beside a subgroup scene."],
+      "does_not_apply_when": ["The source explicitly defines the displayed estimate as belonging to the named subgroup."],
+      "support": [{"sample_id": "S007", "observation_ids": ["O011"]}],
+      "counterexamples": [],
+      "confidence": "low",
+      "validator_potential": "partial",
+      "last_updated": "2026-08-12"
+    },
+    {
+      "rule_id": "R022",
+      "name": "Exploratory subgroup is not a treatment ranking",
+      "category": "quantitative_semantics",
+      "statement": "A largest subgroup point estimate does not establish a preferred modality when the comparison is exploratory, sparse, heterogeneous, imprecise or compositionally different.",
+      "status": "hypothesis",
+      "applies_when": ["Subgroup results could be read as identifying the best intervention type, intensity or delivery mode."],
+      "does_not_apply_when": ["A prespecified, adequately powered direct comparison supports a ranking with acceptable certainty."],
+      "support": [{"sample_id": "S007", "observation_ids": ["O012"]}],
+      "counterexamples": [],
+      "confidence": "low",
+      "validator_potential": "partial",
+      "last_updated": "2026-08-12"
+    },
+    {
+      "rule_id": "R023",
+      "name": "Short-term attrition is not long-term adherence",
+      "category": "quantitative_semantics",
+      "statement": "Keep trial attrition separate from durable real-world adherence; a nonsignificant short-term dropout comparison cannot establish improved retention or engagement.",
+      "status": "hypothesis",
+      "applies_when": ["Attrition or dropout is used as a proxy for adherence, acceptability, engagement or burden."],
+      "does_not_apply_when": ["Long-term adherence is directly measured with a validated definition and suitable follow-up."],
+      "support": [{"sample_id": "S007", "observation_ids": ["O015"]}],
+      "counterexamples": [],
+      "confidence": "low",
+      "validator_potential": "partial",
+      "last_updated": "2026-08-12"
+    },
+    {
+      "rule_id": "R024",
+      "name": "Study-derived duration band is not an optimal prescription",
+      "category": "quantitative_semantics",
+      "statement": "Treat a duration subgroup derived from the distribution of included studies as a supportive signal, not as a validated optimal dose, target window or treatment prescription.",
+      "status": "hypothesis",
+      "applies_when": ["A review associates one duration band with a favourable outcome but did not randomize or directly compare duration strategies."],
+      "does_not_apply_when": ["A prespecified duration-ranging trial or direct comparative synthesis establishes the optimal duration with adequate certainty."],
+      "support": [{"sample_id": "S007", "observation_ids": ["O016"]}],
       "counterexamples": [],
       "confidence": "low",
       "validator_potential": "partial",
