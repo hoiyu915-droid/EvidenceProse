@@ -1,7 +1,7 @@
 {
   "schema_version": "0.1.0",
-  "last_updated": "2026-08-11",
-  "batch_count": 5,
+  "last_updated": "2026-08-12",
+  "batch_count": 6,
   "batches": [
     {
       "batch_id": "B001",
@@ -114,20 +114,45 @@
       "qualified_rule_ids": [],
       "induced_voice_rule_ids": ["V001", "V002", "V003", "V004", "V005"],
       "contamination_note_ids": ["C001", "C002", "C003"]
+    },
+    {
+      "batch_id": "B006",
+      "sample_id": "S006",
+      "topic": "台灣社區長者體能表現與全因死亡率",
+      "source_class": "nationwide_observational_cohort",
+      "canonical_queue_family": "TZ01",
+      "article_result": "13,423 名台灣社區長者的標準化體能測驗與約七年全因死亡資料呈現梯度反比關聯；平衡敏捷、下肢肌力、心肺適能與複合指數的 AHR 較低，但研究沒有證明運動介入效果，也沒有直接比較預後區辨力。",
+      "method_result": "以族群與測量 → 七項功能測驗 → 分域 AHR → 性別與樣條 → 臨床定位 → 選擇與因果限制重排；把 AHR 的關聯幅度、複合指數的報告結果與 C statistic 缺口分開，並記錄平台型關聯不可直接變成介入門檻。",
+      "voice_result": "臨床可讀、數字密度高但不把關聯寫成療效；每個可用結果旁即時放入觀察性、選擇偏差、單次測量或預測比較缺口，最後把體能定位為補充訊號而非勝出的風險模型。",
+      "companion_audit": {
+        "status": "semantic_partial_strict_fail",
+        "cards": 6,
+        "semantic_passes": 4,
+        "semantic_failures": 2,
+        "strict_render_passes": 0,
+        "strict_render_failures": 6,
+        "semantic_failure_ids": ["C01", "C06"],
+        "targeted_correction_ids": ["C01", "C06"],
+        "semantic_failure_note": "C01 replaces the 2-minute step and arm-curl/chair-stand measures with 6-minute walk and knee-extension labels; C06 repeats the knee-extension substitution and abbreviates the 8-foot up-and-go path."
+      },
+      "induced_rule_ids": ["R019", "R020"],
+      "qualified_rule_ids": [],
+      "induced_voice_rule_ids": ["V001", "V002", "V003", "V004", "V005"],
+      "contamination_note_ids": ["C001", "C002", "C003", "C004"]
     }
   ],
   "cross_batch_summary": {
     "method_layer": {
       "candidate_rule_ids": ["R001", "R002", "R003", "R004", "R005", "R006", "R008", "R009", "R010"],
       "conditional_rule_ids": ["R007"],
-      "hypothesis_rule_ids": ["R011", "R012", "R013", "R014", "R015", "R016", "R017", "R018"],
+      "hypothesis_rule_ids": ["R011", "R012", "R013", "R014", "R015", "R016", "R017", "R018", "R019", "R020"],
       "stable_rule_ids": [],
-      "current_reading": "五批已形成跨研究設計重複出現的處理骨架；本批新增視覺數值閉合、合取成功語義與建構 metadata／模型成績分流，但仍不足以把任何規則直接升格為生產生成契約。"
+      "current_reading": "六批已形成跨研究設計重複出現的處理骨架；第五批的視覺數值閉合、合取成功語義與建構 metadata／模型成績分流，在第六批進一步延伸為 AHR 與預後區辨力分流、樣條平台與介入門檻分流。所有新增量化語義仍是單一樣本假說，尚不足以升格為生產生成契約。"
     },
     "voice_layer": {
       "rule_ids": ["V001", "V002", "V003", "V004", "V005"],
       "status": "hypothesis",
-      "current_reading": "五批都呈現證據比例式、歸因清楚、邊界貼近結果、讀者導向且高密度但不煽情的語態；目前先作為觀察到的共同語態，不與方法規則混寫。"
+      "current_reading": "六批都呈現證據比例式、歸因清楚、邊界貼近結果、讀者導向且高密度但不煽情的語態；目前先作為觀察到的共同語態，不與方法規則混寫。"
     },
     "next_gate": "新增不同來源與研究設計的樣本，先做看不到參考文章的 held-out reconstruction，再考慮把方法或語態規則提升為 conditional 或 stable。"
   }

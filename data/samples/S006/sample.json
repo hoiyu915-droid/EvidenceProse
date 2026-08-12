@@ -1,0 +1,172 @@
+{
+  "sample_id": "S006",
+  "title": "體能表現如何預測老年人全因死亡率：一項1.3萬人的台灣世代研究",
+  "language": "zh-Hant",
+  "article_path": "data/samples/S006/article.md",
+  "article_sha256": "9f552dbb263fb5da9afd4ccaffe53f80d04f5a6263e765111e14e9e4b85681ba",
+  "card_storyboard_path": "data/samples/S006/card_storyboard.json",
+  "source": {
+    "citation": "Wu MC, Hsu CT, Hsu HT, et al. Physical Fitness and All-Cause Mortality in Older Adults. JAMA Network Open. 2026;9(8):e2628227.",
+    "doi": "10.1001/jamanetworkopen.2026.28227",
+    "pdf_sha256": "69f4f54f8731bd39923ac00b3c966c053a61771806b40a5e01cef53ca64e4fee",
+    "verification_state": "full_text_audited"
+  },
+  "study_profile": {
+    "study_type": "observational cohort linking Taiwan's National Physical Fitness Survey Database with the National Health Insurance Research Database",
+    "synthesis_mode": "quantile-based multivariable Cox models plus sex-stratified restricted cubic splines and continuous-value sensitivity analyses",
+    "included_reports": 1,
+    "total_participants": 13423,
+    "quantitative_datasets": 1,
+    "follow_up": "Median 7.0 years (IQR 6.7-7.1)",
+    "not_applicable_reasons": {}
+  },
+  "artifact_receipts": [
+    {
+      "artifact_id": "A001",
+      "kind": "source_pdf",
+      "filename": "wu_2026_oi_260767_1785772905.3338.pdf",
+      "sha256": "69f4f54f8731bd39923ac00b3c966c053a61771806b40a5e01cef53ca64e4fee",
+      "role": "Full JAMA Network Open article used to audit the cohort, seven tests, AHRs, spline results, discussion and limitations."
+    },
+    {
+      "artifact_id": "A002",
+      "kind": "canonical_render_queue",
+      "filename": "TZ01_20260812_JAMAe2628227__imagegen_queue(2).json",
+      "sha256": "00544e6b42365980c351b02ad71f5c6bec89cd4d300ab0180218610e6c7bf8e5",
+      "role": "Canonical queue matched to the rendered six-card title sequence C01-C06."
+    },
+    {
+      "artifact_id": "A003",
+      "kind": "alternate_render_queue",
+      "filename": "TP_20260812_jamanetworkopen_2026_28227__imagegen_queue(3).json",
+      "sha256": "0044dfd184fd6abce1e97dd1468cdcef1bf1fb9eef4dc15119a1498687981ba2",
+      "role": "Rejected because its six titles describe a different card plan from the uploaded renders."
+    },
+    {
+      "artifact_id": "A004",
+      "kind": "rendered_cardset",
+      "filename": "ordered C01-C06 card_id/title/image_sha256 manifest",
+      "sha256": "2a808c111d3c3a6952a978d6c48c075f755f317f961a34d76502f2124aa4b815",
+      "role": "Digest of the title-bound C01-C06 image manifest recorded in card_storyboard.json."
+    }
+  ],
+  "observations": [
+    {
+      "observation_id": "O001",
+      "kind": "architecture",
+      "description": "The article moves from cohort construction and the seven functional tests to domain-specific AHR gradients, sex strata, spline shape, clinical positioning and explicit limitations rather than following the paper page by page.",
+      "evidence_locations": ["article:研究設計與族群", "article:體能評估的四大面向、七項測驗", "article:主要發現：分域風險梯度", "article:方法學重點與限制"]
+    },
+    {
+      "observation_id": "O002",
+      "kind": "calibration",
+      "description": "Favourable mortality associations are paired with the observational-design brake, so higher measured fitness is not presented as proof that improving fitness directly lowers death.",
+      "evidence_locations": ["article:一句話總結", "article:主要發現：分域風險梯度", "card:C01"]
+    },
+    {
+      "observation_id": "O003",
+      "kind": "mechanism",
+      "description": "The explanatory spine links balance, agility and lower-body strength to functional reserve and fall-related pathways, while retaining the paper's status as an association study rather than an intervention test.",
+      "evidence_locations": ["article:性別分層差異", "article:證據分級", "source:Discussion"]
+    },
+    {
+      "observation_id": "O004",
+      "kind": "claim_transform",
+      "description": "AHRs are translated with their Q1 reference, confidence intervals and outcome domain, then capped as relative association estimates rather than individual mortality reductions.",
+      "evidence_locations": ["article:主要發現：分域風險梯度", "card:C02", "source:Figure 3"]
+    },
+    {
+      "observation_id": "O005",
+      "kind": "calibration",
+      "description": "The large cohort and standardized testing are paired with selection, single-time-point, smoking and residual-confounding limitations; strengths do not erase the evidence boundary.",
+      "evidence_locations": ["article:研究設計與族群", "article:方法學重點與限制", "card:C05"]
+    },
+    {
+      "observation_id": "O006",
+      "kind": "provenance",
+      "description": "Cohort facts, author discussion about functional reserve and sex-specific mechanisms, and the explainer's clinical interpretation are kept as separate authority layers.",
+      "evidence_locations": ["article:研究設計與族群", "article:性別分層差異", "article:證據分級"]
+    },
+    {
+      "observation_id": "O007",
+      "kind": "limitations",
+      "description": "Eligibility and measurement procedures are treated as part of interpretation: quota-based convenience sampling and the requirement to complete tests select toward healthier, ambulatory older adults, while smoking is unavailable at individual level.",
+      "evidence_locations": ["article:研究設計與族群", "article:方法學重點與限制", "source:Methods—Study Population and Limitations"]
+    },
+    {
+      "observation_id": "O008",
+      "kind": "limitations",
+      "description": "The limitations change the permitted conclusion: no causal claim, no cause-specific mortality claim, no trajectory claim and no formal comparison of prognostic accuracy with comorbidity-based metrics.",
+      "evidence_locations": ["article:方法學重點與限制", "article:證據分級", "card:C06"]
+    },
+    {
+      "observation_id": "O009",
+      "kind": "decision_positioning",
+      "description": "The permitted clinical role is a supplementary functional signal and possible risk-stratification aid, not a validated winning risk model or a proven treatment effect.",
+      "evidence_locations": ["article:方法學重點與限制", "article:證據分級", "card:C06"]
+    },
+    {
+      "observation_id": "O010",
+      "kind": "evidence_grade",
+      "description": "Standardized examiners, near-complete mortality linkage and consistent sensitivity analyses strengthen internal coherence, but the observational cohort and missing smoking/body-composition data keep the evidence below causal or intervention-grade certainty.",
+      "evidence_locations": ["article:研究設計與族群", "article:方法學重點與限制", "article:證據分級"]
+    },
+    {
+      "observation_id": "O011",
+      "kind": "quantitative_semantics",
+      "description": "AHR values compare quintiles in separate multivariable Cox models; they are not absolute mortality reductions and are not automatically a cross-test ranking of predictive discrimination.",
+      "evidence_locations": ["article:主要發現：分域風險梯度", "card:C02", "card:C03", "source:Figure 3 footnote"]
+    },
+    {
+      "observation_id": "O012",
+      "kind": "quantitative_semantics",
+      "description": "The composite index has the lowest reported AHR, but the paper explicitly says it did not formally compare prognostic accuracy using C statistic or net reclassification analyses.",
+      "evidence_locations": ["article:一句話總結", "article:方法學重點與限制", "card:C06", "source:Limitations"]
+    },
+    {
+      "observation_id": "O013",
+      "kind": "companion_artifact",
+      "description": "Four cards are semantically aligned; C01 substitutes a 6-minute walk and knee-extension illustration, while C06 repeats the knee-extension substitution and abbreviates the 8-foot up-and-go path. All six fail the exact visible-text render contract.",
+      "evidence_locations": ["card_storyboard:C01-C06", "card:C01", "card:C06"]
+    },
+    {
+      "observation_id": "O014",
+      "kind": "voice_register",
+      "description": "The register is clinically readable and result-dense: technical measures are translated into everyday function, then immediately accompanied by observational, selection or implementation limits.",
+      "evidence_locations": ["article:一句話總結", "article:主要發現：分域風險梯度", "article:方法學重點與限制", "article:證據分級"]
+    },
+    {
+      "observation_id": "O015",
+      "kind": "quantitative_semantics",
+      "description": "Restricted-cubic-spline plateaus describe observed sex-by-test association shapes; they must not be rewritten as exercise thresholds or proof that gains beyond a value have no intervention benefit.",
+      "evidence_locations": ["article:劑量反應關係：限制性立方樣條分析", "card:C04", "source:Figure 4 and Discussion"]
+    }
+  ],
+  "contamination_notes": [
+    {
+      "note_id": "C001",
+      "location": "一句話總結",
+      "issue": "The phrase '其風險區辨力優於任何單一測驗項目' claims superior discrimination from a lower composite AHR, but the study did not formally compare C statistic or net reclassification performance.",
+      "preferred_handling": "Say that the composite index showed the lowest reported AHR or steepest mortality gradient; reserve '區辨力優於' for a direct discrimination comparison."
+    },
+    {
+      "note_id": "C002",
+      "location": "研究設計與族群",
+      "issue": "'雖具全國代表性' compresses a nationally distributed database and quota targets into a stronger sample-representativeness claim, even though recruitment used quota-based convenience sampling and test completion selected healthier ambulatory participants.",
+      "preferred_handling": "Distinguish a nationwide data source or nationally distributed cohort from population representativeness, and state the selection boundary in the same paragraph."
+    },
+    {
+      "note_id": "C003",
+      "location": "主要發現：分域風險梯度",
+      "issue": "'意味著介入的效益可能最集中在體能最差的長者身上' moves from a mortality-curve pattern to an intervention-benefit distribution, although no intervention was tested.",
+      "preferred_handling": "Describe the observed separation as concentrated mortality differences; make any intervention implication explicitly hypothetical and prospective."
+    },
+    {
+      "note_id": "C004",
+      "location": "劑量反應關係：限制性立方樣條分析",
+      "issue": "'柔軟度只需達到基本功能閾值，超過此閾值後對存活無額外助益' converts an observational plateau into a universal functional or training threshold.",
+      "preferred_handling": "Call it a plateau-shaped association in the measured sex-by-test strata; do not present it as an intervention target or a general threshold."
+    }
+  ],
+  "analysis_date": "2026-08-12"
+}

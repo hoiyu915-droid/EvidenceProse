@@ -2,14 +2,14 @@
   "schema_version": "0.6.0",
   "project_phase": "pattern_induction",
   "primary_language": "zh-Hant",
-  "sample_ids": ["S001", "S002", "S003", "S004", "S005"],
-  "rule_ids": ["R001", "R002", "R003", "R004", "R005", "R006", "R007", "R008", "R009", "R010", "R011", "R012", "R013", "R014", "R015", "R016", "R017", "R018"],
+  "sample_ids": ["S001", "S002", "S003", "S004", "S005", "S006"],
+  "rule_ids": ["R001", "R002", "R003", "R004", "R005", "R006", "R007", "R008", "R009", "R010", "R011", "R012", "R013", "R014", "R015", "R016", "R017", "R018", "R019", "R020"],
   "stable_rule_ids": [],
   "voice_rule_ids": ["V001", "V002", "V003", "V004", "V005"],
   "stable_voice_rule_ids": [],
-  "batch_ids": ["B001", "B002", "B003", "B004", "B005"],
+  "batch_ids": ["B001", "B002", "B003", "B004", "B005", "B006"],
   "rules_path": "data/rules/rules.json",
   "batch_results_path": "data/batch_results.json",
   "voice_rules_path": "data/voice/voice_rules.json",
-  "last_updated": "2026-08-11"
+  "last_updated": "2026-08-12"
 }

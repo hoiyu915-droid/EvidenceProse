@@ -1,6 +1,6 @@
 {
   "schema_version": "0.2.0",
-  "last_updated": "2026-08-11",
+  "last_updated": "2026-08-12",
   "rules": [
     {
       "rule_id": "R001",
@@ -15,12 +15,13 @@
         {"sample_id": "S002", "observation_ids": ["O001"]},
         {"sample_id": "S003", "observation_ids": ["O001"]},
         {"sample_id": "S004", "observation_ids": ["O001"]},
-        {"sample_id": "S005", "observation_ids": ["O001"]}
+        {"sample_id": "S005", "observation_ids": ["O001"]},
+        {"sample_id": "S006", "observation_ids": ["O001"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
       "validator_potential": "manual",
-      "last_updated": "2026-08-11"
+      "last_updated": "2026-08-12"
     },
     {
       "rule_id": "R002",
@@ -35,12 +36,13 @@
         {"sample_id": "S002", "observation_ids": ["O002"]},
         {"sample_id": "S003", "observation_ids": ["O002"]},
         {"sample_id": "S004", "observation_ids": ["O002"]},
-        {"sample_id": "S005", "observation_ids": ["O002"]}
+        {"sample_id": "S005", "observation_ids": ["O002"]},
+        {"sample_id": "S006", "observation_ids": ["O002"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
       "validator_potential": "partial",
-      "last_updated": "2026-08-11"
+      "last_updated": "2026-08-12"
     },
     {
       "rule_id": "R003",
@@ -55,12 +57,13 @@
         {"sample_id": "S002", "observation_ids": ["O003"]},
         {"sample_id": "S003", "observation_ids": ["O003"]},
         {"sample_id": "S004", "observation_ids": ["O003"]},
-        {"sample_id": "S005", "observation_ids": ["O003"]}
+        {"sample_id": "S005", "observation_ids": ["O003"]},
+        {"sample_id": "S006", "observation_ids": ["O003"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
       "validator_potential": "manual",
-      "last_updated": "2026-08-11"
+      "last_updated": "2026-08-12"
     },
     {
       "rule_id": "R004",
@@ -75,12 +78,13 @@
         {"sample_id": "S002", "observation_ids": ["O004"]},
         {"sample_id": "S003", "observation_ids": ["O004"]},
         {"sample_id": "S004", "observation_ids": ["O004"]},
-        {"sample_id": "S005", "observation_ids": ["O004"]}
+        {"sample_id": "S005", "observation_ids": ["O004"]},
+        {"sample_id": "S006", "observation_ids": ["O004"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
       "validator_potential": "partial",
-      "last_updated": "2026-08-11"
+      "last_updated": "2026-08-12"
     },
     {
       "rule_id": "R005",
@@ -95,12 +99,13 @@
         {"sample_id": "S002", "observation_ids": ["O005"]},
         {"sample_id": "S003", "observation_ids": ["O005"]},
         {"sample_id": "S004", "observation_ids": ["O005"]},
-        {"sample_id": "S005", "observation_ids": ["O005"]}
+        {"sample_id": "S005", "observation_ids": ["O005"]},
+        {"sample_id": "S006", "observation_ids": ["O005"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
       "validator_potential": "partial",
-      "last_updated": "2026-08-11"
+      "last_updated": "2026-08-12"
     },
     {
       "rule_id": "R006",
@@ -115,12 +120,13 @@
         {"sample_id": "S002", "observation_ids": ["O006"]},
         {"sample_id": "S003", "observation_ids": ["O006"]},
         {"sample_id": "S004", "observation_ids": ["O006"]},
-        {"sample_id": "S005", "observation_ids": ["O006"]}
+        {"sample_id": "S005", "observation_ids": ["O006"]},
+        {"sample_id": "S006", "observation_ids": ["O006"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
       "validator_potential": "automatable",
-      "last_updated": "2026-08-11"
+      "last_updated": "2026-08-12"
     },
     {
       "rule_id": "R007",
@@ -144,7 +150,7 @@
       ],
       "confidence": "moderate",
       "validator_potential": "partial",
-      "last_updated": "2026-08-11"
+      "last_updated": "2026-08-12"
     },
     {
       "rule_id": "R008",
@@ -159,12 +165,13 @@
         {"sample_id": "S002", "observation_ids": ["O008"]},
         {"sample_id": "S003", "observation_ids": ["O008"]},
         {"sample_id": "S004", "observation_ids": ["O008"]},
-        {"sample_id": "S005", "observation_ids": ["O008"]}
+        {"sample_id": "S005", "observation_ids": ["O008"]},
+        {"sample_id": "S006", "observation_ids": ["O008"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
       "validator_potential": "partial",
-      "last_updated": "2026-08-11"
+      "last_updated": "2026-08-12"
     },
     {
       "rule_id": "R009",
@@ -179,12 +186,13 @@
         {"sample_id": "S002", "observation_ids": ["O009"]},
         {"sample_id": "S003", "observation_ids": ["O009"]},
         {"sample_id": "S004", "observation_ids": ["O009"]},
-        {"sample_id": "S005", "observation_ids": ["O009"]}
+        {"sample_id": "S005", "observation_ids": ["O009"]},
+        {"sample_id": "S006", "observation_ids": ["O009"]}
       ],
       "counterexamples": [],
       "confidence": "moderate",
       "validator_potential": "partial",
-      "last_updated": "2026-08-11"
+      "last_updated": "2026-08-12"
     },
     {
       "rule_id": "R010",
@@ -315,6 +323,34 @@
       "confidence": "low",
       "validator_potential": "partial",
       "last_updated": "2026-08-11"
+    },
+    {
+      "rule_id": "R019",
+      "name": "Association magnitude is not discrimination superiority",
+      "category": "quantitative_semantics",
+      "statement": "Do not translate a lower hazard or risk estimate into superior prognostic discrimination unless the source directly compares discrimination metrics such as C statistic, AUC or net reclassification.",
+      "status": "hypothesis",
+      "applies_when": ["A composite or exposure has a lower reported HR/AHR than individual measures, but direct predictive-accuracy metrics are absent."],
+      "does_not_apply_when": ["The source reports a prespecified direct comparison of prognostic discrimination and supports the stated superiority."],
+      "support": [{"sample_id": "S006", "observation_ids": ["O012"]}],
+      "counterexamples": [],
+      "confidence": "low",
+      "validator_potential": "partial",
+      "last_updated": "2026-08-12"
+    },
+    {
+      "rule_id": "R020",
+      "name": "Observed plateau is not an intervention threshold",
+      "category": "quantitative_semantics",
+      "statement": "Keep a plateau or nonlinear association in an observational dose-response model separate from a clinical, training or intervention threshold.",
+      "status": "hypothesis",
+      "applies_when": ["A restricted-spline or similar observational model shows a plateau in a particular sex-by-test or subgroup combination."],
+      "does_not_apply_when": ["A validated intervention study directly establishes a threshold with prespecified clinical consequences."],
+      "support": [{"sample_id": "S006", "observation_ids": ["O015"]}],
+      "counterexamples": [],
+      "confidence": "low",
+      "validator_potential": "partial",
+      "last_updated": "2026-08-12"
     }
   ]
 }
