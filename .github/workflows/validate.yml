@@ -2,7 +2,7 @@ name: Validate registry
 
 on:
   push:
-    branches: [main, fix/audit-edit-seal-boundary]
+    branches: [main]
   pull_request:
 
 permissions:
