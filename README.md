@@ -16,6 +16,7 @@ The project is deliberately data-first. A polished article is not treated as a t
 - Recorded observations: 99; contamination notes: 20
 - Audited companion cards: 36 (36/36 content-truth passes; 28/36 substantive render-fidelity passes; 36 historical text comparisons with no pass/fail status)
 - Stable generation rules: 0
+- Delivery-shell contract: `EP-SCIENCE-EXPLAINER-OUTPUT v0.1` (structural packaging only; not a production generation authority)
 - Domains observed: clinical intervention meta-analyses, public-health systems narrative review, single-centre observational rehabilitation research, footwear scoping review, scientific-QA benchmark development, and a Taiwan older-adult mortality cohort
 - Primary output language: Traditional Chinese
 
@@ -35,6 +36,8 @@ Reader decision + intended and forbidden takeaways
   -> saturation and held-out reconstruction
   -> generation contract
   -> prose draft
+  -> reader-facing delivery-shell projection
+       (fixed three-section artifact; internal audit citations stripped)
   -> evidence-boundary comprehension audit
   -> structural integrity validation
 ```
@@ -78,7 +81,11 @@ docs/
   batch_results.md            human-readable seven-batch summary
   audit_standard.md           two-layer content-truth/render-fidelity contract
   induction_protocol.md       how repeated examples update the model
+  science_explainer_output_format.md
+                              reader-facing delivery-shell contract
   terminology.md              evidence, method/voice and rule-state vocabulary
+templates/
+  science_explainer.md        copyable Traditional Chinese delivery template
 schemas/
   registry.schema.json
   rule_catalog.schema.json
@@ -89,9 +96,12 @@ schemas/
   sample.schema.json
   card_storyboard.schema.json
 scripts/
-  validate_registry.py        dependency-free fail-closed validator
+  validate_registry.py        dependency-free fail-closed registry validator
+  validate_explainer_output.py
+                              delivery-shell and internal-citation leak validator
 tests/
   test_registry.py
+  test_explainer_output.py
 .github/workflows/
   validate.yml                Python-version matrix validation
 ```
@@ -109,15 +119,40 @@ tests/
 9. Name the exact outcome domain and denominator before translating a number into prose.
 10. Keep the processing method (`R###`) and article voice/register (`V###`) as separate induction layers.
 11. Apply a JSON or rendering lock as a failure gate only when it protects a substantive interest—factual accuracy, evidence strength, attribution, applicability, causal boundaries, data-bearing geometry or source traceability—and the violation can materially change reader understanding. Pure engineering conformance is not evidence of explainer quality.
+12. Keep the internal source-audit chain separate from reader-facing citations. Internal PDF filenames, Library/file IDs, `filecite`, sandbox/container paths, queue receipts and line-level verification markers may support audit work but must not leak into the delivered explainer. Reader citations must use public bibliographic identity and stable public identifiers when available.
+
+## Reader-facing delivery format
+
+The formal packaging contract is [docs/science_explainer_output_format.md](docs/science_explainer_output_format.md). New delivery artifacts use the canonical filename `YYYYMMDD_<slug>.md` and the fixed reader shell:
+
+```text
+# title
+## 一句話總結
+## 內容
+## 引用來源
+🟢/🟡/🔴 證據分級：...
+> 最後更新：YYYYMMDD
+```
+
+The three H2 sections are structural. Narrative detail inside `## 內容` remains evidence-driven and may use optional H3 subsections. Historical `data/samples/S###/article.md` files are immutable observations and are not retroactively rewritten to satisfy this new delivery contract.
+
+The delivery validator deliberately rejects inaccessible internal references such as `filecite`, `turnNfileM`, `file_...`, sandbox/container paths, and bare local PDF filenames. A source PDF remains the authority for internal content verification; its workspace filename is not a reader citation.
 
 ## Validation
 
-The validator uses only the Python standard library. From the repository root:
+The registry validator uses only the Python standard library. From the repository root:
 
 ```bash
 python -m unittest discover -s tests -v
 python scripts/validate_registry.py
 python scripts/validate_registry.py --json
+```
+
+To validate a new reader-facing delivery artifact:
+
+```bash
+python scripts/validate_explainer_output.py 20260813_example-topic.md
+python scripts/validate_explainer_output.py --json 20260813_example-topic.md
 ```
 
 To validate a copied or unpacked repository from elsewhere:
@@ -126,7 +161,9 @@ To validate a copied or unpacked repository from elsewhere:
 python scripts/validate_registry.py --root /path/to/EvidenceProse
 ```
 
-Validation is fail-closed across the whole registry. It checks immutable article digests, registered-versus-present samples, rule evidence links and dates, source and artifact receipts, queue binding, storyboard summaries, batch mirrors, contamination-note ledgers, ordered indexes, and schema-document integrity. Pull requests and pushes to `main` run the same checks in GitHub Actions. A green validation run proves structural consistency only; it does not prove that a reader received the correct evidence weight, limitations, applicability or causal boundary.
+Registry validation is fail-closed across the whole registry. It checks immutable article digests, registered-versus-present samples, rule evidence links and dates, source and artifact receipts, queue binding, storyboard summaries, batch mirrors, contamination-note ledgers, ordered indexes, and schema-document integrity. Pull requests and pushes to `main` run the same checks in GitHub Actions. A green validation run proves structural consistency only; it does not prove that a reader received the correct evidence weight, limitations, applicability or causal boundary.
+
+The explainer-output validator likewise certifies packaging only: canonical filename, section order, evidence-grade label, update footnote, and absence of known internal citation tokens. It does not certify scientific truth.
 
 ## Adding a reviewed sample
 
@@ -134,4 +171,4 @@ Treat an article, its interpretation record, its rule receipts, and its batch su
 
 ## Scope boundary
 
-EvidenceProse does not currently generate publication-ready articles. The first stage accumulates enough independent examples to distinguish invariant writing logic from topic-specific choices and accidental errors.
+EvidenceProse does not currently generate publication-ready articles. The first stage accumulates enough independent examples to distinguish invariant writing logic from topic-specific choices and accidental errors. The delivery-shell contract defines how a future generated or manually curated reader artifact must be packaged; defining that shell does not make the current induction rules production-ready.
