@@ -120,6 +120,18 @@ hypothesis -> candidate -> conditional -> stable
 
 No fixed sample count automatically creates a stable rule.
 
+## Reader-facing delivery shell
+
+The delivery shell is a separate layer from induction. The canonical reader artifact is defined in `docs/science_explainer_output_format.md` and structurally checked by `scripts/validate_explainer_output.py`.
+
+The shell fixes packaging that downstream systems need—canonical filename, the three required reader sections, evidence-grade label, final update footnote, and the separation of public citations from internal provenance. It does not determine the scientific content inside `## 內容`, and it does not turn a candidate writing rule into a stable generation rule.
+
+Internal source verification may rely on Library files, local PDF filenames, line-level `filecite` evidence, source digests, queue receipts and other audit artifacts. Those remain in the evidence chain. They must not be projected into the reader-facing article merely because they were useful during verification. The public citation layer uses bibliographic identity and stable public identifiers that a reader can actually resolve.
+
+Historical `data/samples/S###/article.md` files remain immutable observations even when their visible formatting differs from the current delivery contract. The delivery-shell validator is for new reader-facing outputs, not a reason to rewrite evidence samples.
+
+Structural delivery conformance and science quality remain separate judgments. A draft can be scientifically accurate but fail pipeline packaging by exposing an inaccessible internal citation; another draft can pass the packaging validator while still being scientifically misleading. Neither gate substitutes for the other.
+
 ## Registry integrity
 
 A sample addition is atomic across the sample record, immutable article digest, rule receipts, voice receipts, cumulative batch result and ordered registry indexes. Dates in a rule catalogue cannot predate evidence cited by that rule. Storyboard counts and failure IDs must be derived from the card records rather than copied from memory.
