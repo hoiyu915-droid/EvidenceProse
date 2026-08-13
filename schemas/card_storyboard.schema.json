@@ -10,10 +10,11 @@
     "audit_policy": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["semantic_track", "strict_render_track", "global_constraints_checked"],
+      "required": ["content_truth_track", "render_fidelity_track", "legacy_exact_text_track", "global_constraints_checked"],
       "properties": {
-        "semantic_track": {"type": "string", "minLength": 1},
-        "strict_render_track": {"type": "string", "minLength": 1},
+        "content_truth_track": {"type": "string", "minLength": 1},
+        "render_fidelity_track": {"type": "string", "minLength": 1},
+        "legacy_exact_text_track": {"type": "string", "minLength": 1},
         "global_constraints_checked": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
       }
     },
@@ -27,13 +28,15 @@
     "summary": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["cards", "semantic_passes", "semantic_failures", "strict_render_passes", "strict_render_failures", "interpretation"],
+      "required": ["cards", "content_truth_passes", "content_truth_failures", "render_fidelity_passes", "render_fidelity_failures", "interpretation"],
       "properties": {
         "cards": {"type": "integer", "minimum": 1},
-        "semantic_passes": {"type": "integer", "minimum": 0},
-        "semantic_failures": {"type": "integer", "minimum": 0},
-        "strict_render_passes": {"type": "integer", "minimum": 0},
-        "strict_render_failures": {"type": "integer", "minimum": 0},
+        "content_truth_passes": {"type": "integer", "minimum": 0},
+        "content_truth_failures": {"type": "integer", "minimum": 0},
+        "render_fidelity_passes": {"type": "integer", "minimum": 0},
+        "render_fidelity_failures": {"type": "integer", "minimum": 0},
+        "legacy_exact_text_passes": {"type": "integer", "minimum": 0},
+        "legacy_exact_text_failures": {"type": "integer", "minimum": 0},
         "targeted_correction_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^C[0-9]{2}$"}},
         "interpretation": {"type": "string", "minLength": 1}
       }
@@ -64,7 +67,7 @@
     "card": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["card_id", "title", "visible_text", "allowed_visible_numbers", "main_visual_scene", "image_filename", "image_sha256", "semantic_audit", "strict_render_audit"],
+      "required": ["card_id", "title", "visible_text", "allowed_visible_numbers", "main_visual_scene", "image_filename", "image_sha256", "content_truth_audit", "render_fidelity_audit"],
       "properties": {
         "card_id": {"type": "string", "pattern": "^C[0-9]{2}$"},
         "title": {"type": "string", "minLength": 1},
@@ -73,9 +76,25 @@
         "main_visual_scene": {"type": "string", "minLength": 1},
         "image_filename": {"type": "string", "minLength": 1},
         "image_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
-        "semantic_audit": {"enum": ["pass", "fail"]},
-        "semantic_violations": {"type": "array", "items": {"type": "string", "minLength": 1}},
-        "strict_render_audit": {
+        "content_truth_audit": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "violations"],
+          "properties": {
+            "status": {"enum": ["pass", "fail"]},
+            "violations": {"type": "array", "items": {"type": "string", "minLength": 1}}
+          }
+        },
+        "render_fidelity_audit": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "violations"],
+          "properties": {
+            "status": {"enum": ["pass", "fail"]},
+            "violations": {"type": "array", "items": {"type": "string", "minLength": 1}}
+          }
+        },
+        "legacy_exact_text_audit": {
           "type": "object",
           "additionalProperties": false,
           "required": ["status", "violations"],

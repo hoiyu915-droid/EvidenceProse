@@ -26,7 +26,9 @@
 | Source-layer preservation | Explicitly retaining whether a claim is pooled, single-study, source interpretation, or explainer inference. |
 | Control-bearing limitation | A limitation that changes the conclusion, recommendation, or permitted wording. |
 | Artifact binding | The evidence-backed pairing of a rendered output with its canonical queue or specification before compliance checking. |
-| Strict render compliance | Bidirectional agreement between authorised and rendered text/numbers, independent of whether extra content is semantically reasonable. |
+| Content truth | Pre-upload agreement between the JSON-authorised claims and the verified source PDF, including numbers, direction, scope, uncertainty, causal structure and conclusion wording. |
+| Render fidelity | Post-upload agreement between the rendered card and the JSON specification at the level of meaning and material visual rules. Meaning-preserving paraphrase, abbreviation and synonymous wording are allowed. |
+| Legacy exact-text diagnostic | The former bidirectional visible-text whitelist check. It may be retained for traceability, but literal wording is not a render-fidelity gate. |
 | Visual data fidelity | Agreement between the source and data-bearing geometry such as point positions, trajectories, arrows, scales, colour encodings, and relative ordering. |
 
 ## Method and voice layers

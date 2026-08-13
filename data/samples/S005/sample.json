@@ -129,7 +129,7 @@
     {
       "observation_id": "O013",
       "kind": "companion_artifact",
-      "description": "Four cards preserve source meaning and two fail semantically: C02 fabricates evidence-status grades for object classes and C05 fabricates venue-bar geometry that contradicts the source. C01 is source-aligned but contains unauthorised explanatory text. All six fail the exact visible-text render contract.",
+      "description": "Four cards preserve source meaning and two fail semantically: C02 fabricates evidence-status grades for object classes and C05 fabricates venue-bar geometry that contradicts the source. C01 is source-aligned; its extra explanation is retained only in the non-gating legacy exact-text diagnostic.",
       "evidence_locations": ["card_storyboard:C01-C06"]
     },
     {

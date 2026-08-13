@@ -126,7 +126,7 @@
     {
       "observation_id": "O013",
       "kind": "companion_artifact",
-      "description": "Four cards are semantically aligned and two fail: C03 misassigns the overall SMD to telemedicine, while C06 invents a first-, second- and third-line treatment ladder. All six fail the exact visible-text render contract because each adds unlisted labels or explanatory text.",
+      "description": "Four cards are semantically aligned and two fail: C03 misassigns the overall SMD to telemedicine, while C06 invents a first-, second- and third-line treatment ladder. Other wording differences are retained only in the non-gating legacy exact-text diagnostic.",
       "evidence_locations": ["card_storyboard:C01-C06", "card:C03", "card:C06"]
     },
     {

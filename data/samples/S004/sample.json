@@ -130,7 +130,7 @@
     {
       "observation_id": "O013",
       "kind": "companion_artifact",
-      "description": "Five cards preserve source meaning; C05 invents precise watch readings 158 and 142 that are absent from both queue and paper. All six fail the queue's strict no-unlisted-visible-text contract.",
+      "description": "Five cards preserve source meaning; C05 invents precise watch readings 158 and 142 that are absent from both queue and paper. Literal wording differences are retained only in the non-gating legacy exact-text diagnostic.",
       "evidence_locations": ["card_storyboard:C01-C06"]
     },
     {

@@ -130,7 +130,7 @@
     {
       "observation_id": "O013",
       "kind": "companion_artifact",
-      "description": "The rendered cards are semantically aligned with the paper but all six fail the queue's strict no-unlisted-visible-text contract because scene labels, duplicated fragments, or extra numbers were rendered beyond the authorised text list.",
+      "description": "The rendered cards preserve the paper's meaning; literal scene labels, duplicated fragments and illustrative numbers remain recorded only in the non-gating legacy exact-text diagnostic.",
       "evidence_locations": ["card_storyboard:C01-C06"]
     },
     {

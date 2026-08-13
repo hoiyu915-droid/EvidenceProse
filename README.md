@@ -14,7 +14,7 @@ The project is deliberately data-first. A polished article is not treated as a t
 - Article-register catalogue: 5 (`V001`–`V005`), all hypotheses
 - Batch result index: 7 (`B001`–`B007`), keeping method and voice findings separate
 - Recorded observations: 99; contamination notes: 20
-- Audited companion cards: 36 (8 semantic failures; 36 strict-render failures)
+- Audited companion cards: 36 (8 content-truth failures; 12 render-fidelity failures; 36 legacy literal-text diagnostics, not a gate)
 - Stable generation rules: 0
 - Domains observed: clinical intervention meta-analyses, public-health systems narrative review, single-centre observational rehabilitation research, footwear scoping review, scientific-QA benchmark development, and a Taiwan older-adult mortality cohort
 - Primary output language: Traditional Chinese
@@ -49,11 +49,11 @@ data/
   samples/S002/
     article.md                second exact observed prose sample
     sample.json               source, artifact receipts and observations
-    card_storyboard.json      queue binding plus semantic/strict render audit
+    card_storyboard.json      queue binding plus two-layer content/render audit
   samples/S003/
     article.md                third exact observed prose sample
     sample.json               primary-study provenance and induced observations
-    card_storyboard.json      two-track card audit with visual-data failure record
+    card_storyboard.json      two-layer card audit with visual-data failure record
   samples/S004/
     article.md                fourth exact observed prose sample
     sample.json               scoping-review provenance and induced observations
@@ -61,17 +61,18 @@ data/
   samples/S005/
     article.md                fifth exact observed prose sample
     sample.json               benchmark-paper provenance and induced observations
-    card_storyboard.json      two-track audit of unauthorised text and visual-data fabrication
+    card_storyboard.json      two-layer audit of unauthorised claims and visual-data fabrication
   samples/S006/
     article.md                sixth exact observed prose sample
     sample.json               Taiwan cohort provenance, AHR semantics and contamination notes
-    card_storyboard.json      title-bound audit of test-label substitutions and strict text failures
+    card_storyboard.json      title-bound audit of test-label substitutions and render-fidelity failures
   samples/S007/
     article.md                seventh exact observed prose sample
     sample.json               OAB meta-analysis provenance, subgroup semantics and contamination notes
     card_storyboard.json      title-bound audit of pooled/subgroup mislabelling and invented care hierarchy
 docs/
   batch_results.md            human-readable seven-batch summary
+  audit_standard.md           two-layer content-truth/render-fidelity contract
   induction_protocol.md       how repeated examples update the model
   terminology.md              evidence, method/voice and rule-state vocabulary
 schemas/
@@ -100,7 +101,7 @@ tests/
 5. Promote a rule only after independent support and held-out reconstruction.
 6. Make limitations change the permitted conclusion instead of leaving them as a decorative final paragraph.
 7. Keep generation and validation contracts machine-readable.
-8. Audit companion cards twice: once for source meaning and once for exact render-contract compliance.
+8. Audit companion cards in two layers: source content truth before upload, then render fidelity after upload. Meaning-preserving paraphrase is allowed; material claims, numbers, visual relations and citation bindings remain locked.
 9. Name the exact outcome domain and denominator before translating a number into prose.
 10. Keep the processing method (`R###`) and article voice/register (`V###`) as separate induction layers.
 

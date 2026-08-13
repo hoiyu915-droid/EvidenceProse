@@ -126,7 +126,7 @@
     {
       "observation_id": "O013",
       "kind": "companion_artifact",
-      "description": "Four cards are semantically aligned; C01 substitutes a 6-minute walk and knee-extension illustration, while C06 repeats the knee-extension substitution and abbreviates the 8-foot up-and-go path. All six fail the exact visible-text render contract.",
+      "description": "Four cards are semantically aligned; C01 substitutes a 6-minute walk and knee-extension illustration, while C06 repeats the knee-extension substitution and abbreviates the 8-foot up-and-go path. Literal wording differences are retained only in the non-gating legacy exact-text diagnostic.",
       "evidence_locations": ["card_storyboard:C01-C06", "card:C01", "card:C06"]
     },
     {

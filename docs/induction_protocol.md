@@ -28,16 +28,16 @@ Record the paper identity, DOI or other stable identifier, source digest when av
 
 When multiple render queues are supplied, bind cards to a queue before auditing them. Use exact title sequence and content identity, record both accepted and rejected queue digests, and never choose a queue merely because its topic is similar.
 
-### 2. Audit companion artifacts on two tracks
+### 2. Audit companion artifacts on two layers
 
 If cards or other rendered companions are present, keep two verdicts separate:
 
-- semantic fidelity: whether claims, scope, uncertainty and causal structure remain faithful to the source;
-- strict render compliance: whether every visible string and number is authorised by the canonical queue.
+- content truth: before upload, compare the JSON-authorised content with the source PDF and verify numbers, direction, scope, uncertainty, causal structure and conclusion wording;
+- render fidelity: after upload, compare the rendered card with the JSON specification. Meaning-preserving paraphrase, abbreviation and synonymous wording pass. Fail only when meaning drifts, a substantive claim or number is added without authorisation, a `main_visual` required object or relation is violated, or a `citation_binding` rule such as `render_policy: exact_once` is violated.
 
-Scene descriptions authorise objects and composition, not extra visible labels. A semantically sensible label still fails a `no_unlisted_visible_text` contract when it is absent from the authorised list.
+The former literal `visible_text` whitelist may be recorded as `legacy_exact_text_audit` for traceability, but it is not a render-fidelity gate. Scene descriptions authorise the required visual objects and relations; they do not license unsupported scientific claims or data-bearing geometry.
 
-A semantic audit must also inspect data-bearing geometry. A plotted point, scale position, arrow direction, or colour encoding can contradict an otherwise correct text box; such a card fails semantic fidelity even if every prose claim is accurate.
+A render-fidelity audit must also inspect data-bearing geometry. A plotted point, scale position, arrow direction, or colour encoding can contradict an otherwise correct text box; such a card fails render fidelity even if every prose claim is accurate.
 
 ### 3. Describe method and voice before generalising
 

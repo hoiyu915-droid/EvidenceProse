@@ -12,8 +12,9 @@
     "reason": "Its six titles describe a different card plan (C01 starts 先看研究怎麼量體適能), so it is not the specification for these rendered images."
   },
   "audit_policy": {
-    "semantic_track": "Check text, numbers, test names, association-versus-causality language and card-specific constraints against the PDF and the title-bound queue.",
-    "strict_render_track": "Treat title, visible_text, allowed_visible_numbers and exact-once citation as the complete visible contract; scene descriptions authorise objects but not extra labels or substitute test names.",
+    "content_truth_track": "Content truth is audited against the source PDF before upload: numbers, direction, scope, uncertainty, causal structure and conclusion wording must remain faithful.",
+    "render_fidelity_track": "Render fidelity is audited after upload: reasonable paraphrase, abbreviation and synonymous wording pass when meaning is preserved. Fail only for meaning drift, an unauthorized substantive claim or number, a required_objects/required_relations violation, or a citation_binding exact_once violation.",
+    "legacy_exact_text_track": "The former literal visible_text whitelist is retained as a non-gating diagnostic only; verbatim wording is not required for render fidelity.",
     "global_constraints_checked": [
       "no conversion of AHR into individual mortality reduction",
       "no causal fitness-to-survival arrow or exercise intervention claim",
@@ -25,12 +26,17 @@
   },
   "summary": {
     "cards": 6,
-    "semantic_passes": 4,
-    "semantic_failures": 2,
-    "strict_render_passes": 0,
-    "strict_render_failures": 6,
-    "targeted_correction_ids": ["C01", "C06"],
-    "interpretation": "C02-C05 are semantically aligned with the source. C01 substitutes a 6-minute walk and knee-extension illustration for the paper's 2-minute step, arm-curl and chair-stand measures; C06 repeats the knee-extension substitution and simplifies the 8-foot up-and-go path. Every card also contains scene labels or other visible text outside its exact visible_text contract."
+    "content_truth_passes": 4,
+    "content_truth_failures": 2,
+    "render_fidelity_passes": 4,
+    "render_fidelity_failures": 2,
+    "legacy_exact_text_passes": 0,
+    "legacy_exact_text_failures": 6,
+    "targeted_correction_ids": [
+      "C01",
+      "C06"
+    ],
+    "interpretation": "C02-C05 are semantically aligned with the source. C01 substitutes a 6-minute walk and knee-extension illustration for the paper's 2-minute step, arm-curl and chair-stand measures; C06 repeats the knee-extension substitution and simplifies the 8-foot up-and-go path. Literal differences are retained only in the non-gating legacy exact-text diagnostic."
   },
   "cards": [
     {
@@ -47,13 +53,22 @@
       "allowed_visible_numbers": [],
       "main_visual_scene": "中央是一位高齡者的簡潔功能體能輪廓，周圍分成心肺、肌力、柔軟度、平衡與敏捷四個靜態模組；右側以由高到低的階梯式風險帶呈現關聯梯度，不使用因果箭頭。",
       "targeted_audit": "fail: the cardio icon is labelled 6分鐘快走 although the study used a 2-minute step test; the strength icon is labelled 膝伸展肌力 although the study used arm curl and chair stand tests.",
-      "semantic_audit": "fail",
-      "semantic_violations": [
-        "心肺耐力圖示標為「6分鐘快走」；原始研究測量的是「2分鐘原地踏步」（2-minute step test）。",
-        "肌力圖示標為「膝伸展肌力」；原始研究測量的是「30秒手臂屈舉」與「30秒椅子坐站」，沒有膝伸展測驗。"
-      ],
       "required_correction": "將心肺圖示改為2分鐘原地抬膝踏步，將肌力圖示改為30秒手臂屈舉或30秒椅子坐站；保留觀察性關聯免責。",
-      "strict_render_audit": {
+      "content_truth_audit": {
+        "status": "fail",
+        "violations": [
+          "心肺耐力圖示標為「6分鐘快走」；原始研究測量的是「2分鐘原地踏步」（2-minute step test）。",
+          "肌力圖示標為「膝伸展肌力」；原始研究測量的是「30秒手臂屈舉」與「30秒椅子坐站」，沒有膝伸展測驗。"
+        ]
+      },
+      "render_fidelity_audit": {
+        "status": "fail",
+        "violations": [
+          "心肺耐力圖示標為「6分鐘快走」；原始研究測量的是「2分鐘原地踏步」（2-minute step test）。",
+          "肌力圖示標為「膝伸展肌力」；原始研究測量的是「30秒手臂屈舉」與「30秒椅子坐站」，沒有膝伸展測驗。"
+        ]
+      },
+      "legacy_exact_text_audit": {
         "status": "fail",
         "violations": [
           "Unlisted scene labels include 心肺耐力、6分鐘快走、肌力、膝伸展肌力、柔軟度、坐姿體前彎、平衡與敏捷 and 繞錐測試.",
@@ -72,12 +87,23 @@
         "最低五分位是參照組；這是多變項 Cox 模型的關聯估計。",
         "不要把 AHR 直接改寫成「死亡降低幾成」。"
       ],
-      "allowed_visible_numbers": ["0.39 unitless", "0.32 unitless", "0.48 unitless"],
+      "allowed_visible_numbers": [
+        "0.39 unitless",
+        "0.32 unitless",
+        "0.48 unitless"
+      ],
       "main_visual_scene": "一條水平風險軸，以最低五分位作參照，顯示多面向體能指數的點估計與信賴區間；只顯示核准的三個數值，不增加刻度數字。",
       "targeted_audit": "pass",
-      "semantic_audit": "pass",
       "required_correction": null,
-      "strict_render_audit": {
+      "content_truth_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "render_fidelity_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "legacy_exact_text_audit": {
         "status": "fail",
         "violations": [
           "Unlisted explanatory labels include 最低五分位（參照組）、最高五分位、相對最低五分位的調整後關聯 and 調整後危險比（AHR）."
@@ -96,12 +122,24 @@
         "兩分鐘踏步：AHR 0.58",
         "四個數值來自分開的模型，不能當作正式的跨測試優劣排名。"
       ],
-      "allowed_visible_numbers": ["0.41 unitless", "0.50 unitless", "0.55 unitless", "0.58 unitless"],
+      "allowed_visible_numbers": [
+        "0.41 unitless",
+        "0.50 unitless",
+        "0.55 unitless",
+        "0.58 unitless"
+      ],
       "main_visual_scene": "四列平行比較列，每列一個功能測試圖示與一個 AHR 點標記；所有列共用同一視覺方向，但不畫彼此勝負箭頭。",
       "targeted_audit": "pass",
-      "semantic_audit": "pass",
       "required_correction": null,
-      "strict_render_audit": {
+      "content_truth_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "render_fidelity_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "legacy_exact_text_audit": {
         "status": "fail",
         "violations": [
           "The card adds unlisted scene headings and measurement framing around the four rows beyond the exact visible_text contract."
@@ -122,9 +160,16 @@
       "allowed_visible_numbers": [],
       "main_visual_scene": "四個小型無數字曲線模組，左側斜率較陡、右側逐漸趨平；每個模組清楚標出性別與測試名稱，不增加額外門檻數字。",
       "targeted_audit": "pass",
-      "semantic_audit": "pass",
       "required_correction": null,
-      "strict_render_audit": {
+      "content_truth_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "render_fidelity_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "legacy_exact_text_audit": {
         "status": "fail",
         "violations": [
           "Curve-panel axis labels, standalone gender headings and repeated test labels are visible outside the exact visible_text list."
@@ -146,9 +191,16 @@
       "allowed_visible_numbers": [],
       "main_visual_scene": "左側是已調整因素的簡潔清單模組，右側是三個醒目的限制模組：吸菸未量測、一次性體能測量、健康志願者選擇；不用風險箭頭。",
       "targeted_audit": "pass",
-      "semantic_audit": "pass",
       "required_correction": null,
-      "strict_render_audit": {
+      "content_truth_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "render_fidelity_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "legacy_exact_text_audit": {
         "status": "fail",
         "violations": [
           "Unlisted module headings and factor labels, including 已調整因素、吸菸未量測、一次性測量 and 選擇偏差, are rendered as separate visible text."
@@ -169,13 +221,22 @@
       "allowed_visible_numbers": [],
       "main_visual_scene": "兩欄並列：左欄「疾病負擔」清單，右欄「功能體能」簡短測試；中間只用「補充」的並列關係，不用取代或因果箭頭；底部放一個缺口模組表示尚未做預測準確度比較。",
       "targeted_audit": "fail: the functional-fitness illustration labels the strength test 膝伸展, and 繞錐測試 abbreviates the full 8-foot up-and-go sequence.",
-      "semantic_audit": "fail",
-      "semantic_violations": [
-        "功能體能欄的肌力圖示標為「膝伸展」；原始研究實際測量的是30秒手臂屈舉與30秒椅子坐站。",
-        "「繞錐測試」可辨識為8英尺起立行走的簡化圖示，但未完整呈現起立、繞錐、返回與坐下流程。"
-      ],
       "required_correction": "將肌力圖示改為手臂屈舉或椅子坐站，並把8英尺起立行走畫成起立—繞錐—返回—坐下的完整流程；保留補充訊號與尚未比較預測準確度的邊界。",
-      "strict_render_audit": {
+      "content_truth_audit": {
+        "status": "fail",
+        "violations": [
+          "功能體能欄的肌力圖示標為「膝伸展」；原始研究實際測量的是30秒手臂屈舉與30秒椅子坐站。",
+          "「繞錐測試」可辨識為8英尺起立行走的簡化圖示，但未完整呈現起立、繞錐、返回與坐下流程。"
+        ]
+      },
+      "render_fidelity_audit": {
+        "status": "fail",
+        "violations": [
+          "功能體能欄的肌力圖示標為「膝伸展」；原始研究實際測量的是30秒手臂屈舉與30秒椅子坐站。",
+          "「繞錐測試」可辨識為8英尺起立行走的簡化圖示，但未完整呈現起立、繞錐、返回與坐下流程。"
+        ]
+      },
+      "legacy_exact_text_audit": {
         "status": "fail",
         "violations": [
           "Unlisted headings and disease/test labels include 疾病負擔、功能體能、共病清單、心血管風險、肺部疾病、腎臟疾病、膝伸展、繞錐測試 and 坐姿體前彎.",

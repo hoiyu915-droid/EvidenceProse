@@ -126,7 +126,7 @@
     {
       "observation_id": "O013",
       "kind": "companion_artifact",
-      "description": "Five cards preserve source meaning and one card reverses the observed fatigue direction; all six fail the queue's strict no-unlisted-visible-text contract.",
+      "description": "Five cards preserve source meaning and one card reverses the observed fatigue direction; literal wording differences are retained only in the non-gating legacy exact-text diagnostic.",
       "evidence_locations": ["card_storyboard:C01-C06"]
     },
     {

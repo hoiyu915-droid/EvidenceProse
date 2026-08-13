@@ -251,8 +251,9 @@ def validate(root: Path = ROOT) -> dict[str, int]:
     contamination_count = 0
     artifact_count = 0
     card_count = 0
-    strict_render_failures = 0
-    semantic_failures = 0
+    legacy_exact_text_failures = 0
+    content_truth_failures = 0
+    render_fidelity_failures = 0
 
     sample_required = {
         "sample_id",
@@ -370,9 +371,10 @@ def validate(root: Path = ROOT) -> dict[str, int]:
 
             audit_policy = storyboard.get("audit_policy")
             require(isinstance(audit_policy, dict), f"{sample_id} audit_policy must be an object")
-            exact_keys(audit_policy, {"semantic_track", "strict_render_track", "global_constraints_checked"}, set(), f"{sample_id} audit_policy")
-            non_empty_text(audit_policy.get("semantic_track"), f"{sample_id} semantic_track")
-            non_empty_text(audit_policy.get("strict_render_track"), f"{sample_id} strict_render_track")
+            exact_keys(audit_policy, {"content_truth_track", "render_fidelity_track", "legacy_exact_text_track", "global_constraints_checked"}, set(), f"{sample_id} audit_policy")
+            non_empty_text(audit_policy.get("content_truth_track"), f"{sample_id} content_truth_track")
+            non_empty_text(audit_policy.get("render_fidelity_track"), f"{sample_id} render_fidelity_track")
+            non_empty_text(audit_policy.get("legacy_exact_text_track"), f"{sample_id} legacy_exact_text_track")
             string_list(audit_policy.get("global_constraints_checked"), f"{sample_id} global_constraints_checked")
 
             canonical_queue = storyboard.get("canonical_queue")
@@ -397,8 +399,9 @@ def validate(root: Path = ROOT) -> dict[str, int]:
             cards = storyboard.get("cards")
             require(isinstance(cards, list) and cards, f"{sample_id} storyboard requires cards")
             card_ids: list[str] = []
-            observed_strict_failures: list[str] = []
-            observed_semantic_failures: list[str] = []
+            observed_legacy_failures: list[str] = []
+            observed_content_failures: list[str] = []
+            observed_render_failures: list[str] = []
             targeted_failures: list[str] = []
             required_card_fields = {
                 "card_id",
@@ -408,10 +411,10 @@ def validate(root: Path = ROOT) -> dict[str, int]:
                 "main_visual_scene",
                 "image_filename",
                 "image_sha256",
-                "semantic_audit",
-                "strict_render_audit",
+                "content_truth_audit",
+                "render_fidelity_audit",
             }
-            optional_card_fields = {"semantic_violations", "targeted_audit", "required_correction"}
+            optional_card_fields = {"legacy_exact_text_audit", "targeted_audit", "required_correction"}
             for card in cards:
                 require(isinstance(card, dict), f"{sample_id} storyboard card must be an object")
                 exact_keys(card, required_card_fields, optional_card_fields, f"{sample_id} storyboard card")
@@ -426,29 +429,34 @@ def validate(root: Path = ROOT) -> dict[str, int]:
                 image_digest = card.get("image_sha256")
                 require(isinstance(image_digest, str) and SHA256.fullmatch(image_digest) is not None, f"{sample_id}/{card_id} invalid image sha256")
 
-                strict_audit = card.get("strict_render_audit")
-                require(isinstance(strict_audit, dict), f"{sample_id}/{card_id} strict render audit must be an object")
-                exact_keys(strict_audit, {"status", "violations"}, set(), f"{sample_id}/{card_id} strict render audit")
-                require(strict_audit.get("status") in {"pass", "fail"}, f"{sample_id}/{card_id} invalid strict render status")
-                violations = strict_audit.get("violations")
-                require(isinstance(violations, list), f"{sample_id}/{card_id} strict violations must be an array")
-                require(all(isinstance(item, str) and item.strip() for item in violations), f"{sample_id}/{card_id} strict violations must be non-empty text")
-                if strict_audit["status"] == "fail":
-                    require(bool(violations), f"{sample_id}/{card_id} failed strict audit requires violations")
-                    observed_strict_failures.append(card_id)
-                else:
-                    require(not violations, f"{sample_id}/{card_id} passed strict audit cannot retain violations")
-
-                semantic_audit = card.get("semantic_audit")
-                require(semantic_audit in {"pass", "fail"}, f"{sample_id}/{card_id} invalid semantic audit")
-                semantic_violations = card.get("semantic_violations", [])
-                require(isinstance(semantic_violations, list), f"{sample_id}/{card_id} semantic violations must be an array")
-                require(all(isinstance(item, str) and item.strip() for item in semantic_violations), f"{sample_id}/{card_id} semantic violations must be non-empty text")
-                if semantic_audit == "fail":
-                    require(bool(semantic_violations), f"{sample_id}/{card_id} failed semantic audit requires violations")
-                    observed_semantic_failures.append(card_id)
-                else:
-                    require(not semantic_violations, f"{sample_id}/{card_id} passed semantic audit cannot retain violations")
+                for field, label, failures in (
+                    ("content_truth_audit", "content truth", observed_content_failures),
+                    ("render_fidelity_audit", "render fidelity", observed_render_failures),
+                ):
+                    audit = card.get(field)
+                    require(isinstance(audit, dict), f"{sample_id}/{card_id} {label} audit must be an object")
+                    exact_keys(audit, {"status", "violations"}, set(), f"{sample_id}/{card_id} {label} audit")
+                    require(audit.get("status") in {"pass", "fail"}, f"{sample_id}/{card_id} invalid {label} status")
+                    violations = audit.get("violations")
+                    require(isinstance(violations, list), f"{sample_id}/{card_id} {label} violations must be an array")
+                    require(all(isinstance(item, str) and item.strip() for item in violations), f"{sample_id}/{card_id} {label} violations must be non-empty text")
+                    if audit["status"] == "fail":
+                        require(bool(violations), f"{sample_id}/{card_id} failed {label} audit requires violations")
+                        failures.append(card_id)
+                    else:
+                        require(not violations, f"{sample_id}/{card_id} passed {label} audit cannot retain violations")
+                legacy_audit = card.get("legacy_exact_text_audit")
+                if legacy_audit is not None:
+                    exact_keys(legacy_audit, {"status", "violations"}, set(), f"{sample_id}/{card_id} legacy exact text audit")
+                    require(legacy_audit.get("status") in {"pass", "fail"}, f"{sample_id}/{card_id} invalid legacy exact text status")
+                    legacy_violations = legacy_audit.get("violations")
+                    require(isinstance(legacy_violations, list), f"{sample_id}/{card_id} legacy exact text violations must be an array")
+                    require(all(isinstance(item, str) and item.strip() for item in legacy_violations), f"{sample_id}/{card_id} legacy exact text violations must be non-empty text")
+                    if legacy_audit["status"] == "fail":
+                        require(bool(legacy_violations), f"{sample_id}/{card_id} failed legacy exact text audit requires violations")
+                        observed_legacy_failures.append(card_id)
+                    else:
+                        require(not legacy_violations, f"{sample_id}/{card_id} passed legacy exact text audit cannot retain violations")
 
                 targeted_audit = card.get("targeted_audit")
                 if targeted_audit is not None:
@@ -465,18 +473,24 @@ def validate(root: Path = ROOT) -> dict[str, int]:
             require(isinstance(summary, dict), f"{sample_id} storyboard summary must be an object")
             exact_keys(
                 summary,
-                {"cards", "strict_render_failures", "strict_render_passes", "semantic_failures", "semantic_passes", "interpretation"},
-                {"targeted_correction_ids"},
+                {"cards", "content_truth_failures", "content_truth_passes", "render_fidelity_failures", "render_fidelity_passes", "interpretation"},
+                {"legacy_exact_text_failures", "legacy_exact_text_passes", "targeted_correction_ids"},
                 f"{sample_id} storyboard summary",
             )
             integer(summary.get("cards"), f"{sample_id} storyboard card count", minimum=1)
             require(summary["cards"] == len(cards), f"{sample_id} storyboard card count mismatch")
             expected_counts = {
-                "strict_render_failures": len(observed_strict_failures),
-                "strict_render_passes": len(cards) - len(observed_strict_failures),
-                "semantic_failures": len(observed_semantic_failures),
-                "semantic_passes": len(cards) - len(observed_semantic_failures),
+                "content_truth_failures": len(observed_content_failures),
+                "content_truth_passes": len(cards) - len(observed_content_failures),
+                "render_fidelity_failures": len(observed_render_failures),
+                "render_fidelity_passes": len(cards) - len(observed_render_failures),
             }
+            if "legacy_exact_text_failures" in summary or "legacy_exact_text_passes" in summary:
+                require("legacy_exact_text_failures" in summary and "legacy_exact_text_passes" in summary, f"{sample_id} legacy exact text summary must include both counts")
+                expected_counts["legacy_exact_text_failures"] = len(observed_legacy_failures)
+                expected_counts["legacy_exact_text_passes"] = len(cards) - len(observed_legacy_failures)
+            else:
+                require(not observed_legacy_failures, f"{sample_id} legacy exact text cards require legacy summary counts")
             for field, expected in expected_counts.items():
                 integer(summary.get(field), f"{sample_id} {field}")
                 require(summary[field] == expected, f"{sample_id} {field} count mismatch")
@@ -487,13 +501,15 @@ def validate(root: Path = ROOT) -> dict[str, int]:
             require(all(corrections_by_card[card_id] for card_id in summary_targeted), f"{sample_id} targeted correction ids require correction instructions")
             storyboard_summaries[sample_id] = summary
             storyboard_failures[sample_id] = {
-                "semantic": observed_semantic_failures,
-                "strict": observed_strict_failures,
+                "content": observed_content_failures,
+                "render": observed_render_failures,
+                "legacy": observed_legacy_failures,
                 "targeted": summary_targeted,
             }
             card_count += len(cards)
-            strict_render_failures += len(observed_strict_failures)
-            semantic_failures += len(observed_semantic_failures)
+            legacy_exact_text_failures += len(observed_legacy_failures)
+            content_truth_failures += len(observed_content_failures)
+            render_fidelity_failures += len(observed_render_failures)
         else:
             card_artifact_kinds = {"canonical_render_queue", "alternate_render_queue", "rendered_cardset"} & receipts_by_kind.keys()
             require(not card_artifact_kinds, f"{sample_id} has card artifact receipts without a storyboard")
@@ -667,20 +683,32 @@ def validate(root: Path = ROOT) -> dict[str, int]:
         if sample_id in storyboard_summaries:
             exact_keys(
                 companion_audit,
-                {"status", "cards", "semantic_passes", "semantic_failures", "strict_render_passes", "strict_render_failures"},
-                {"semantic_failure_ids", "targeted_correction_ids", "semantic_failure_note"},
+                {"status", "cards", "content_truth_passes", "content_truth_failures", "render_fidelity_passes", "render_fidelity_failures"},
+                {"legacy_exact_text_passes", "legacy_exact_text_failures", "content_truth_failure_ids", "render_fidelity_failure_ids", "legacy_exact_text_failure_ids", "targeted_correction_ids", "content_truth_failure_note", "render_fidelity_failure_note", "legacy_exact_text_note"},
                 f"{batch_id} companion_audit",
             )
             summary = storyboard_summaries[sample_id]
-            for field in ("cards", "semantic_passes", "semantic_failures", "strict_render_passes", "strict_render_failures"):
+            for field in ("cards", "content_truth_passes", "content_truth_failures", "render_fidelity_passes", "render_fidelity_failures"):
                 integer(companion_audit.get(field), f"{batch_id} {field}")
                 require(companion_audit[field] == summary[field], f"{batch_id} {field} does not match storyboard")
-            semantic_failure_ids = string_list(companion_audit.get("semantic_failure_ids", []), f"{batch_id} semantic_failure_ids")
-            require(semantic_failure_ids == storyboard_failures[sample_id]["semantic"], f"{batch_id} semantic failure ids do not match storyboard")
+            content_failure_ids = string_list(companion_audit.get("content_truth_failure_ids", []), f"{batch_id} content_truth_failure_ids")
+            require(content_failure_ids == storyboard_failures[sample_id]["content"], f"{batch_id} content truth failure ids do not match storyboard")
+            render_failure_ids = string_list(companion_audit.get("render_fidelity_failure_ids", []), f"{batch_id} render_fidelity_failure_ids")
+            require(render_failure_ids == storyboard_failures[sample_id]["render"], f"{batch_id} render fidelity failure ids do not match storyboard")
+            has_legacy = any(field in companion_audit for field in ("legacy_exact_text_passes", "legacy_exact_text_failures", "legacy_exact_text_failure_ids"))
+            if has_legacy:
+                for field in ("legacy_exact_text_passes", "legacy_exact_text_failures"):
+                    integer(companion_audit.get(field), f"{batch_id} {field}")
+                    require(companion_audit[field] == summary.get(field), f"{batch_id} {field} does not match storyboard")
+                legacy_failure_ids = string_list(companion_audit.get("legacy_exact_text_failure_ids", []), f"{batch_id} legacy_exact_text_failure_ids")
+                require(legacy_failure_ids == storyboard_failures[sample_id]["legacy"], f"{batch_id} legacy exact text failure ids do not match storyboard")
+            else:
+                require(not storyboard_failures[sample_id]["legacy"], f"{batch_id} legacy exact text cards require legacy audit fields")
             targeted_ids = string_list(companion_audit.get("targeted_correction_ids", []), f"{batch_id} targeted_correction_ids")
             require(targeted_ids == storyboard_failures[sample_id]["targeted"], f"{batch_id} targeted correction ids do not match storyboard")
-            if companion_audit.get("semantic_failure_note") is not None:
-                non_empty_text(companion_audit["semantic_failure_note"], f"{batch_id} semantic_failure_note")
+            for note_field in ("content_truth_failure_note", "render_fidelity_failure_note", "legacy_exact_text_note"):
+                if companion_audit.get(note_field) is not None:
+                    non_empty_text(companion_audit[note_field], f"{batch_id} {note_field}")
         else:
             exact_keys(companion_audit, {"status", "note"}, set(), f"{batch_id} companion_audit")
             non_empty_text(companion_audit.get("note"), f"{batch_id} companion audit note")
@@ -743,8 +771,9 @@ def validate(root: Path = ROOT) -> dict[str, int]:
         "artifact_receipts": artifact_count,
         "cards": card_count,
         "contamination_notes": contamination_count,
-        "strict_render_failures": strict_render_failures,
-        "semantic_failures": semantic_failures,
+        "legacy_exact_text_failures": legacy_exact_text_failures,
+        "content_truth_failures": content_truth_failures,
+        "render_fidelity_failures": render_fidelity_failures,
     }
 
 

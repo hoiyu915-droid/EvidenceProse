@@ -30,10 +30,9 @@ On macOS, `shasum -a 256` produces the same digest format.
 
 If rendered cards are part of the sample, also add `card_storyboard.json`. Bind the rendered set to the canonical queue by title and content identity before auditing. Record source, canonical queue, rejected alternative queue, and rendered-cardset receipts in `artifact_receipts`. Keep these verdicts separate:
 
-- `semantic_audit`: source meaning, scope, causal structure, and data-bearing geometry;
-- `strict_render_audit`: exact visible-text and visible-number authorization.
-
-A semantically correct extra label still fails a strict no-extra-text contract.
+- `content_truth_audit`: pre-upload comparison of claims, numbers, direction, scope, uncertainty, causal structure and conclusion wording against the source PDF;
+- `render_fidelity_audit`: post-upload comparison of the rendered card with the JSON specification. Meaning-preserving paraphrase, abbreviation and synonymous wording pass; material claim/number additions, required visual-relation violations and citation-binding violations fail;
+- `legacy_exact_text_audit`: optional historical literal-text diagnostic, retained for traceability but not used as the render-fidelity gate.
 
 ## Update the ledgers
 
@@ -65,6 +64,6 @@ The first two commands must exit zero. The JSON command must return `"status": "
 - [ ] The article bytes are preserved and `article_sha256` matches.
 - [ ] Source verification and artifact receipts are honest and complete.
 - [ ] Observation, contamination, rule, voice, and batch ledgers agree.
-- [ ] Semantic and strict-render failures remain visible.
+- [ ] Content-truth and render-fidelity failures remain visible; any legacy literal-text diagnostic is clearly non-gating.
 - [ ] No rule was promoted without satisfying the documented gate.
 - [ ] Unit tests and the fail-closed validator pass.

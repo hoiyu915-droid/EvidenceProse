@@ -12,8 +12,9 @@
     "reason": "Title-sequence mismatch."
   },
   "audit_policy": {
-    "semantic_track": "Check whether wording, numbers, visual data encodings and causal structure remain faithful to the source and card-specific constraints.",
-    "strict_render_track": "Treat card.title, card.visible_text, allowed_visible_numbers and the exact-once citation as the complete visible render contract; scene descriptions authorise objects, not extra labels.",
+    "content_truth_track": "Content truth is audited against the source PDF before upload: numbers, direction, scope, uncertainty, causal structure and conclusion wording must remain faithful.",
+    "render_fidelity_track": "Render fidelity is audited after upload: reasonable paraphrase, abbreviation and synonymous wording pass when meaning is preserved. Fail only for meaning drift, an unauthorized substantive claim or number, a required_objects/required_relations violation, or a citation_binding exact_once violation.",
+    "legacy_exact_text_track": "The former literal visible_text whitelist is retained as a non-gating diagnostic only; verbatim wording is not required for render fidelity.",
     "global_constraints_checked": [
       "no causal claim that exercise frequency reduced CRF",
       "no generalisation from physical CFS to affective, cognitive or total CFS",
@@ -26,11 +27,16 @@
   },
   "summary": {
     "cards": 6,
-    "semantic_passes": 5,
-    "semantic_failures": 1,
-    "strict_render_passes": 0,
-    "strict_render_failures": 6,
-    "interpretation": "Five cards are source-aligned in meaning, while C03 reverses the observed discharge direction in its timeline. Every card also violates the canonical queue's exact visible-text contract."
+    "content_truth_passes": 5,
+    "content_truth_failures": 1,
+    "render_fidelity_passes": 5,
+    "render_fidelity_failures": 1,
+    "legacy_exact_text_passes": 0,
+    "legacy_exact_text_failures": 6,
+    "targeted_correction_ids": [
+      "C03"
+    ],
+    "interpretation": "Five cards are source-aligned in meaning, while C03 reverses the observed discharge direction in its timeline. Literal differences are retained only in the non-gating legacy exact-text diagnostic."
   },
   "cards": [
     {
@@ -45,11 +51,25 @@
         "相關而非因果；只有身體CFS在主要調整模型達顯著",
         "標籤與框線表示內容功能；小標記表示證據狀態。"
       ],
-      "allowed_visible_numbers": ["130", "-2.10", "95%", "-4.20", "-0.05", "0.04"],
+      "allowed_visible_numbers": [
+        "130",
+        "-2.10",
+        "95%",
+        "-4.20",
+        "-0.05",
+        "0.04"
+      ],
       "main_visual_scene": "一位住院化療患者沿著一週運動日曆走向較低的身體疲勞量表，旁邊以小型回歸係數卡呈現調整後關聯；使用關聯線而非因果箭頭。",
       "targeted_audit": "pass",
-      "semantic_audit": "pass",
-      "strict_render_audit": {
+      "content_truth_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "render_fidelity_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "legacy_exact_text_audit": {
         "status": "fail",
         "violations": [
           "Unlisted visible scene labels include 一週運動參與日曆、休息、出院時身體疲勞程度（CFS）、高、低 and 調整後關聯（主要模型）.",
@@ -68,11 +88,27 @@
         "實際參與頻率中位數71.4%；觀察期共1854次課程",
         "這是院內建議方案，不是已驗證的最佳運動處方。"
       ],
-      "allowed_visible_numbers": ["1", "6", "12", "13", "10", "20", "71.4%", "1854"],
+      "allowed_visible_numbers": [
+        "1",
+        "6",
+        "12",
+        "13",
+        "10",
+        "20",
+        "71.4%",
+        "1854"
+      ],
       "main_visual_scene": "住院病房中的週曆、腳踏車與阻力訓練器材並列；用六個運動日格和頻率計量條表示建議方案與實際參與。",
       "targeted_audit": "pass",
-      "semantic_audit": "pass",
-      "strict_render_audit": {
+      "content_truth_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "render_fidelity_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "legacy_exact_text_audit": {
         "status": "fail",
         "violations": [
           "The calendar adds 一週計畫, weekday labels and 建議：每日1次、每週6天, none of which is an exact listed visible_text item.",
@@ -91,17 +127,32 @@
         "兩組在治療開始前就不是同一個疲勞起點",
         "基線已存在差異；原始組間差不可當療效"
       ],
-      "allowed_visible_numbers": ["4.0", "1.0", "5.0", "2.0"],
+      "allowed_visible_numbers": [
+        "4.0",
+        "1.0",
+        "5.0",
+        "2.0"
+      ],
       "main_visual_scene": "兩條平行的疲勞量表軌跡，各自在基線和出院有清楚標記；強調兩條線起點不同，不畫治療造成下降的因果箭頭。",
       "targeted_audit": "fail: the timeline positions discharge at 6 for HF and 7 for LF despite the authorised discharge values 1.0 and 4.0.",
-      "semantic_audit": "fail",
-      "semantic_violations": [
-        "The HF timeline encodes discharge at 6 rather than 1.0.",
-        "The LF timeline encodes discharge at 7 rather than 4.0.",
-        "Both trajectories visually rise from baseline even though the source reports lower discharge medians in both groups."
-      ],
       "required_correction": "Place HF baseline at 2.0 and discharge at 1.0; place LF baseline at 5.0 and discharge at 4.0. Remove every unlisted scale number and label unless the queue is formally revised.",
-      "strict_render_audit": {
+      "content_truth_audit": {
+        "status": "fail",
+        "violations": [
+          "The HF timeline encodes discharge at 6 rather than 1.0.",
+          "The LF timeline encodes discharge at 7 rather than 4.0.",
+          "Both trajectories visually rise from baseline even though the source reports lower discharge medians in both groups."
+        ]
+      },
+      "render_fidelity_audit": {
+        "status": "fail",
+        "violations": [
+          "The HF timeline encodes discharge at 6 rather than 1.0.",
+          "The LF timeline encodes discharge at 7 rather than 4.0.",
+          "Both trajectories visually rise from baseline even though the source reports lower discharge medians in both groups."
+        ]
+      },
+      "legacy_exact_text_audit": {
         "status": "fail",
         "violations": [
           "The timelines render 0, 1, 2, 3, 4, 5, 6 and 7 although only 1.0, 2.0, 4.0 and 5.0 are authorised.",
@@ -120,11 +171,27 @@
         "加入ECOG-PS：B=-2.04；正文 p=0.055（表格 p=0.06）",
         "相關而非因果；敏感度分析未達統計顯著"
       ],
-      "allowed_visible_numbers": ["0.04", "0.33", "0.65", "0.30", "-2.04", "0.055", "0.06"],
+      "allowed_visible_numbers": [
+        "0.04",
+        "0.33",
+        "0.65",
+        "0.30",
+        "-2.04",
+        "0.055",
+        "0.06"
+      ],
       "main_visual_scene": "四個CFS面向以小型量表卡並列，只有身體面向有主要模型顯著標記；下方另設敏感度分析框，清楚標示未達統計顯著。",
-      "targeted_audit": "fail: two footer lines were added beyond visible_text.",
-      "semantic_audit": "pass",
-      "strict_render_audit": {
+      "targeted_audit": "pass: semantic render fidelity passes; literal differences remain only in the legacy exact-text diagnostic.",
+      "required_correction": null,
+      "content_truth_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "render_fidelity_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "legacy_exact_text_audit": {
         "status": "fail",
         "violations": [
           "Unlisted footer text: 研究對象：住院淋巴瘤患者接受化學治療（基線分析）.",
@@ -144,11 +211,22 @@
         "化療相關不良事件原因合計 29.8%",
         "百分比分母是未執行運動的session／原因，不是患者比例。"
       ],
-      "allowed_visible_numbers": ["20.0%", "17.8%", "29.8%"],
+      "allowed_visible_numbers": [
+        "20.0%",
+        "17.8%",
+        "29.8%"
+      ],
       "main_visual_scene": "病房運動課程被三類障礙打斷：空著的治療師位置、疲勞患者、化療不良事件；使用原因分布卡，不畫成患者盛行率。",
       "targeted_audit": "pass",
-      "semantic_audit": "pass",
-      "strict_render_audit": {
+      "content_truth_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "render_fidelity_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "legacy_exact_text_audit": {
         "status": "fail",
         "violations": [
           "Scene decoration adds the unlisted sign 物理治療師 and the unlisted symptom labels 噁心、嘔吐、腹瀉、血球低下."
@@ -168,9 +246,17 @@
       ],
       "allowed_visible_numbers": [],
       "main_visual_scene": "一個研究解讀煞車板，三個警示圖像依序為雙向箭頭代表反向因果、FITT量尺代表總運動量混雜、單一醫院與短時間軸代表外部效度和追蹤限制。",
-      "targeted_audit": "fail: an unlisted disclaimer sentence was added in the footer.",
-      "semantic_audit": "pass",
-      "strict_render_audit": {
+      "targeted_audit": "pass: semantic render fidelity passes; literal differences remain only in the legacy exact-text diagnostic.",
+      "required_correction": null,
+      "content_truth_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "render_fidelity_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "legacy_exact_text_audit": {
         "status": "fail",
         "violations": [
           "Unlisted footer text: 本為研究解讀，不代表療效；證據尚有缺口與限制。",

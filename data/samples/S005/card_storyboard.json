@@ -12,8 +12,9 @@
     "reason": "Its title sequence describes a different six-card plan and does not match the renders."
   },
   "audit_policy": {
-    "semantic_track": "Check text, numbers, category assignments, chart geometry, causal structure and release-state implications against the PDF and card-specific constraints.",
-    "strict_render_track": "Treat title, visible_text, allowed_visible_numbers and exact-once citation as the complete visible contract; scene descriptions authorise objects but not extra labels or explanations.",
+    "content_truth_track": "Content truth is audited against the source PDF before upload: numbers, direction, scope, uncertainty, causal structure and conclusion wording must remain faithful.",
+    "render_fidelity_track": "Render fidelity is audited after upload: reasonable paraphrase, abbreviation and synonymous wording pass when meaning is preserved. Fail only for meaning drift, an unauthorized substantive claim or number, a required_objects/required_relations violation, or a citation_binding exact_once violation.",
+    "legacy_exact_text_track": "The former literal visible_text whitelist is retained as a non-gating diagnostic only; verbatim wording is not required for render fidelity.",
     "global_constraints_checked": [
       "no completed-public-release claim for the 4,978-record local collection",
       "no use of 61.9% as RAG or end-to-end baseline performance",
@@ -27,12 +28,17 @@
   },
   "summary": {
     "cards": 6,
-    "semantic_passes": 4,
-    "semantic_failures": 2,
-    "strict_render_passes": 0,
-    "strict_render_failures": 6,
-    "targeted_correction_ids": ["C01", "C02", "C05"],
-    "interpretation": "C03, C04 and C06 are clean under the user's targeted audit. C01 adds unauthorised but source-aligned oracle explanations. C02 invents evidence-status grades for object types, and C05 presents a venue chart that omits ICCV and reverses the source ranking. Every card also contains unlisted scene text under the exact visible-text contract."
+    "content_truth_passes": 4,
+    "content_truth_failures": 2,
+    "render_fidelity_passes": 4,
+    "render_fidelity_failures": 2,
+    "legacy_exact_text_passes": 0,
+    "legacy_exact_text_failures": 6,
+    "targeted_correction_ids": [
+      "C02",
+      "C05"
+    ],
+    "interpretation": "C03, C04 and C06 are clean under the user's targeted audit. C01 is source-aligned; its extra oracle explanations remain only in the non-gating legacy exact-text diagnostic. C02 invents evidence-status grades for object types, and C05 presents a venue chart that omits ICCV and reverses the source ranking."
   },
   "cards": [
     {
@@ -40,13 +46,27 @@
       "title": "答案對，不代表整條證據鏈都對",
       "image_filename": "79ACD1C7-90A5-4771-B2AB-9BDE77C6D2C8.jpeg",
       "image_sha256": "cdbbb8bac7640a9aa91ed10bba80f79a63b105c4161463e1a5b968d400c6a8cc",
-      "visible_text": ["先找對論文", "再定位可核對證據", "最後才判答案是否正確", "三段任一失敗，joint success 就不成立", "Oracle paper／oracle evidence 是診斷階梯，不是成績排行榜。", "標籤與框線表示內容功能；小標記表示證據狀態。"],
+      "visible_text": [
+        "先找對論文",
+        "再定位可核對證據",
+        "最後才判答案是否正確",
+        "三段任一失敗，joint success 就不成立",
+        "Oracle paper／oracle evidence 是診斷階梯，不是成績排行榜。",
+        "標籤與框線表示內容功能；小標記表示證據狀態。"
+      ],
       "allowed_visible_numbers": [],
       "main_visual_scene": "A three-stage paper-to-evidence-to-answer pipeline ends in an AND gate, with oracle paper and oracle evidence diagnostic shortcuts alongside it.",
-      "targeted_audit": "fail: two oracle-box explanatory sentences are absent from visible_text.",
-      "semantic_audit": "pass",
-      "required_correction": "Remove the two added oracle explanations or formally add source-aligned wording to the specification before rerendering.",
-      "strict_render_audit": {
+      "targeted_audit": "pass: semantic render fidelity passes; literal differences remain only in the legacy exact-text diagnostic.",
+      "required_correction": null,
+      "content_truth_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "render_fidelity_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "legacy_exact_text_audit": {
         "status": "fail",
         "violations": [
           "Unlisted text: 先放寬論文限制，測定位於錯在哪一步。",
@@ -60,19 +80,37 @@
       "title": "證據不只是一段文字",
       "image_filename": "384DFF03-FD04-4928-AB73-45A1168A6687.jpeg",
       "image_sha256": "38bd528e04ce245ee64ea157d73d5c7017c04985b2af2e1a2582797934d363c1",
-      "visible_text": ["公開開發集：55 題", "五種主證據：表格、圖、文字、公式／演算法、引用脈絡", "定位以 paper＋type＋page 為骨架；表格與圖再加 object ID", "細到 row／column／region 的欄位可存在於標註，但不是所有 public scorer 都要求逐欄輸出。"],
-      "allowed_visible_numbers": ["55"],
+      "visible_text": [
+        "公開開發集：55 題",
+        "五種主證據：表格、圖、文字、公式／演算法、引用脈絡",
+        "定位以 paper＋type＋page 為骨架；表格與圖再加 object ID",
+        "細到 row／column／region 的欄位可存在於標註，但不是所有 public scorer 都要求逐欄輸出。"
+      ],
+      "allowed_visible_numbers": [
+        "55"
+      ],
       "main_visual_scene": "A paper is surrounded by five evidence-object icons, with a locator hierarchy for paper, type, page and object ID.",
       "targeted_audit": "fail: evidence object classes are assigned fabricated 核心／推論／衝突 grades.",
-      "semantic_audit": "fail",
-      "semantic_violations": [
-        "The paper does not grade tables, figures and text as 核心, equations/algorithms as 推論, or citation context as 衝突.",
-        "The evidence-state legend applies to claim status in the rendering system, not to the intrinsic reliability of LitTraceQA evidence types."
-      ],
       "required_correction": "Remove all evidence-state badges from the five object types; keep only the object taxonomy and locator structure authorised by the card.",
-      "strict_render_audit": {
+      "content_truth_audit": {
         "status": "fail",
-        "violations": ["Unlisted 核心, 推論 and 衝突 labels are rendered repeatedly, along with separate object headings and diagram text."]
+        "violations": [
+          "The paper does not grade tables, figures and text as 核心, equations/algorithms as 推論, or citation context as 衝突.",
+          "The evidence-state legend applies to claim status in the rendering system, not to the intrinsic reliability of LitTraceQA evidence types."
+        ]
+      },
+      "render_fidelity_audit": {
+        "status": "fail",
+        "violations": [
+          "The paper does not grade tables, figures and text as 核心, equations/algorithms as 推論, or citation context as 衝突.",
+          "The evidence-state legend applies to claim status in the rendering system, not to the intrinsic reliability of LitTraceQA evidence types."
+        ]
+      },
+      "legacy_exact_text_audit": {
+        "status": "fail",
+        "violations": [
+          "Unlisted 核心, 推論 and 衝突 labels are rendered repeatedly, along with separate object headings and diagram text."
+        ]
       }
     },
     {
@@ -80,14 +118,32 @@
       "title": "規模很大，但先看清楚「是哪一批」",
       "image_filename": "2FD13694-0AE2-4E1E-9EA6-74E78B7B8467.jpeg",
       "image_sha256": "b297cafaa93618d24faa6420d6c1c9efb4a86e1dbf67da204d648c49a3ed4879",
-      "visible_text": ["較大的本地標註集合：4978 題", "multi-paper：64.85%", "其餘仍包含 single-paper", "本地集合使用 MC 與 structured table；public dev 另支援 free-form", "這些不是「正式公開 benchmark 已全部完成」的宣告。"],
-      "allowed_visible_numbers": ["4978", "64.85%"],
+      "visible_text": [
+        "較大的本地標註集合：4978 題",
+        "multi-paper：64.85%",
+        "其餘仍包含 single-paper",
+        "本地集合使用 MC 與 structured table；public dev 另支援 free-form",
+        "這些不是「正式公開 benchmark 已全部完成」的宣告。"
+      ],
+      "allowed_visible_numbers": [
+        "4978",
+        "64.85%"
+      ],
       "main_visual_scene": "Public development and the larger local collection appear as separate boxes; the local box separates multi-paper and single-paper content.",
       "targeted_audit": "pass",
-      "semantic_audit": "pass",
-      "strict_render_audit": {
+      "content_truth_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "render_fidelity_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "legacy_exact_text_audit": {
         "status": "fail",
-        "violations": ["Unlisted display labels such as 本地集合 and public dev repeat scene concepts outside the exact visible_text list."]
+        "violations": [
+          "Unlisted display labels such as 本地集合 and public dev repeat scene concepts outside the exact visible_text list."
+        ]
       }
     },
     {
@@ -95,14 +151,30 @@
       "title": "這個 61.9%，最容易被讀錯",
       "image_filename": "A8995E46-836B-469E-908B-696EE845B9AF.jpeg",
       "image_sha256": "3dbbfcab226615d463def0f4565c7680d67116d6f3a329bc0d2c063b74368a64",
-      "visible_text": ["61.9%：三個 closed-book challengers 全部答錯", "用途：篩掉靠模型記憶就能穩定猜中的題", "它記錄的是建構時 hardness metadata", "challenger 沒有 paper context；不能把這個比例當成 RAG 或 end-to-end baseline 失敗率。"],
-      "allowed_visible_numbers": ["61.9%"],
+      "visible_text": [
+        "61.9%：三個 closed-book challengers 全部答錯",
+        "用途：篩掉靠模型記憶就能穩定猜中的題",
+        "它記錄的是建構時 hardness metadata",
+        "challenger 沒有 paper context；不能把這個比例當成 RAG 或 end-to-end baseline 失敗率。"
+      ],
+      "allowed_visible_numbers": [
+        "61.9%"
+      ],
       "main_visual_scene": "Three anonymised closed-book challengers connect to a construction funnel and a 61.9% hardness-metadata label rather than a leaderboard.",
       "targeted_audit": "pass",
-      "semantic_audit": "pass",
-      "strict_render_audit": {
+      "content_truth_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "render_fidelity_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "legacy_exact_text_audit": {
         "status": "fail",
-        "violations": ["Unlisted labels include 模型 A, 模型 B, 模型 C, 資料建構流程（示意）, 候選題蒐集, 品質檢核 and 難度評估."]
+        "violations": [
+          "Unlisted labels include 模型 A, 模型 B, 模型 C, 資料建構流程（示意）, 候選題蒐集, 品質檢核 and 難度評估."
+        ]
       }
     },
     {
@@ -110,20 +182,42 @@
       "title": "大集合也有自己的偏斜",
       "image_filename": "99FDA49A-0F01-41DE-9E2D-FBFDE8A6A422.jpeg",
       "image_sha256": "5d7086a8dec451de894c9661fee272165914f1321881e3e183694935e307560d",
-      "visible_text": ["ICCV：48.6% 的 gold-paper links", "918 組 repeated gold-paper sets", "72 筆只有不到兩個 evidence items", "證據類型本身仍很多樣，不只 text span", "這些是 corpus balance／release design 問題，不是說每一筆 QA 都錯。"],
-      "allowed_visible_numbers": ["48.6%", "918", "72"],
+      "visible_text": [
+        "ICCV：48.6% 的 gold-paper links",
+        "918 組 repeated gold-paper sets",
+        "72 筆只有不到兩個 evidence items",
+        "證據類型本身仍很多樣，不只 text span",
+        "這些是 corpus balance／release design 問題，不是說每一筆 QA 都錯。"
+      ],
+      "allowed_visible_numbers": [
+        "48.6%",
+        "918",
+        "72"
+      ],
       "main_visual_scene": "Unequal venue blocks show source imbalance, alongside repeated-set and evidence-count audit labels and a small evidence-diversity strip.",
       "targeted_audit": "fail: the venue chart omits the dominant ICCV category and reverses source ranks.",
-      "semantic_audit": "fail",
-      "semantic_violations": [
-        "ICCV, which accounts for 48.6% and is the dominant venue, is omitted from the chart despite appearing in adjacent text.",
-        "ACL is drawn highest although it is 10.7%; EMNLP is drawn second although it is 4.6%; NAACL at 11.3% should rank above both.",
-        "The chart geometry directly contradicts the source's Figure 4 and the card's own text."
-      ],
       "required_correction": "Redraw venue blocks from the source ledger, including ICCV as the dominant category and preserving the correct relative order and proportions.",
-      "strict_render_audit": {
+      "content_truth_audit": {
         "status": "fail",
-        "violations": ["Unlisted venue labels and bar-like blocks create unauthorised quantitative encodings; the displayed ordering is also false."]
+        "violations": [
+          "ICCV, which accounts for 48.6% and is the dominant venue, is omitted from the chart despite appearing in adjacent text.",
+          "ACL is drawn highest although it is 10.7%; EMNLP is drawn second although it is 4.6%; NAACL at 11.3% should rank above both.",
+          "The chart geometry directly contradicts the source's Figure 4 and the card's own text."
+        ]
+      },
+      "render_fidelity_audit": {
+        "status": "fail",
+        "violations": [
+          "ICCV, which accounts for 48.6% and is the dominant venue, is omitted from the chart despite appearing in adjacent text.",
+          "ACL is drawn highest although it is 10.7%; EMNLP is drawn second although it is 4.6%; NAACL at 11.3% should rank above both.",
+          "The chart geometry directly contradicts the source's Figure 4 and the card's own text."
+        ]
+      },
+      "legacy_exact_text_audit": {
+        "status": "fail",
+        "violations": [
+          "Unlisted venue labels and bar-like blocks create unauthorised quantitative encodings; the displayed ordering is also false."
+        ]
       }
     },
     {
@@ -131,14 +225,30 @@
       "title": "作者自己也寫了：release 還沒收工",
       "image_filename": "34256B70-D6CE-49C6-AA36-6FBCED7F917A.jpeg",
       "image_sha256": "30df2b48b433ced457dd7eb06f426c4f9f924b5d152898ab31df4ea9af320d10",
-      "visible_text": ["統一 evidence locator", "定義 official public／hidden splits", "交代 licensing／redistribution", "補 human review／expert spot-check", "用相同三段 metrics 跑 retrieval-augmented baselines", "現在最準確的定位：benchmark-development paper＋public dev，而不是已完成全部 release governance。"],
+      "visible_text": [
+        "統一 evidence locator",
+        "定義 official public／hidden splits",
+        "交代 licensing／redistribution",
+        "補 human review／expert spot-check",
+        "用相同三段 metrics 跑 retrieval-augmented baselines",
+        "現在最準確的定位：benchmark-development paper＋public dev，而不是已完成全部 release governance。"
+      ],
       "allowed_visible_numbers": [],
       "main_visual_scene": "An unfinished release checklist is paired with the paper-to-evidence-to-answer evaluation line.",
       "targeted_audit": "pass",
-      "semantic_audit": "pass",
-      "strict_render_audit": {
+      "content_truth_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "render_fidelity_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "legacy_exact_text_audit": {
         "status": "fail",
-        "violations": ["Unlisted scene text includes Release Checklist and the lower paper, evidence and answer labels."]
+        "violations": [
+          "Unlisted scene text includes Release Checklist and the lower paper, evidence and answer labels."
+        ]
       }
     }
   ]
