@@ -2,7 +2,7 @@ name: Validate registry
 
 on:
   push:
-    branches: [main]
+    branches: [main, fix/audit-edit-seal-boundary]
   pull_request:
 
 permissions:
@@ -31,5 +31,7 @@ jobs:
         run: python -m compileall -q scripts tests
       - name: Run unit tests
         run: python -m unittest discover -s tests -v
-      - name: Validate registry
-        run: python scripts/validate_registry.py --json
+      - name: Validate audit/edit stage
+        run: python scripts/integrity_stage.py --stage audit --json
+      - name: Validate sealed execution stage
+        run: python scripts/integrity_stage.py --stage seal --json

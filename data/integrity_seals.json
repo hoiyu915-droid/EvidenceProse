@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "algorithm": "git-blob-sha1",
+  "storyboards": [
+    {
+      "sample_id": "S002",
+      "path": "data/samples/S002/card_storyboard.json",
+      "git_blob_sha1": "7e728a2fa444b06436ccc6956d06487230987566"
+    },
+    {
+      "sample_id": "S003",
+      "path": "data/samples/S003/card_storyboard.json",
+      "git_blob_sha1": "2a93f38900dcff044bb1dadab0e0c31c58bb2d18"
+    },
+    {
+      "sample_id": "S004",
+      "path": "data/samples/S004/card_storyboard.json",
+      "git_blob_sha1": "d8950ea2037191b3d3abafae139f9329d2e2c62c"
+    },
+    {
+      "sample_id": "S005",
+      "path": "data/samples/S005/card_storyboard.json",
+      "git_blob_sha1": "82cfa4d3826aceeff9b79080de3983328d449b26"
+    },
+    {
+      "sample_id": "S006",
+      "path": "data/samples/S006/card_storyboard.json",
+      "git_blob_sha1": "5aee04c373c7709934c4a6db6fdcbdfd94679564"
+    },
+    {
+      "sample_id": "S007",
+      "path": "data/samples/S007/card_storyboard.json",
+      "git_blob_sha1": "ceb0e1e77f4a9504215177080e399e7f0de3bae0"
+    }
+  ]
+}
