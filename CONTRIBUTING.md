@@ -21,8 +21,8 @@ Create `data/samples/S###/article.md` with the exact reviewed prose and `sample.
 - a study profile whose null denominators have explicit not-applicable reasons;
 - observations with precise, recoverable evidence locations;
 - every suspected overclaim or technical error in `contamination_notes`.
-- the reader decision, intended takeaway and forbidden takeaway;
-- the evidence weight, material limitations, applicable population/context and causal ceiling the explainer must preserve.
+
+When rendered companions are present, record the reader decision in `card_storyboard.json` under `reader_contract`: the central claim and intended takeaway, evidence weight, material limitations, applicable population/context, and causal or decision misuse boundaries. For a prose-only sample, apply the same questions during review; the current sample schema does not yet store a standalone reader contract.
 
 Generate the article digest with:
 
@@ -36,10 +36,10 @@ If rendered cards are part of the sample, also add `card_storyboard.json`. Bind 
 
 - `content_truth_audit`: pre-upload comparison of the proposed explainer content against the primary source PDF, including claims, numbers, direction, evidence strength, limitations, applicability, causal structure and conclusion ceiling;
 - `render_fidelity_audit`: post-upload assessment of whether the rendering preserves that scientific meaning and reader boundary. Paraphrase, abbreviation, reordering, restructuring and harmless explanatory labels are allowed;
-- `engineering_conformance`: a separate record of queue, object, relation and citation-binding adherence. It becomes a substantive failure only when the violated lock protects factual accuracy, evidence weight, attribution, applicability, causal boundaries, data-bearing geometry or traceability, and the violation can alter reader understanding;
+- `audit_policy.engineering_conformance_track`: the policy for interpreting queue, object, relation and citation-binding adherence. A deviation becomes a substantive failure only when the lock protects factual accuracy, evidence weight, attribution, applicability, causal boundaries, data-bearing geometry or traceability, and the violation can alter reader understanding;
 - `historical_text_comparison`: optional wording comparison retained for traceability, with no current pass/fail status or quality-gate role.
 
-Every enforced lock must state which substantive reader interest it protects. Do not promote a typography, wording, layout or decorative mismatch into a science-communication failure merely because it differs from JSON.
+When adjudicating a lock, identify its substantive protective purpose in the audit finding or correction when one exists. The current schema records the governing policy rather than a mandatory per-lock ledger. Do not promote a typography, wording, layout or decorative mismatch into a science-communication failure merely because it differs from JSON.
 
 ## Update the ledgers
 

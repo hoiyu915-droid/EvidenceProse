@@ -55,12 +55,12 @@ A card fails `render_fidelity_audit` only when the rendering can materially chan
 
 ## Engineering conformance
 
-Queue identity, `main_visual.required_objects`, `required_relations`, `citation_binding.render_policy`, layout instructions and similar JSON locks are recorded separately as engineering conformance. A lock becomes a science-communication gate only when both conditions are met:
+Queue identity, `main_visual.required_objects`, `required_relations`, `citation_binding.render_policy`, layout instructions and similar JSON locks are interpreted through `audit_policy.engineering_conformance_track`, separately from the scientific verdict. A lock becomes a science-communication gate only when both conditions are met:
 
 1. it has an explicit protective purpose tied to factual accuracy, evidence weight, attribution, applicability, causal boundaries, data-bearing geometry or source traceability; and
 2. violating it is sufficient to materially change reader understanding or prevent verification.
 
-Otherwise the deviation is an engineering warning, not a quality failure. `render_policy: exact_once`, for example, is substantive when it prevents a citation from being omitted or misbound; it is not automatically substantive merely because a harmless duplicate or placement difference exists. Passing every engineering lock does not prove that the explainer is accurate, calibrated or useful.
+Record the protective purpose in the relevant finding or correction when it is material; the current schema does not require a separate per-lock ledger. Otherwise the deviation is an engineering warning, not a quality failure. `render_policy: exact_once`, for example, is substantive when it prevents a citation from being omitted or misbound; it is not automatically substantive merely because a harmless duplicate or placement difference exists. Passing every engineering lock does not prove that the explainer is accurate, calibrated or useful.
 
 ## Historical text comparison
 

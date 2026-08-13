@@ -24,7 +24,7 @@ The article and the interpretation record are stored separately. Updating a rule
 
 ### 1. Define the reader decision
 
-Before auditing sentences or cards, record:
+Before auditing sentences or cards, define:
 
 - the question the reader should be able to answer;
 - the intended takeaway;
@@ -33,7 +33,7 @@ Before auditing sentences or cards, record:
 - the limitations and applicability boundaries that must alter the conclusion;
 - the causal, comparative and clinical ceiling.
 
-These are the primary success criteria for the explainer. A clean checklist cannot compensate for a wrong or incomplete reader takeaway.
+These are the primary success criteria for the explainer. Store them in `card_storyboard.json` under `reader_contract` when rendered companions exist. For a prose-only sample, use them as review questions; the current sample schema does not yet persist a standalone reader contract. A clean checklist cannot compensate for a wrong or incomplete reader takeaway.
 
 ### 2. Find and bind the primary source
 
@@ -53,7 +53,7 @@ The JSON queue records a planned expression of the content; it is not the author
 
 If cards or other rendered companions are present, read the rendered artifact as a reader would. Meaning-preserving paraphrase, abbreviation, synonymous wording, sentence restructuring and harmless explanatory labels pass. Fail only when the rendering materially changes evidence meaning, weight, attribution, scope, applicability, causal boundaries, a data-bearing visual relation or source traceability.
 
-Record JSON object, relation, citation and layout adherence separately as engineering conformance. Enforce a lock as a science-communication gate only when its stated purpose protects factual accuracy, evidence weight, attribution, applicability, causal boundaries, data-bearing geometry or traceability, and the violation can materially alter reader understanding. Otherwise record a warning rather than a failure.
+Use `audit_policy.engineering_conformance_track` to interpret JSON object, relation, citation and layout adherence separately from the scientific verdict. Enforce a lock as a science-communication gate only when its protective purpose covers factual accuracy, evidence weight, attribution, applicability, causal boundaries, data-bearing geometry or traceability, and the violation can materially alter reader understanding. Record that purpose in the relevant audit finding or correction when it matters; the current schema does not require a per-lock conformance ledger. Otherwise treat it as an engineering warning rather than a failure.
 
 The former literal `visible_text` whitelist may be retained as `historical_text_comparison`, but it records only equivalence or wording divergence and has no pass/fail status. A wording difference alone is not evidence of lower quality.
 
