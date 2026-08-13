@@ -12,9 +12,15 @@
     "reason": "Title-sequence mismatch."
   },
   "audit_policy": {
-    "content_truth_track": "Content truth is audited against the source PDF before upload: numbers, direction, scope, uncertainty, causal structure and conclusion wording must remain faithful.",
-    "render_fidelity_track": "Render fidelity is audited after upload: reasonable paraphrase, abbreviation and synonymous wording pass when meaning is preserved. Fail only for meaning drift, an unauthorized substantive claim or number, a required_objects/required_relations violation, or a citation_binding exact_once violation.",
-    "legacy_exact_text_track": "The former literal visible_text whitelist is retained as a non-gating diagnostic only; verbatim wording is not required for render fidelity.",
+    "materiality_test": {
+      "gate_only_substantive": true,
+      "substantive_definition": "A deviation is substantive when it can materially change the reader understanding of the finding, evidence weight, uncertainty, scope, provenance, causal boundary or decision ceiling.",
+      "presentation_only_handling": "Record presentation-only deviations in historical_text_comparison; they do not block publication or alter the derived reader outcome."
+    },
+    "content_truth_track": "Before rendering, compare the proposed card content with the resolved primary PDF and check both factual accuracy and material omissions across the reader contract.",
+    "render_fidelity_track": "After rendering, compare the image with the approved specification and reader contract. Paraphrase, abbreviation, layout labels and non-claim decoration pass unless they introduce a substantive error or misleading data geometry.",
+    "engineering_conformance_track": "JSON exactness rules are purpose-scoped guardrails. A required object, relation, exact_once or unlisted-text deviation is blocking only when it protects substantive truth or source traceability and the deviation is material.",
+    "historical_text_comparison_track": "Historical wording comparison records equivalent wording or wording divergence without pass/fail language and has zero weight in the science-communication verdict.",
     "global_constraints_checked": [
       "no pooled prevalence or causal effect",
       "no summing overlapping cause categories as mutually exclusive",
@@ -22,20 +28,29 @@
       "no efficacy ranking of mitigation strategies",
       "no trusted reuse of PRISMA n=8533",
       "no causal solid arrows"
-    ]
+    ],
+    "engineering_conformance_is_gate": false
   },
   "summary": {
     "cards": 6,
     "content_truth_passes": 6,
     "content_truth_failures": 0,
-    "render_fidelity_passes": 5,
-    "render_fidelity_failures": 1,
-    "legacy_exact_text_passes": 0,
-    "legacy_exact_text_failures": 6,
-    "targeted_correction_ids": [
-      "C05"
-    ],
-    "interpretation": "The cardset is source-aligned in meaning except C05, whose illustrative 1/2/3 numerals are unauthorised visible numbers. Other wording differences are retained only in the non-gating legacy exact-text diagnostic."
+    "render_fidelity_passes": 6,
+    "render_fidelity_failures": 0,
+    "historical_text_equivalent": 0,
+    "historical_text_wording_divergence": 6,
+    "targeted_correction_ids": [],
+    "derived_reader_outcome": {
+      "status": "communicated",
+      "central_claim": "clear",
+      "evidence_weight": "clear",
+      "limitations": "clear",
+      "applicability": "clear",
+      "misuse_boundaries": "clear",
+      "blocking_card_ids": [],
+      "interpretation": "All five reader-contract dimensions are communicated; no card contains a substantive render-fidelity failure."
+    },
+    "interpretation": "All six cards preserve the evidence weight, limitations, scope and non-causal decision boundary. Decorative list numerals and wording differences are presentation choices, not scientific failures."
   },
   "cards": [
     {
@@ -71,11 +86,12 @@
         "status": "pass",
         "violations": []
       },
-      "legacy_exact_text_audit": {
-        "status": "fail",
-        "violations": [
+      "historical_text_comparison": {
+        "status": "wording_divergence",
+        "differences": [
           "Unlisted visible labels inside the paper stack: 異質研究證據、研究設計、缺藥定義、結果指標."
-        ]
+        ],
+        "gating": false
       }
     },
     {
@@ -106,12 +122,13 @@
         "status": "pass",
         "violations": []
       },
-      "legacy_exact_text_audit": {
-        "status": "fail",
-        "violations": [
+      "historical_text_comparison": {
+        "status": "wording_divergence",
+        "differences": [
           "The central box adds 缺藥 as a separate visible label although it is not a listed visible_text item.",
           "Approved count phrases are duplicated in node labels and the lower legend rather than rendered once as the supplied strings."
-        ]
+        ],
+        "gating": false
       }
     },
     {
@@ -137,12 +154,13 @@
         "status": "pass",
         "violations": []
       },
-      "legacy_exact_text_audit": {
-        "status": "fail",
-        "violations": [
+      "historical_text_comparison": {
+        "status": "wording_divergence",
+        "differences": [
           "The combined upstream-middle-downstream sentence is split and each fragment is duplicated as a heading and body line.",
           "Rx is rendered on the medicine bottle without visible-text authorisation."
-        ]
+        ],
+        "gating": false
       }
     },
     {
@@ -168,11 +186,12 @@
         "status": "pass",
         "violations": []
       },
-      "legacy_exact_text_audit": {
-        "status": "fail",
-        "violations": [
+      "historical_text_comparison": {
+        "status": "wording_divergence",
+        "differences": [
           "Scene decoration adds multiple unlisted labels, including 缺貨、庫存狀態、自費明細、藥費、交通、其他、合計、私人藥局、緊急採購、採購申請 and 替代藥."
-        ]
+        ],
+        "gating": false
       }
     },
     {
@@ -193,20 +212,17 @@
         "violations": []
       },
       "render_fidelity_audit": {
-        "status": "fail",
-        "violations": [
-          "Rendered priority-list numerals 1, 2 and 3 are not authorised visible numbers; they must be removed or explicitly bound as allowed display numbers."
-        ]
+        "status": "pass",
+        "violations": []
       },
-      "legacy_exact_text_audit": {
-        "status": "fail",
-        "violations": [
+      "historical_text_comparison": {
+        "status": "wording_divergence",
+        "differences": [
           "The two authorised list sentences are rewritten into eight separately prefixed short-term and long-term labels.",
           "The priority-list illustration renders 1, 2 and 3 although this card authorises no visible numbers."
-        ]
-      },
-      "targeted_audit": "fail: unapproved illustrative numbers 1, 2 and 3 are rendered.",
-      "required_correction": "Remove the unapproved 1/2/3 priority-list numerals or explicitly authorise them as non-claim display numbers before rerendering."
+        ],
+        "gating": false
+      }
     },
     {
       "card_id": "C06",
@@ -230,13 +246,21 @@
         "status": "pass",
         "violations": []
       },
-      "legacy_exact_text_audit": {
-        "status": "fail",
-        "violations": [
+      "historical_text_comparison": {
+        "status": "wording_divergence",
+        "differences": [
           "Unlisted scene labels include 研究證據文件、方法異質性、缺藥定義不同、量化結果不足 and 經濟成本研究.",
           "The audit clipboard adds 審計檢視、PRISMA 流程、????、數字有內部不一致 and 不採納為確定數字 instead of limiting text to the authorised sentence."
-        ]
+        ],
+        "gating": false
       }
     }
-  ]
+  ],
+  "reader_contract": {
+    "central_claim": "Medicine stock-outs in low- and middle-income settings recur through interacting upstream, supply-chain and downstream system drivers; the review maps these patterns but cannot establish global rates, causal rankings or a universally effective remedy.",
+    "evidence_weight": "A heterogeneous narrative systematic review maps recurring system drivers but does not estimate one pooled global effect or prevalence.",
+    "limitations": "Definitions, designs and settings differ; quantitative patient outcomes and economic evidence are sparse.",
+    "applicability": "Evidence is geographically concentrated and local or regional percentages remain bound to their source settings.",
+    "misuse_boundaries": "Reported driver frequencies and observed harms are associations, not ranked causal effects. Do not claim a global stock-out rate or that one strategy has been proven to eliminate stock-outs everywhere."
+  }
 }

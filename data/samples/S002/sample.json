@@ -59,85 +59,134 @@
       "observation_id": "O001",
       "kind": "architecture",
       "description": "The article replaces journal order with reader-facing questions about scale, system drivers, patient harm, costs, responses, and evidentiary limits.",
-      "evidence_locations": ["article:研究規模與分布", "article:斷貨最常被報告的驅動因素", "article:結論很清楚，證據邊界也要清楚"]
+      "evidence_locations": [
+        "article:研究規模與分布",
+        "article:斷貨最常被報告的驅動因素",
+        "article:結論很清楚，證據邊界也要清楚"
+      ]
     },
     {
       "observation_id": "O002",
       "kind": "calibration",
       "description": "The central systemic interpretation is kept beside a boundary stream stating that the evidence is heterogeneous, observational, non-pooled, and not proof that a specific intervention eliminates stock-outs.",
-      "evidence_locations": ["article:一句話總結", "article:斷貨最常被報告的驅動因素", "article:結論很清楚，證據邊界也要清楚"]
+      "evidence_locations": [
+        "article:一句話總結",
+        "article:斷貨最常被報告的驅動因素",
+        "article:結論很清楚，證據邊界也要清楚"
+      ]
     },
     {
       "observation_id": "O003",
       "kind": "mechanism",
       "description": "A system-to-patient pathway links upstream policy, procurement and financing failures to supply interruption, treatment disruption, patient harm and system cost.",
-      "evidence_locations": ["article:斷貨最常被報告的驅動因素", "article:斷貨之後，病人承受什麼", "card:C03"]
+      "evidence_locations": [
+        "article:斷貨最常被報告的驅動因素",
+        "article:斷貨之後，病人承受什麼",
+        "card:C03"
+      ]
     },
     {
       "observation_id": "O004",
       "kind": "claim_transform",
       "description": "Key figures are translated through the sequence result, operational meaning, and interpretive ceiling rather than being left as isolated numbers.",
-      "evidence_locations": ["article:斷貨最常被報告的驅動因素", "article:斷貨之後，病人承受什麼", "article:斷貨的成本，不只是一盒藥"]
+      "evidence_locations": [
+        "article:斷貨最常被報告的驅動因素",
+        "article:斷貨之後，病人承受什麼",
+        "article:斷貨的成本，不只是一盒藥"
+      ]
     },
     {
       "observation_id": "O005",
       "kind": "calibration",
       "description": "Study-frequency counts, the 11% single cohort result, the 46% regional survey result, and the temporal strategy narrative each receive a nearby scope or causality brake.",
-      "evidence_locations": ["article:斷貨最常被報告的驅動因素", "article:斷貨之後，病人承受什麼", "article:從救火到供應鏈韌性", "card:C02-C05"]
+      "evidence_locations": [
+        "article:斷貨最常被報告的驅動因素",
+        "article:斷貨之後，病人承受什麼",
+        "article:從救火到供應鏈韌性",
+        "card:C02-C05"
+      ]
     },
     {
       "observation_id": "O006",
       "kind": "provenance",
       "description": "The prose distinguishes review-wide reporting frequencies, single-country observations, regional surveys, source-author interpretation and explainer-level cautions.",
-      "evidence_locations": ["article:研究規模與分布", "article:斷貨之後，病人承受什麼", "article:斷貨的成本，不只是一盒藥"]
+      "evidence_locations": [
+        "article:研究規模與分布",
+        "article:斷貨之後，病人承受什麼",
+        "article:斷貨的成本，不只是一盒藥"
+      ]
     },
     {
       "observation_id": "O007",
       "kind": "limitations",
       "description": "The source PRISMA arithmetic anomaly is surfaced in companion card C06 but omitted from the long-form article, showing that audit findings may be allocated unevenly across output channels.",
-      "evidence_locations": ["source_pdf:Figure 1", "card:C06", "article:omitted"]
+      "evidence_locations": [
+        "source_pdf:Figure 1",
+        "card:C06",
+        "article:omitted"
+      ]
     },
     {
       "observation_id": "O008",
       "kind": "limitations",
       "description": "Limitations actively prohibit a pooled global proportion, causal ranking of drivers, global extrapolation of regional percentages, and claims that one mitigation strategy is proven to remove stock-outs.",
-      "evidence_locations": ["article:研究規模與分布", "article:斷貨最常被報告的驅動因素", "article:結論很清楚，證據邊界也要清楚"]
+      "evidence_locations": [
+        "article:研究規模與分布",
+        "article:斷貨最常被報告的驅動因素",
+        "article:結論很清楚，證據邊界也要清楚"
+      ]
     },
     {
       "observation_id": "O009",
       "kind": "decision_positioning",
       "description": "The ending permits system strengthening as a direction for action while prohibiting the stronger claim that all stock-outs are avoidable or that a specific intervention is proven effective everywhere.",
-      "evidence_locations": ["article:結論很清楚，證據邊界也要清楚"]
+      "evidence_locations": [
+        "article:結論很清楚，證據邊界也要清楚"
+      ]
     },
     {
       "observation_id": "O010",
       "kind": "evidence_grade",
       "description": "The evidence grade separates standard review methods from the observational, heterogeneous, geographically concentrated and sparsely quantified evidence substrate.",
-      "evidence_locations": ["article:證據分級"]
+      "evidence_locations": [
+        "article:證據分級"
+      ]
     },
     {
       "observation_id": "O011",
       "kind": "quantitative_semantics",
       "description": "Counts of studies reporting a cause are explicitly treated as non-exclusive report frequencies, not prevalence, effect magnitude, causal importance or a ranked comparison.",
-      "evidence_locations": ["article:斷貨最常被報告的驅動因素", "card:C02"]
+      "evidence_locations": [
+        "article:斷貨最常被報告的驅動因素",
+        "card:C02"
+      ]
     },
     {
       "observation_id": "O012",
       "kind": "architecture",
       "description": "The response section uses a two-axis contrast—reactive versus preventive and short-term versus long-term—to organise strategies without presenting an efficacy league table.",
-      "evidence_locations": ["article:從救火到供應鏈韌性", "card:C05"]
+      "evidence_locations": [
+        "article:從救火到供應鏈韌性",
+        "card:C05"
+      ]
     },
     {
       "observation_id": "O013",
       "kind": "companion_artifact",
-      "description": "The rendered cards preserve the paper's meaning; literal scene labels, duplicated fragments and illustrative numbers remain recorded only in the non-gating legacy exact-text diagnostic.",
-      "evidence_locations": ["card_storyboard:C01-C06"]
+      "description": "The rendered cards preserve the paper's meaning; wording, scene-label and other presentation differences remain recorded only as non-gating historical comparisons.",
+      "evidence_locations": [
+        "card_storyboard:C01-C06"
+      ]
     },
     {
       "observation_id": "O014",
       "kind": "voice_register",
       "description": "The prose adopts a systems-level but non-alarmist stance: it translates stock-outs into patient and system consequences, attributes local observations, and repeatedly blocks causal, global and universal-intervention readings.",
-      "evidence_locations": ["article:一句話總結", "article:斷貨之後，病人承受什麼", "article:結論很清楚，證據邊界也要清楚"]
+      "evidence_locations": [
+        "article:一句話總結",
+        "article:斷貨之後，病人承受什麼",
+        "article:結論很清楚，證據邊界也要清楚"
+      ]
     }
   ],
   "contamination_notes": [
@@ -160,5 +209,69 @@
       "preferred_handling": "Say that standard review methods were used, while separately flagging the PRISMA reporting inconsistency as an audit limitation."
     }
   ],
-  "analysis_date": "2026-08-10"
+  "analysis_date": "2026-08-10",
+  "source_resolution": {
+    "searched_at": "2026-08-13T10:38:00+09:00",
+    "stage": "retrospective_backfill",
+    "query_keys": {
+      "title": "Drug stock-outs in HIV, tuberculosis, and malaria programs: a systematic review",
+      "doi": "10.1016/j.eclinm.2026.104119",
+      "filename": "main 17(1).pdf"
+    },
+    "searches": [
+      {
+        "priority": 1,
+        "target_kind": "source_pdf",
+        "query": "10.1016/j.eclinm.2026.104119",
+        "query_keys_used": [
+          "doi"
+        ],
+        "search_title_only": false,
+        "outcome": "not_found",
+        "candidate_library_file_ids": [],
+        "strategy": "doi"
+      },
+      {
+        "priority": 2,
+        "target_kind": "source_pdf",
+        "query": "Drug stock-outs in HIV, tuberculosis, and malaria programs: a systematic review",
+        "query_keys_used": [
+          "title"
+        ],
+        "search_title_only": true,
+        "outcome": "not_found",
+        "candidate_library_file_ids": [],
+        "strategy": "exact_title"
+      },
+      {
+        "priority": 3,
+        "target_kind": "source_pdf",
+        "query": "main 17(1).pdf",
+        "query_keys_used": [
+          "filename"
+        ],
+        "search_title_only": true,
+        "outcome": "found",
+        "candidate_library_file_ids": [
+          "libfile_0015ce1879b881919ddca88d88c914be"
+        ],
+        "strategy": "filename"
+      }
+    ],
+    "resolution": "library_selected",
+    "selected_pdf": {
+      "origin": "library",
+      "library_file_id": "libfile_0015ce1879b881919ddca88d88c914be",
+      "file_id": "file_000000006da88209ac7106bc69bf1d68",
+      "library_path": "/main 17(1).pdf",
+      "filename": "main 17(1).pdf",
+      "version": "0",
+      "version_state": "recorded",
+      "sha256": "cd7e95647187a49fc162b8dba65ec7eea2d75cc8fe3de9d35575b670351f1036"
+    },
+    "fallback": {
+      "used": false,
+      "reason": null
+    }
+  }
 }

@@ -4,18 +4,42 @@
   "title": "EvidenceProse companion-card audit",
   "type": "object",
   "additionalProperties": false,
-  "required": ["sample_id", "audit_policy", "canonical_queue", "rejected_queue", "cards", "summary"],
+  "required": ["sample_id", "audit_policy", "reader_contract", "canonical_queue", "rejected_queue", "cards", "summary"],
   "properties": {
     "sample_id": {"type": "string", "pattern": "^S[0-9]{3}$"},
     "audit_policy": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["content_truth_track", "render_fidelity_track", "legacy_exact_text_track", "global_constraints_checked"],
+      "required": ["content_truth_track", "render_fidelity_track", "materiality_test", "engineering_conformance_track", "engineering_conformance_is_gate", "historical_text_comparison_track", "global_constraints_checked"],
       "properties": {
         "content_truth_track": {"type": "string", "minLength": 1},
         "render_fidelity_track": {"type": "string", "minLength": 1},
-        "legacy_exact_text_track": {"type": "string", "minLength": 1},
+        "materiality_test": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["gate_only_substantive", "substantive_definition", "presentation_only_handling"],
+          "properties": {
+            "gate_only_substantive": {"const": true},
+            "substantive_definition": {"type": "string", "minLength": 1},
+            "presentation_only_handling": {"type": "string", "minLength": 1}
+          }
+        },
+        "engineering_conformance_track": {"type": "string", "minLength": 1},
+        "engineering_conformance_is_gate": {"const": false},
+        "historical_text_comparison_track": {"type": "string", "minLength": 1},
         "global_constraints_checked": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "reader_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["central_claim", "evidence_weight", "limitations", "applicability", "misuse_boundaries"],
+      "properties": {
+        "central_claim": {"type": "string", "minLength": 1},
+        "evidence_weight": {"type": "string", "minLength": 1},
+        "limitations": {"type": "string", "minLength": 1},
+        "applicability": {"type": "string", "minLength": 1},
+        "misuse_boundaries": {"type": "string", "minLength": 1}
       }
     },
     "canonical_queue": {"$ref": "#/$defs/canonicalQueue"},
@@ -28,16 +52,17 @@
     "summary": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["cards", "content_truth_passes", "content_truth_failures", "render_fidelity_passes", "render_fidelity_failures", "interpretation"],
+      "required": ["cards", "content_truth_passes", "content_truth_failures", "render_fidelity_passes", "render_fidelity_failures", "derived_reader_outcome", "interpretation"],
       "properties": {
         "cards": {"type": "integer", "minimum": 1},
         "content_truth_passes": {"type": "integer", "minimum": 0},
         "content_truth_failures": {"type": "integer", "minimum": 0},
         "render_fidelity_passes": {"type": "integer", "minimum": 0},
         "render_fidelity_failures": {"type": "integer", "minimum": 0},
-        "legacy_exact_text_passes": {"type": "integer", "minimum": 0},
-        "legacy_exact_text_failures": {"type": "integer", "minimum": 0},
+        "historical_text_equivalent": {"type": "integer", "minimum": 0},
+        "historical_text_wording_divergence": {"type": "integer", "minimum": 0},
         "targeted_correction_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^C[0-9]{2}$"}},
+        "derived_reader_outcome": {"$ref": "#/$defs/derivedReaderOutcome"},
         "interpretation": {"type": "string", "minLength": 1}
       }
     }
@@ -94,18 +119,41 @@
             "violations": {"type": "array", "items": {"type": "string", "minLength": 1}}
           }
         },
-        "legacy_exact_text_audit": {
+        "historical_text_comparison": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["status", "violations"],
+          "required": ["status", "differences", "gating"],
           "properties": {
-            "status": {"enum": ["pass", "fail"]},
-            "violations": {"type": "array", "items": {"type": "string", "minLength": 1}}
+            "status": {"enum": ["equivalent", "wording_divergence"]},
+            "differences": {"type": "array", "items": {"type": "string", "minLength": 1}},
+            "gating": {"const": false}
           }
         },
         "targeted_audit": {"type": "string", "minLength": 1},
         "required_correction": {"type": ["string", "null"], "minLength": 1}
       }
+    },
+    "derivedReaderOutcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "central_claim", "evidence_weight", "limitations", "applicability", "misuse_boundaries", "blocking_card_ids", "interpretation"],
+      "properties": {
+        "status": {"enum": ["communicated", "materially_incomplete", "misleading"]},
+        "central_claim": {"$ref": "#/$defs/readerDimensionOutcome"},
+        "evidence_weight": {"$ref": "#/$defs/readerDimensionOutcome"},
+        "limitations": {"$ref": "#/$defs/readerDimensionOutcome"},
+        "applicability": {"$ref": "#/$defs/readerDimensionOutcome"},
+        "misuse_boundaries": {"$ref": "#/$defs/readerDimensionOutcome"},
+        "blocking_card_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^C[0-9]{2}$"}
+        },
+        "interpretation": {"type": "string", "minLength": 1}
+      }
+    },
+    "readerDimensionOutcome": {
+      "enum": ["clear", "not_clear", "distorted"]
     }
   }
 }

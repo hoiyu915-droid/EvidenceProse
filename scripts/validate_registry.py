@@ -8,7 +8,7 @@ import hashlib
 import json
 import re
 import sys
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -42,6 +42,9 @@ CONFIDENCE_LEVELS = {"low", "moderate", "high"}
 VALIDATOR_POTENTIALS = {"none", "manual", "partial", "automatable"}
 VERIFICATION_STATES = {"metadata_only", "abstract", "full_text", "full_text_audited"}
 ARTIFACT_KINDS = {"source_pdf", "canonical_render_queue", "alternate_render_queue", "rendered_cardset"}
+SOURCE_RESOLUTIONS = {"library_selected", "current_upload_fallback", "unresolved"}
+SOURCE_SEARCH_STRATEGIES = {"doi", "exact_title", "filename", "supplement", "data"}
+READER_DIMENSION_STATES = {"clear", "not_clear", "distorted"}
 
 
 class ValidationError(Exception):
@@ -73,6 +76,16 @@ def parse_date(value: object, label: str) -> date:
         return date.fromisoformat(value)
     except ValueError as exc:
         raise ValidationError(f"{label} must be an ISO date: {value!r}") from exc
+
+
+def parse_datetime(value: object, label: str) -> datetime:
+    require(isinstance(value, str), f"{label} must be an ISO date-time")
+    try:
+        parsed = datetime.fromisoformat(value)
+    except ValueError as exc:
+        raise ValidationError(f"{label} must be an ISO date-time: {value!r}") from exc
+    require(parsed.tzinfo is not None, f"{label} must include a timezone offset")
+    return parsed
 
 
 def non_empty_text(value: object, label: str) -> str:
@@ -112,6 +125,48 @@ def repository_file(root: Path, raw_path: object, label: str) -> Path:
         raise ValidationError(f"{label} escapes the repository: {path_text}") from exc
     require(path.is_file(), f"{label} is missing: {path_text}")
     return path
+
+
+def validate_reader_outcome(
+    outcome: object,
+    card_ids: list[str],
+    label: str,
+) -> list[str]:
+    require(isinstance(outcome, dict), f"{label} must be an object")
+    exact_keys(
+        outcome,
+        {
+            "status",
+            "central_claim",
+            "evidence_weight",
+            "limitations",
+            "applicability",
+            "misuse_boundaries",
+            "blocking_card_ids",
+            "interpretation",
+        },
+        set(),
+        label,
+    )
+    status = outcome.get("status")
+    require(status in {"communicated", "materially_incomplete", "misleading"}, f"{label} has invalid status")
+    dimensions = []
+    for field in ("central_claim", "evidence_weight", "limitations", "applicability", "misuse_boundaries"):
+        value = outcome.get(field)
+        require(value in READER_DIMENSION_STATES, f"{label} has invalid {field}")
+        dimensions.append(value)
+    blocking_ids = string_list(outcome.get("blocking_card_ids"), f"{label} blocking_card_ids")
+    require(set(blocking_ids).issubset(card_ids), f"{label} references unknown blocking cards")
+    non_empty_text(outcome.get("interpretation"), f"{label} interpretation")
+    if status == "communicated":
+        require(not blocking_ids, f"{label} communicated outcome cannot have blocking cards")
+        require(all(value == "clear" for value in dimensions), f"{label} communicated outcome requires all dimensions clear")
+    else:
+        require(bool(blocking_ids), f"{label} non-communicated outcome requires blocking cards")
+        require(any(value != "clear" for value in dimensions), f"{label} non-communicated outcome requires a non-clear dimension")
+        if status == "misleading":
+            require("distorted" in dimensions, f"{label} misleading outcome requires a distorted dimension")
+    return blocking_ids
 
 
 def file_sha256(path: Path) -> str:
@@ -251,9 +306,10 @@ def validate(root: Path = ROOT) -> dict[str, int]:
     contamination_count = 0
     artifact_count = 0
     card_count = 0
-    legacy_exact_text_failures = 0
+    historical_text_wording_divergences = 0
     content_truth_failures = 0
     render_fidelity_failures = 0
+    reader_outcome_blocking_cards = 0
 
     sample_required = {
         "sample_id",
@@ -262,6 +318,7 @@ def validate(root: Path = ROOT) -> dict[str, int]:
         "article_path",
         "article_sha256",
         "source",
+        "source_resolution",
         "study_profile",
         "observations",
         "contamination_notes",
@@ -301,6 +358,116 @@ def validate(root: Path = ROOT) -> dict[str, int]:
             require(isinstance(pdf_digest, str) and SHA256.fullmatch(pdf_digest) is not None, f"{sample_id} source pdf_sha256 is invalid")
         if verification_state in {"full_text", "full_text_audited"}:
             require(pdf_digest is not None, f"{sample_id} full-text verification requires pdf_sha256")
+
+        source_resolution = sample.get("source_resolution")
+        require(isinstance(source_resolution, dict), f"{sample_id} source_resolution must be an object")
+        exact_keys(
+            source_resolution,
+            {"searched_at", "stage", "query_keys", "searches", "resolution", "selected_pdf", "fallback"},
+            set(),
+            f"{sample_id} source_resolution",
+        )
+        parse_datetime(source_resolution.get("searched_at"), f"{sample_id} source_resolution searched_at")
+        require(source_resolution.get("stage") in {"pre_audit", "retrospective_backfill"}, f"{sample_id} source_resolution stage is invalid")
+        query_keys = source_resolution.get("query_keys")
+        require(isinstance(query_keys, dict), f"{sample_id} source_resolution query_keys must be an object")
+        exact_keys(query_keys, {"title", "doi", "filename"}, {"authors", "year"}, f"{sample_id} source_resolution query_keys")
+        for field in ("title", "doi", "filename"):
+            non_empty_text(query_keys.get(field), f"{sample_id} source_resolution query_keys {field}")
+        require(query_keys["doi"] == doi, f"{sample_id} source_resolution DOI must match source DOI")
+        if "authors" in query_keys:
+            string_list(query_keys["authors"], f"{sample_id} source_resolution query_keys authors")
+        if "year" in query_keys:
+            year = query_keys["year"]
+            require(year is None or isinstance(year, int) and not isinstance(year, bool) and year >= 1900, f"{sample_id} source_resolution query_keys year is invalid")
+
+        searches = source_resolution.get("searches")
+        require(isinstance(searches, list) and searches, f"{sample_id} source_resolution searches must not be empty")
+        primary_strategies: list[str] = []
+        found_primary = False
+        found_primary_candidates: set[str] = set()
+        for index, search in enumerate(searches, start=1):
+            require(isinstance(search, dict), f"{sample_id} source search must be an object")
+            exact_keys(
+                search,
+                {"priority", "target_kind", "strategy", "query", "query_keys_used", "search_title_only", "outcome", "candidate_library_file_ids"},
+                set(),
+                f"{sample_id} source search {index}",
+            )
+            require(integer(search.get("priority"), f"{sample_id} source search {index} priority", minimum=1) == index, f"{sample_id} source search priorities must be contiguous and ordered")
+            target_kind = search.get("target_kind")
+            require(target_kind in {"source_pdf", "supplement", "data"}, f"{sample_id} source search {index} target_kind is invalid")
+            strategy = search.get("strategy")
+            require(strategy in SOURCE_SEARCH_STRATEGIES, f"{sample_id} source search {index} strategy is invalid")
+            non_empty_text(search.get("query"), f"{sample_id} source search {index} query")
+            used_keys = string_list(search.get("query_keys_used"), f"{sample_id} source search {index} query_keys_used", non_empty=True)
+            require(len(used_keys) == len(set(used_keys)), f"{sample_id} source search {index} query keys must be unique")
+            require(set(used_keys).issubset(query_keys), f"{sample_id} source search {index} references unavailable query keys")
+            require(isinstance(search.get("search_title_only"), bool), f"{sample_id} source search {index} search_title_only must be boolean")
+            outcome = search.get("outcome")
+            require(outcome in {"found", "not_found"}, f"{sample_id} source search {index} outcome is invalid")
+            candidates = string_list(search.get("candidate_library_file_ids"), f"{sample_id} source search {index} candidate ids")
+            require(len(candidates) == len(set(candidates)), f"{sample_id} source search {index} candidate ids must be unique")
+            require(bool(candidates) == (outcome == "found"), f"{sample_id} source search {index} candidates disagree with outcome")
+            if target_kind == "source_pdf":
+                require(strategy in {"doi", "exact_title", "filename"}, f"{sample_id} primary PDF search uses non-primary strategy")
+                require(not found_primary, f"{sample_id} continued primary PDF search after a source was found")
+                required_query_key = {"doi": "doi", "exact_title": "title", "filename": "filename"}[strategy]
+                require(required_query_key in used_keys, f"{sample_id} {strategy} search must use the {required_query_key} query key")
+                primary_strategies.append(strategy)
+                if outcome == "found":
+                    found_primary = True
+                    found_primary_candidates.update(candidates)
+            else:
+                require(strategy == target_kind, f"{sample_id} {target_kind} lookup must use matching strategy")
+                require(
+                    found_primary or primary_strategies == ["doi", "exact_title", "filename"],
+                    f"{sample_id} supplement/data search precedes primary PDF resolution or exhaustion",
+                )
+        expected_primary_prefix = ["doi", "exact_title", "filename"][:len(primary_strategies)]
+        require(primary_strategies == expected_primary_prefix, f"{sample_id} primary PDF search order must be DOI, exact title, then filename")
+        require(primary_strategies and primary_strategies[0] == "doi", f"{sample_id} primary PDF search must begin with DOI")
+
+        resolution = source_resolution.get("resolution")
+        require(resolution in SOURCE_RESOLUTIONS, f"{sample_id} source_resolution resolution is invalid")
+        selected_pdf = source_resolution.get("selected_pdf")
+        fallback = source_resolution.get("fallback")
+        require(isinstance(fallback, dict), f"{sample_id} source_resolution fallback must be an object")
+        exact_keys(fallback, {"used", "reason"}, set(), f"{sample_id} source_resolution fallback")
+        require(isinstance(fallback.get("used"), bool), f"{sample_id} source_resolution fallback used must be boolean")
+        reason = fallback.get("reason")
+        require(reason is None or isinstance(reason, str) and reason.strip(), f"{sample_id} source_resolution fallback reason must be null or non-empty text")
+        if resolution == "library_selected":
+            require(found_primary, f"{sample_id} library selection requires a successful primary PDF search")
+            require(isinstance(selected_pdf, dict), f"{sample_id} library-selected PDF must be an object")
+            exact_keys(selected_pdf, {"origin", "library_file_id", "file_id", "library_path", "filename", "version", "version_state", "sha256"}, set(), f"{sample_id} selected library PDF")
+            require(selected_pdf.get("origin") == "library", f"{sample_id} library-selected PDF origin is invalid")
+            for field in ("library_file_id", "file_id", "library_path", "filename"):
+                non_empty_text(selected_pdf.get(field), f"{sample_id} selected library PDF {field}")
+            require(selected_pdf["library_file_id"] in found_primary_candidates, f"{sample_id} selected Library PDF was not returned by the successful search")
+            require(selected_pdf.get("version_state") in {"recorded", "not_exposed"}, f"{sample_id} selected library PDF version_state is invalid")
+            version = selected_pdf.get("version")
+            if selected_pdf["version_state"] == "not_exposed":
+                require(version is None, f"{sample_id} unexposed Library version must be null")
+            else:
+                require((isinstance(version, int) and not isinstance(version, bool) and version >= 0) or isinstance(version, str) and version.isdigit(), f"{sample_id} recorded Library version is invalid")
+            require(fallback == {"used": False, "reason": None}, f"{sample_id} Library selection cannot use fallback")
+        elif resolution == "current_upload_fallback":
+            require(not found_primary and primary_strategies == ["doi", "exact_title", "filename"], f"{sample_id} upload fallback requires exhausting Library DOI/title/filename search")
+            require(isinstance(selected_pdf, dict), f"{sample_id} upload-selected PDF must be an object")
+            exact_keys(selected_pdf, {"origin", "upload_file_id", "workspace_path", "filename", "sha256"}, set(), f"{sample_id} selected upload PDF")
+            require(selected_pdf.get("origin") == "current_upload", f"{sample_id} upload-selected PDF origin is invalid")
+            for field in ("upload_file_id", "workspace_path", "filename"):
+                non_empty_text(selected_pdf.get(field), f"{sample_id} selected upload PDF {field}")
+            require(fallback.get("used") is True and isinstance(reason, str) and reason.strip(), f"{sample_id} upload fallback requires a reason")
+        else:
+            require(not found_primary and primary_strategies == ["doi", "exact_title", "filename"], f"{sample_id} unresolved source requires exhausting Library DOI/title/filename search")
+            require(selected_pdf is None, f"{sample_id} unresolved source cannot select a PDF")
+            require(fallback.get("used") is False and isinstance(reason, str) and reason.strip(), f"{sample_id} unresolved source requires a non-fallback reason")
+        if selected_pdf is not None:
+            selected_digest = selected_pdf.get("sha256")
+            require(isinstance(selected_digest, str) and SHA256.fullmatch(selected_digest) is not None, f"{sample_id} selected PDF sha256 is invalid")
+            require(selected_digest == pdf_digest, f"{sample_id} selected PDF digest does not match source pdf_sha256")
 
         study_profile = sample.get("study_profile")
         require(isinstance(study_profile, dict), f"{sample_id} study_profile must be an object")
@@ -362,7 +529,7 @@ def validate(root: Path = ROOT) -> dict[str, int]:
             storyboard_path = repository_file(root, storyboard_path_value, f"{sample_id} card_storyboard_path")
             storyboard = load_json(storyboard_path, root)
             require(isinstance(storyboard, dict), f"{sample_id} storyboard must be an object")
-            exact_keys(storyboard, {"sample_id", "audit_policy", "canonical_queue", "rejected_queue", "cards", "summary"}, set(), f"{sample_id} storyboard")
+            exact_keys(storyboard, {"sample_id", "audit_policy", "reader_contract", "canonical_queue", "rejected_queue", "cards", "summary"}, set(), f"{sample_id} storyboard")
             require(storyboard.get("sample_id") == sample_id, f"{sample_id} storyboard identity mismatch")
             require(len(receipts_by_kind.get("source_pdf", [])) == 1, f"{sample_id} storyboard requires one source_pdf receipt")
             require(len(receipts_by_kind.get("canonical_render_queue", [])) == 1, f"{sample_id} storyboard requires one canonical_render_queue receipt")
@@ -371,11 +538,30 @@ def validate(root: Path = ROOT) -> dict[str, int]:
 
             audit_policy = storyboard.get("audit_policy")
             require(isinstance(audit_policy, dict), f"{sample_id} audit_policy must be an object")
-            exact_keys(audit_policy, {"content_truth_track", "render_fidelity_track", "legacy_exact_text_track", "global_constraints_checked"}, set(), f"{sample_id} audit_policy")
+            exact_keys(
+                audit_policy,
+                {"content_truth_track", "render_fidelity_track", "materiality_test", "engineering_conformance_track", "engineering_conformance_is_gate", "historical_text_comparison_track", "global_constraints_checked"},
+                set(),
+                f"{sample_id} audit_policy",
+            )
             non_empty_text(audit_policy.get("content_truth_track"), f"{sample_id} content_truth_track")
             non_empty_text(audit_policy.get("render_fidelity_track"), f"{sample_id} render_fidelity_track")
-            non_empty_text(audit_policy.get("legacy_exact_text_track"), f"{sample_id} legacy_exact_text_track")
+            materiality_test = audit_policy.get("materiality_test")
+            require(isinstance(materiality_test, dict), f"{sample_id} materiality_test must be an object")
+            exact_keys(materiality_test, {"gate_only_substantive", "substantive_definition", "presentation_only_handling"}, set(), f"{sample_id} materiality_test")
+            require(materiality_test.get("gate_only_substantive") is True, f"{sample_id} must gate only substantive defects")
+            non_empty_text(materiality_test.get("substantive_definition"), f"{sample_id} substantive definition")
+            non_empty_text(materiality_test.get("presentation_only_handling"), f"{sample_id} presentation-only handling")
+            non_empty_text(audit_policy.get("engineering_conformance_track"), f"{sample_id} engineering conformance track")
+            require(audit_policy.get("engineering_conformance_is_gate") is False, f"{sample_id} engineering conformance cannot be a quality gate")
+            non_empty_text(audit_policy.get("historical_text_comparison_track"), f"{sample_id} historical text comparison track")
             string_list(audit_policy.get("global_constraints_checked"), f"{sample_id} global_constraints_checked")
+
+            reader_contract = storyboard.get("reader_contract")
+            require(isinstance(reader_contract, dict), f"{sample_id} reader_contract must be an object")
+            exact_keys(reader_contract, {"central_claim", "evidence_weight", "limitations", "applicability", "misuse_boundaries"}, set(), f"{sample_id} reader_contract")
+            for field in ("central_claim", "evidence_weight", "limitations", "applicability", "misuse_boundaries"):
+                non_empty_text(reader_contract.get(field), f"{sample_id} reader_contract {field}")
 
             canonical_queue = storyboard.get("canonical_queue")
             require(isinstance(canonical_queue, dict), f"{sample_id} canonical_queue must be an object")
@@ -399,7 +585,8 @@ def validate(root: Path = ROOT) -> dict[str, int]:
             cards = storyboard.get("cards")
             require(isinstance(cards, list) and cards, f"{sample_id} storyboard requires cards")
             card_ids: list[str] = []
-            observed_legacy_failures: list[str] = []
+            observed_historical_equivalent: list[str] = []
+            observed_historical_divergence: list[str] = []
             observed_content_failures: list[str] = []
             observed_render_failures: list[str] = []
             targeted_failures: list[str] = []
@@ -414,7 +601,7 @@ def validate(root: Path = ROOT) -> dict[str, int]:
                 "content_truth_audit",
                 "render_fidelity_audit",
             }
-            optional_card_fields = {"legacy_exact_text_audit", "targeted_audit", "required_correction"}
+            optional_card_fields = {"historical_text_comparison", "targeted_audit", "required_correction"}
             for card in cards:
                 require(isinstance(card, dict), f"{sample_id} storyboard card must be an object")
                 exact_keys(card, required_card_fields, optional_card_fields, f"{sample_id} storyboard card")
@@ -445,18 +632,21 @@ def validate(root: Path = ROOT) -> dict[str, int]:
                         failures.append(card_id)
                     else:
                         require(not violations, f"{sample_id}/{card_id} passed {label} audit cannot retain violations")
-                legacy_audit = card.get("legacy_exact_text_audit")
-                if legacy_audit is not None:
-                    exact_keys(legacy_audit, {"status", "violations"}, set(), f"{sample_id}/{card_id} legacy exact text audit")
-                    require(legacy_audit.get("status") in {"pass", "fail"}, f"{sample_id}/{card_id} invalid legacy exact text status")
-                    legacy_violations = legacy_audit.get("violations")
-                    require(isinstance(legacy_violations, list), f"{sample_id}/{card_id} legacy exact text violations must be an array")
-                    require(all(isinstance(item, str) and item.strip() for item in legacy_violations), f"{sample_id}/{card_id} legacy exact text violations must be non-empty text")
-                    if legacy_audit["status"] == "fail":
-                        require(bool(legacy_violations), f"{sample_id}/{card_id} failed legacy exact text audit requires violations")
-                        observed_legacy_failures.append(card_id)
+                historical = card.get("historical_text_comparison")
+                if historical is not None:
+                    exact_keys(historical, {"status", "differences", "gating"}, set(), f"{sample_id}/{card_id} historical text comparison")
+                    status = historical.get("status")
+                    require(status in {"equivalent", "wording_divergence"}, f"{sample_id}/{card_id} invalid historical text comparison status")
+                    differences = historical.get("differences")
+                    require(isinstance(differences, list), f"{sample_id}/{card_id} historical differences must be an array")
+                    require(all(isinstance(item, str) and item.strip() for item in differences), f"{sample_id}/{card_id} historical differences must be non-empty text")
+                    require(historical.get("gating") is False, f"{sample_id}/{card_id} historical wording comparison cannot be gating")
+                    if status == "wording_divergence":
+                        require(bool(differences), f"{sample_id}/{card_id} wording divergence requires differences")
+                        observed_historical_divergence.append(card_id)
                     else:
-                        require(not legacy_violations, f"{sample_id}/{card_id} passed legacy exact text audit cannot retain violations")
+                        require(not differences, f"{sample_id}/{card_id} equivalent wording cannot retain differences")
+                        observed_historical_equivalent.append(card_id)
 
                 targeted_audit = card.get("targeted_audit")
                 if targeted_audit is not None:
@@ -473,8 +663,8 @@ def validate(root: Path = ROOT) -> dict[str, int]:
             require(isinstance(summary, dict), f"{sample_id} storyboard summary must be an object")
             exact_keys(
                 summary,
-                {"cards", "content_truth_failures", "content_truth_passes", "render_fidelity_failures", "render_fidelity_passes", "interpretation"},
-                {"legacy_exact_text_failures", "legacy_exact_text_passes", "targeted_correction_ids"},
+                {"cards", "content_truth_failures", "content_truth_passes", "render_fidelity_failures", "render_fidelity_passes", "derived_reader_outcome", "interpretation"},
+                {"historical_text_equivalent", "historical_text_wording_divergence", "targeted_correction_ids"},
                 f"{sample_id} storyboard summary",
             )
             integer(summary.get("cards"), f"{sample_id} storyboard card count", minimum=1)
@@ -485,16 +675,19 @@ def validate(root: Path = ROOT) -> dict[str, int]:
                 "render_fidelity_failures": len(observed_render_failures),
                 "render_fidelity_passes": len(cards) - len(observed_render_failures),
             }
-            if "legacy_exact_text_failures" in summary or "legacy_exact_text_passes" in summary:
-                require("legacy_exact_text_failures" in summary and "legacy_exact_text_passes" in summary, f"{sample_id} legacy exact text summary must include both counts")
-                expected_counts["legacy_exact_text_failures"] = len(observed_legacy_failures)
-                expected_counts["legacy_exact_text_passes"] = len(cards) - len(observed_legacy_failures)
+            if "historical_text_equivalent" in summary or "historical_text_wording_divergence" in summary:
+                require("historical_text_equivalent" in summary and "historical_text_wording_divergence" in summary, f"{sample_id} historical text summary must include both counts")
+                require(len(observed_historical_equivalent) + len(observed_historical_divergence) == len(cards), f"{sample_id} historical text comparison must cover every card")
+                expected_counts["historical_text_equivalent"] = len(observed_historical_equivalent)
+                expected_counts["historical_text_wording_divergence"] = len(observed_historical_divergence)
             else:
-                require(not observed_legacy_failures, f"{sample_id} legacy exact text cards require legacy summary counts")
+                require(not observed_historical_equivalent and not observed_historical_divergence, f"{sample_id} historical text cards require historical summary counts")
             for field, expected in expected_counts.items():
                 integer(summary.get(field), f"{sample_id} {field}")
                 require(summary[field] == expected, f"{sample_id} {field} count mismatch")
             non_empty_text(summary.get("interpretation"), f"{sample_id} storyboard interpretation")
+            reader_blocking_ids = validate_reader_outcome(summary.get("derived_reader_outcome"), card_ids, f"{sample_id} derived_reader_outcome")
+            require(reader_blocking_ids == observed_render_failures, f"{sample_id} reader blocking cards must equal substantive render failures")
             summary_targeted = string_list(summary.get("targeted_correction_ids", []), f"{sample_id} targeted_correction_ids")
             require(set(summary_targeted).issubset(targeted_failures), f"{sample_id} targeted correction ids do not match failed targeted audits")
             corrections_by_card = {card["card_id"]: card.get("required_correction") for card in cards}
@@ -503,13 +696,15 @@ def validate(root: Path = ROOT) -> dict[str, int]:
             storyboard_failures[sample_id] = {
                 "content": observed_content_failures,
                 "render": observed_render_failures,
-                "legacy": observed_legacy_failures,
+                "historical": observed_historical_divergence,
                 "targeted": summary_targeted,
+                "reader": reader_blocking_ids,
             }
             card_count += len(cards)
-            legacy_exact_text_failures += len(observed_legacy_failures)
+            historical_text_wording_divergences += len(observed_historical_divergence)
             content_truth_failures += len(observed_content_failures)
             render_fidelity_failures += len(observed_render_failures)
+            reader_outcome_blocking_cards += len(reader_blocking_ids)
         else:
             card_artifact_kinds = {"canonical_render_queue", "alternate_render_queue", "rendered_cardset"} & receipts_by_kind.keys()
             require(not card_artifact_kinds, f"{sample_id} has card artifact receipts without a storyboard")
@@ -683,10 +878,11 @@ def validate(root: Path = ROOT) -> dict[str, int]:
         if sample_id in storyboard_summaries:
             exact_keys(
                 companion_audit,
-                {"status", "cards", "content_truth_passes", "content_truth_failures", "render_fidelity_passes", "render_fidelity_failures"},
-                {"legacy_exact_text_passes", "legacy_exact_text_failures", "content_truth_failure_ids", "render_fidelity_failure_ids", "legacy_exact_text_failure_ids", "targeted_correction_ids", "content_truth_failure_note", "render_fidelity_failure_note", "legacy_exact_text_note"},
+                {"status", "cards", "content_truth_passes", "content_truth_failures", "render_fidelity_passes", "render_fidelity_failures", "engineering_conformance_is_gate", "derived_reader_outcome"},
+                {"historical_text_equivalent", "historical_text_wording_divergence", "content_truth_failure_ids", "render_fidelity_failure_ids", "historical_text_wording_divergence_ids", "targeted_correction_ids", "content_truth_failure_note", "render_fidelity_failure_note", "historical_text_comparison_note"},
                 f"{batch_id} companion_audit",
             )
+            require(companion_audit.get("engineering_conformance_is_gate") is False, f"{batch_id} engineering conformance cannot be a quality gate")
             summary = storyboard_summaries[sample_id]
             for field in ("cards", "content_truth_passes", "content_truth_failures", "render_fidelity_passes", "render_fidelity_failures"):
                 integer(companion_audit.get(field), f"{batch_id} {field}")
@@ -695,20 +891,23 @@ def validate(root: Path = ROOT) -> dict[str, int]:
             require(content_failure_ids == storyboard_failures[sample_id]["content"], f"{batch_id} content truth failure ids do not match storyboard")
             render_failure_ids = string_list(companion_audit.get("render_fidelity_failure_ids", []), f"{batch_id} render_fidelity_failure_ids")
             require(render_failure_ids == storyboard_failures[sample_id]["render"], f"{batch_id} render fidelity failure ids do not match storyboard")
-            has_legacy = any(field in companion_audit for field in ("legacy_exact_text_passes", "legacy_exact_text_failures", "legacy_exact_text_failure_ids"))
-            if has_legacy:
-                for field in ("legacy_exact_text_passes", "legacy_exact_text_failures"):
+            has_historical = any(field in companion_audit for field in ("historical_text_equivalent", "historical_text_wording_divergence", "historical_text_wording_divergence_ids"))
+            if has_historical:
+                for field in ("historical_text_equivalent", "historical_text_wording_divergence"):
                     integer(companion_audit.get(field), f"{batch_id} {field}")
                     require(companion_audit[field] == summary.get(field), f"{batch_id} {field} does not match storyboard")
-                legacy_failure_ids = string_list(companion_audit.get("legacy_exact_text_failure_ids", []), f"{batch_id} legacy_exact_text_failure_ids")
-                require(legacy_failure_ids == storyboard_failures[sample_id]["legacy"], f"{batch_id} legacy exact text failure ids do not match storyboard")
+                historical_ids = string_list(companion_audit.get("historical_text_wording_divergence_ids", []), f"{batch_id} historical_text_wording_divergence_ids")
+                require(historical_ids == storyboard_failures[sample_id]["historical"], f"{batch_id} historical wording divergence ids do not match storyboard")
             else:
-                require(not storyboard_failures[sample_id]["legacy"], f"{batch_id} legacy exact text cards require legacy audit fields")
+                require(not storyboard_failures[sample_id]["historical"], f"{batch_id} historical wording divergence cards require historical fields")
             targeted_ids = string_list(companion_audit.get("targeted_correction_ids", []), f"{batch_id} targeted_correction_ids")
             require(targeted_ids == storyboard_failures[sample_id]["targeted"], f"{batch_id} targeted correction ids do not match storyboard")
-            for note_field in ("content_truth_failure_note", "render_fidelity_failure_note", "legacy_exact_text_note"):
+            for note_field in ("content_truth_failure_note", "render_fidelity_failure_note", "historical_text_comparison_note"):
                 if companion_audit.get(note_field) is not None:
                     non_empty_text(companion_audit[note_field], f"{batch_id} {note_field}")
+            batch_reader_ids = validate_reader_outcome(companion_audit.get("derived_reader_outcome"), [f"C{index:02d}" for index in range(1, summary["cards"] + 1)], f"{batch_id} derived_reader_outcome")
+            require(batch_reader_ids == storyboard_failures[sample_id]["reader"], f"{batch_id} reader outcome does not match storyboard")
+            require(companion_audit["derived_reader_outcome"] == summary["derived_reader_outcome"], f"{batch_id} derived reader outcome does not match storyboard")
         else:
             exact_keys(companion_audit, {"status", "note"}, set(), f"{batch_id} companion_audit")
             non_empty_text(companion_audit.get("note"), f"{batch_id} companion audit note")
@@ -771,9 +970,10 @@ def validate(root: Path = ROOT) -> dict[str, int]:
         "artifact_receipts": artifact_count,
         "cards": card_count,
         "contamination_notes": contamination_count,
-        "legacy_exact_text_failures": legacy_exact_text_failures,
+        "historical_text_wording_divergences": historical_text_wording_divergences,
         "content_truth_failures": content_truth_failures,
         "render_fidelity_failures": render_fidelity_failures,
+        "reader_outcome_blocking_cards": reader_outcome_blocking_cards,
     }
 
 

@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.7.0",
+  "schema_version": "0.8.0",
   "project_phase": "pattern_induction",
   "primary_language": "zh-Hant",
   "sample_ids": [

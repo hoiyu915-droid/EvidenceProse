@@ -12,9 +12,15 @@
     "reason": "Its title sequence describes a different six-card plan and does not match the renders."
   },
   "audit_policy": {
-    "content_truth_track": "Content truth is audited against the source PDF before upload: numbers, direction, scope, uncertainty, causal structure and conclusion wording must remain faithful.",
-    "render_fidelity_track": "Render fidelity is audited after upload: reasonable paraphrase, abbreviation and synonymous wording pass when meaning is preserved. Fail only for meaning drift, an unauthorized substantive claim or number, a required_objects/required_relations violation, or a citation_binding exact_once violation.",
-    "legacy_exact_text_track": "The former literal visible_text whitelist is retained as a non-gating diagnostic only; verbatim wording is not required for render fidelity.",
+    "materiality_test": {
+      "gate_only_substantive": true,
+      "substantive_definition": "A deviation is substantive when it can materially change the reader understanding of the finding, evidence weight, uncertainty, scope, provenance, causal boundary or decision ceiling.",
+      "presentation_only_handling": "Record presentation-only deviations in historical_text_comparison; they do not block publication or alter the derived reader outcome."
+    },
+    "content_truth_track": "Before rendering, compare the proposed card content with the resolved primary PDF and check both factual accuracy and material omissions across the reader contract.",
+    "render_fidelity_track": "After rendering, compare the image with the approved specification and reader contract. Paraphrase, abbreviation, layout labels and non-claim decoration pass unless they introduce a substantive error or misleading data geometry.",
+    "engineering_conformance_track": "JSON exactness rules are purpose-scoped guardrails. A required object, relation, exact_once or unlisted-text deviation is blocking only when it protects substantive truth or source traceability and the deviation is material.",
+    "historical_text_comparison_track": "Historical wording comparison records equivalent wording or wording divergence without pass/fail language and has zero weight in the science-communication verdict.",
     "global_constraints_checked": [
       "no completed-public-release claim for the 4,978-record local collection",
       "no use of 61.9% as RAG or end-to-end baseline performance",
@@ -24,21 +30,35 @@
       "no evidence-state grading invented for evidence object classes",
       "no fabricated quantitative chart geometry",
       "no causal arrows"
-    ]
+    ],
+    "engineering_conformance_is_gate": false
   },
   "summary": {
     "cards": 6,
-    "content_truth_passes": 4,
-    "content_truth_failures": 2,
+    "content_truth_passes": 6,
+    "content_truth_failures": 0,
     "render_fidelity_passes": 4,
     "render_fidelity_failures": 2,
-    "legacy_exact_text_passes": 0,
-    "legacy_exact_text_failures": 6,
+    "historical_text_equivalent": 0,
+    "historical_text_wording_divergence": 6,
     "targeted_correction_ids": [
       "C02",
       "C05"
     ],
-    "interpretation": "C03, C04 and C06 are clean under the user's targeted audit. C01 is source-aligned; its extra oracle explanations remain only in the non-gating legacy exact-text diagnostic. C02 invents evidence-status grades for object types, and C05 presents a venue chart that omits ICCV and reverses the source ranking."
+    "derived_reader_outcome": {
+      "status": "misleading",
+      "central_claim": "distorted",
+      "evidence_weight": "distorted",
+      "limitations": "clear",
+      "applicability": "clear",
+      "misuse_boundaries": "clear",
+      "blocking_card_ids": [
+        "C02",
+        "C05"
+      ],
+      "interpretation": "C02 invents evidence-strength grades and C05 contradicts the reported venue distribution, distorting both the central account and evidence weight."
+    },
+    "interpretation": "The pre-upload specification is source-aligned. C02 materially invents evidence grades for object classes, and C05 fabricates venue-chart geometry that contradicts the stated ICCV distribution."
   },
   "cards": [
     {
@@ -56,8 +76,6 @@
       ],
       "allowed_visible_numbers": [],
       "main_visual_scene": "A three-stage paper-to-evidence-to-answer pipeline ends in an AND gate, with oracle paper and oracle evidence diagnostic shortcuts alongside it.",
-      "targeted_audit": "pass: semantic render fidelity passes; literal differences remain only in the legacy exact-text diagnostic.",
-      "required_correction": null,
       "content_truth_audit": {
         "status": "pass",
         "violations": []
@@ -66,13 +84,14 @@
         "status": "pass",
         "violations": []
       },
-      "legacy_exact_text_audit": {
-        "status": "fail",
-        "violations": [
+      "historical_text_comparison": {
+        "status": "wording_divergence",
+        "differences": [
           "Unlisted text: 先放寬論文限制，測定位於錯在哪一步。",
           "Unlisted text: 再放寬為 oracle 證據，確認是否為證據定位或核對問題。",
           "Additional scene labels such as 論文庫, 證據物件 and 答案判定 are visible outside the authorised list."
-        ]
+        ],
+        "gating": false
       }
     },
     {
@@ -93,11 +112,8 @@
       "targeted_audit": "fail: evidence object classes are assigned fabricated 核心／推論／衝突 grades.",
       "required_correction": "Remove all evidence-state badges from the five object types; keep only the object taxonomy and locator structure authorised by the card.",
       "content_truth_audit": {
-        "status": "fail",
-        "violations": [
-          "The paper does not grade tables, figures and text as 核心, equations/algorithms as 推論, or citation context as 衝突.",
-          "The evidence-state legend applies to claim status in the rendering system, not to the intrinsic reliability of LitTraceQA evidence types."
-        ]
+        "status": "pass",
+        "violations": []
       },
       "render_fidelity_audit": {
         "status": "fail",
@@ -106,11 +122,12 @@
           "The evidence-state legend applies to claim status in the rendering system, not to the intrinsic reliability of LitTraceQA evidence types."
         ]
       },
-      "legacy_exact_text_audit": {
-        "status": "fail",
-        "violations": [
+      "historical_text_comparison": {
+        "status": "wording_divergence",
+        "differences": [
           "Unlisted 核心, 推論 and 衝突 labels are rendered repeatedly, along with separate object headings and diagram text."
-        ]
+        ],
+        "gating": false
       }
     },
     {
@@ -130,7 +147,6 @@
         "64.85%"
       ],
       "main_visual_scene": "Public development and the larger local collection appear as separate boxes; the local box separates multi-paper and single-paper content.",
-      "targeted_audit": "pass",
       "content_truth_audit": {
         "status": "pass",
         "violations": []
@@ -139,11 +155,12 @@
         "status": "pass",
         "violations": []
       },
-      "legacy_exact_text_audit": {
-        "status": "fail",
-        "violations": [
+      "historical_text_comparison": {
+        "status": "wording_divergence",
+        "differences": [
           "Unlisted display labels such as 本地集合 and public dev repeat scene concepts outside the exact visible_text list."
-        ]
+        ],
+        "gating": false
       }
     },
     {
@@ -161,7 +178,6 @@
         "61.9%"
       ],
       "main_visual_scene": "Three anonymised closed-book challengers connect to a construction funnel and a 61.9% hardness-metadata label rather than a leaderboard.",
-      "targeted_audit": "pass",
       "content_truth_audit": {
         "status": "pass",
         "violations": []
@@ -170,11 +186,12 @@
         "status": "pass",
         "violations": []
       },
-      "legacy_exact_text_audit": {
-        "status": "fail",
-        "violations": [
+      "historical_text_comparison": {
+        "status": "wording_divergence",
+        "differences": [
           "Unlisted labels include 模型 A, 模型 B, 模型 C, 資料建構流程（示意）, 候選題蒐集, 品質檢核 and 難度評估."
-        ]
+        ],
+        "gating": false
       }
     },
     {
@@ -198,12 +215,8 @@
       "targeted_audit": "fail: the venue chart omits the dominant ICCV category and reverses source ranks.",
       "required_correction": "Redraw venue blocks from the source ledger, including ICCV as the dominant category and preserving the correct relative order and proportions.",
       "content_truth_audit": {
-        "status": "fail",
-        "violations": [
-          "ICCV, which accounts for 48.6% and is the dominant venue, is omitted from the chart despite appearing in adjacent text.",
-          "ACL is drawn highest although it is 10.7%; EMNLP is drawn second although it is 4.6%; NAACL at 11.3% should rank above both.",
-          "The chart geometry directly contradicts the source's Figure 4 and the card's own text."
-        ]
+        "status": "pass",
+        "violations": []
       },
       "render_fidelity_audit": {
         "status": "fail",
@@ -213,11 +226,12 @@
           "The chart geometry directly contradicts the source's Figure 4 and the card's own text."
         ]
       },
-      "legacy_exact_text_audit": {
-        "status": "fail",
-        "violations": [
+      "historical_text_comparison": {
+        "status": "wording_divergence",
+        "differences": [
           "Unlisted venue labels and bar-like blocks create unauthorised quantitative encodings; the displayed ordering is also false."
-        ]
+        ],
+        "gating": false
       }
     },
     {
@@ -235,7 +249,6 @@
       ],
       "allowed_visible_numbers": [],
       "main_visual_scene": "An unfinished release checklist is paired with the paper-to-evidence-to-answer evaluation line.",
-      "targeted_audit": "pass",
       "content_truth_audit": {
         "status": "pass",
         "violations": []
@@ -244,12 +257,20 @@
         "status": "pass",
         "violations": []
       },
-      "legacy_exact_text_audit": {
-        "status": "fail",
-        "violations": [
+      "historical_text_comparison": {
+        "status": "wording_divergence",
+        "differences": [
           "Unlisted scene text includes Release Checklist and the lower paper, evidence and answer labels."
-        ]
+        ],
+        "gating": false
       }
     }
-  ]
+  ],
+  "reader_contract": {
+    "central_claim": "LitTraceQA describes a method and local corpus for evaluating multi-paper literature question answering with structured evidence tracing, but the public benchmark, validation, governance and retrieval-augmented baselines are not yet complete.",
+    "evidence_weight": "The paper defines a benchmark-development method and reports self-audited corpus statistics; external validation and release governance remain incomplete.",
+    "limitations": "Locator normalisation, official splits, licensing, human review and retrieval-augmented baselines remain unfinished.",
+    "applicability": "The local collection and public development split have different sizes and answer formats.",
+    "misuse_boundaries": "Hardness metadata describes closed-book construction filtering, not end-to-end or RAG performance. Do not advertise a completed public benchmark or invent evidence-strength grades for evidence object types."
+  }
 }

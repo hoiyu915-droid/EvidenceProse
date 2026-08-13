@@ -2,7 +2,7 @@
 
 [![Validate](https://github.com/hoiyu915-droid/EvidenceProse/actions/workflows/validate.yml/badge.svg)](https://github.com/hoiyu915-droid/EvidenceProse/actions/workflows/validate.yml)
 
-EvidenceProse is an evidence-to-prose research repository. It learns how calibrated Traditional Chinese science explainers are constructed from reviewed examples, records the supporting observations, and turns only stable patterns into generation and validation rules.
+EvidenceProse is an evidence-to-prose research repository. It learns how calibrated Traditional Chinese science explainers are constructed from reviewed examples, records the supporting observations, and turns only stable patterns into generation and validation rules. Its highest success criterion is reader understanding: after reading, a non-specialist should be able to tell what the evidence supports, how much confidence it deserves, whom and which settings it applies to, and what causal or practical conclusion it cannot justify.
 
 The project is deliberately data-first. A polished article is not treated as a template to copy. Each article is an observation sample that may support, qualify, contradict, or contaminate a candidate rule.
 
@@ -14,7 +14,7 @@ The project is deliberately data-first. A polished article is not treated as a t
 - Article-register catalogue: 5 (`V001`–`V005`), all hypotheses
 - Batch result index: 7 (`B001`–`B007`), keeping method and voice findings separate
 - Recorded observations: 99; contamination notes: 20
-- Audited companion cards: 36 (8 content-truth failures; 12 render-fidelity failures; 36 legacy literal-text diagnostics, not a gate)
+- Audited companion cards: 36 (36/36 content-truth passes; 28/36 substantive render-fidelity passes; 36 historical text comparisons with no pass/fail status)
 - Stable generation rules: 0
 - Domains observed: clinical intervention meta-analyses, public-health systems narrative review, single-centre observational rehabilitation research, footwear scoping review, scientific-QA benchmark development, and a Taiwan older-adult mortality cohort
 - Primary output language: Traditional Chinese
@@ -24,7 +24,10 @@ No candidate rule is production-authoritative yet.
 ## Core pipeline
 
 ```text
-Reviewed article + source provenance
+Reader decision + intended and forbidden takeaways
+  -> Library search and primary-PDF binding
+       (DOI -> exact title -> filename; supplementary files second; fallback last)
+  -> reviewed source + provenance
   -> sample record
   -> observable writing decisions
   -> rule evidence
@@ -32,7 +35,8 @@ Reviewed article + source provenance
   -> saturation and held-out reconstruction
   -> generation contract
   -> prose draft
-  -> claim and calibration audit
+  -> evidence-boundary comprehension audit
+  -> structural integrity validation
 ```
 
 ## Repository layout
@@ -100,10 +104,11 @@ tests/
 4. Record counterexamples and contamination; do not learn every polished sentence as a preferred rule.
 5. Promote a rule only after independent support and held-out reconstruction.
 6. Make limitations change the permitted conclusion instead of leaving them as a decorative final paragraph.
-7. Keep generation and validation contracts machine-readable.
-8. Audit companion cards in two layers: source content truth before upload, then render fidelity after upload. Meaning-preserving paraphrase is allowed; material claims, numbers, visual relations and citation bindings remain locked.
+7. Treat reader-safe comprehension as the primary quality gate. Provenance records, schemas and validators support that judgment; they do not replace it.
+8. Audit companion cards in two layers: source content truth before upload, then substantive render fidelity after upload. Meaning-preserving paraphrase, abbreviation, restructuring and explanatory labels are editorial freedom.
 9. Name the exact outcome domain and denominator before translating a number into prose.
 10. Keep the processing method (`R###`) and article voice/register (`V###`) as separate induction layers.
+11. Apply a JSON or rendering lock as a failure gate only when it protects a substantive interest—factual accuracy, evidence strength, attribution, applicability, causal boundaries, data-bearing geometry or source traceability—and the violation can materially change reader understanding. Pure engineering conformance is not evidence of explainer quality.
 
 ## Validation
 
@@ -121,7 +126,7 @@ To validate a copied or unpacked repository from elsewhere:
 python scripts/validate_registry.py --root /path/to/EvidenceProse
 ```
 
-Validation is fail-closed across the whole registry. It checks immutable article digests, registered-versus-present samples, rule evidence links and dates, source and artifact receipts, queue binding, storyboard summaries, batch mirrors, contamination-note ledgers, ordered indexes, and schema-document integrity. Pull requests and pushes to `main` run the same checks in GitHub Actions.
+Validation is fail-closed across the whole registry. It checks immutable article digests, registered-versus-present samples, rule evidence links and dates, source and artifact receipts, queue binding, storyboard summaries, batch mirrors, contamination-note ledgers, ordered indexes, and schema-document integrity. Pull requests and pushes to `main` run the same checks in GitHub Actions. A green validation run proves structural consistency only; it does not prove that a reader received the correct evidence weight, limitations, applicability or causal boundary.
 
 ## Adding a reviewed sample
 

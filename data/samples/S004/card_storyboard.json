@@ -12,9 +12,15 @@
     "reason": "Title-sequence mismatch."
   },
   "audit_policy": {
-    "content_truth_track": "Content truth is audited against the source PDF before upload: numbers, direction, scope, uncertainty, causal structure and conclusion wording must remain faithful.",
-    "render_fidelity_track": "Render fidelity is audited after upload: reasonable paraphrase, abbreviation and synonymous wording pass when meaning is preserved. Fail only for meaning drift, an unauthorized substantive claim or number, a required_objects/required_relations violation, or a citation_binding exact_once violation.",
-    "legacy_exact_text_track": "The former literal visible_text whitelist is retained as a non-gating diagnostic only; verbatim wording is not required for render fidelity.",
+    "materiality_test": {
+      "gate_only_substantive": true,
+      "substantive_definition": "A deviation is substantive when it can materially change the reader understanding of the finding, evidence weight, uncertainty, scope, provenance, causal boundary or decision ceiling.",
+      "presentation_only_handling": "Record presentation-only deviations in historical_text_comparison; they do not block publication or alter the derived reader outcome."
+    },
+    "content_truth_track": "Before rendering, compare the proposed card content with the resolved primary PDF and check both factual accuracy and material omissions across the reader contract.",
+    "render_fidelity_track": "After rendering, compare the image with the approved specification and reader contract. Paraphrase, abbreviation, layout labels and non-claim decoration pass unless they introduce a substantive error or misleading data geometry.",
+    "engineering_conformance_track": "JSON exactness rules are purpose-scoped guardrails. A required object, relation, exact_once or unlisted-text deviation is blocking only when it protects substantive truth or source traceability and the deviation is material.",
+    "historical_text_comparison_track": "Historical wording comparison records equivalent wording or wording divergence without pass/fail language and has zero weight in the science-communication verdict.",
     "global_constraints_checked": [
       "no best-shoe prescription from a scoping review",
       "no universal AFT or carbon-plate advantage",
@@ -23,20 +29,33 @@
       "no claim that different wearable devices are numerically interchangeable",
       "no invented source-like measurements",
       "no causal arrows"
-    ]
+    ],
+    "engineering_conformance_is_gate": false
   },
   "summary": {
     "cards": 6,
-    "content_truth_passes": 5,
-    "content_truth_failures": 1,
+    "content_truth_passes": 6,
+    "content_truth_failures": 0,
     "render_fidelity_passes": 5,
     "render_fidelity_failures": 1,
-    "legacy_exact_text_passes": 0,
-    "legacy_exact_text_failures": 6,
+    "historical_text_equivalent": 0,
+    "historical_text_wording_divergence": 6,
     "targeted_correction_ids": [
       "C05"
     ],
-    "interpretation": "Five cards are source-aligned in meaning. C05 adds precise watch readings 158 and 142 that neither the canonical queue nor the paper authorises. Literal differences are retained only in the non-gating legacy exact-text diagnostic."
+    "derived_reader_outcome": {
+      "status": "misleading",
+      "central_claim": "clear",
+      "evidence_weight": "distorted",
+      "limitations": "clear",
+      "applicability": "clear",
+      "misuse_boundaries": "clear",
+      "blocking_card_ids": [
+        "C05"
+      ],
+      "interpretation": "C05 presents fabricated numeric device readings in a realistic measurement format, distorting the evidentiary basis while the other reader-contract dimensions remain clear."
+    },
+    "interpretation": "The pre-upload specification is source-aligned. C05 alone fails after rendering because precise fictional watch readings can reasonably be mistaken for measurements reported by the paper."
   },
   "cards": [
     {
@@ -65,7 +84,6 @@
         "25%"
       ],
       "main_visual_scene": "A branching evidence map separates trail running and hiking, then distributes outcome-domain counts around a trail shoe and mountain setting.",
-      "targeted_audit": "pass",
       "content_truth_audit": {
         "status": "pass",
         "violations": []
@@ -74,12 +92,13 @@
         "status": "pass",
         "violations": []
       },
-      "legacy_exact_text_audit": {
-        "status": "fail",
-        "violations": [
+      "historical_text_comparison": {
+        "status": "wording_divergence",
+        "differences": [
           "Unlisted visible labels split the authorised sentences into repeated branch labels such as 越野跑, 健行, 生物力學, 生理, 表現, 傷害 and 舒適.",
           "The evidence-state legend adds 核心, 推論, 缺口 and 衝突 text beyond the exact visible_text list."
-        ]
+        ],
+        "gating": false
       }
     },
     {
@@ -101,7 +120,6 @@
         "12"
       ],
       "main_visual_scene": "Three parallel small-study panels show lower oxygen use, higher uphill metabolic cost and no overall time improvement without collapsing them into one direction.",
-      "targeted_audit": "pass",
       "content_truth_audit": {
         "status": "pass",
         "violations": []
@@ -110,11 +128,12 @@
         "status": "pass",
         "violations": []
       },
-      "legacy_exact_text_audit": {
-        "status": "fail",
-        "violations": [
+      "historical_text_comparison": {
+        "status": "wording_divergence",
+        "differences": [
           "Unlisted scene labels and symbols include O₂, UP and FINISH; the directional glyphs are separate visual data encodings not listed as text."
-        ]
+        ],
+        "gating": false
       }
     },
     {
@@ -130,7 +149,6 @@
       ],
       "allowed_visible_numbers": [],
       "main_visual_scene": "Uphill and downhill runners with shoe and leg sensors are connected to separate attribute and proxy-outcome callouts.",
-      "targeted_audit": "pass",
       "content_truth_audit": {
         "status": "pass",
         "violations": []
@@ -139,11 +157,12 @@
         "status": "pass",
         "violations": []
       },
-      "legacy_exact_text_audit": {
-        "status": "fail",
-        "violations": [
+      "historical_text_comparison": {
+        "status": "wording_divergence",
+        "differences": [
           "Unlisted scene labels include 上坡, 下坡, 小腿 IMU, 鞋內 IMU, 足底壓力 and the three lower construction callout headings."
-        ]
+        ],
+        "gating": false
       }
     },
     {
@@ -164,7 +183,6 @@
         "0.812"
       ],
       "main_visual_scene": "Observational footwear findings are connected with uncertain lines to injury, blister and fall outcomes, while confounders remain visible.",
-      "targeted_audit": "pass",
       "content_truth_audit": {
         "status": "pass",
         "violations": []
@@ -173,11 +191,12 @@
         "status": "pass",
         "violations": []
       },
-      "legacy_exact_text_audit": {
-        "status": "fail",
-        "violations": [
+      "historical_text_comparison": {
+        "status": "wording_divergence",
+        "differences": [
           "Unlisted outcome labels 傷害事件, 水泡 and 跌倒事件 are rendered separately from the authorised sentences."
-        ]
+        ],
+        "gating": false
       }
     },
     {
@@ -201,11 +220,8 @@
       "targeted_audit": "fail: the watches render precise values 158 and 142 that are absent from visible_text, allowed_visible_numbers and the paper.",
       "required_correction": "Remove 158 and 142. Depict non-alignment without numeric readings, or formally revise the specification with clearly labelled fictional values that cannot be confused with source data.",
       "content_truth_audit": {
-        "status": "fail",
-        "violations": [
-          "The values 158 and 142 are fabricated demonstrative heart-rate readings.",
-          "Their realistic measurement format can be mistaken for original study data even though the paper only describes systematic device bias without those numbers."
-        ]
+        "status": "pass",
+        "violations": []
       },
       "render_fidelity_audit": {
         "status": "fail",
@@ -214,12 +230,13 @@
           "Their realistic measurement format can be mistaken for original study data even though the paper only describes systematic device bias without those numbers."
         ]
       },
-      "legacy_exact_text_audit": {
-        "status": "fail",
-        "violations": [
+      "historical_text_comparison": {
+        "status": "wording_divergence",
+        "differences": [
           "Unlisted and unauthorised visible numbers: 158 and 142.",
           "Unlisted visible label: 讀值不完全對齊."
-        ]
+        ],
+        "gating": false
       }
     },
     {
@@ -235,7 +252,6 @@
       ],
       "allowed_visible_numbers": [],
       "main_visual_scene": "A long-duration axis carries runner fatigue and shoe-material ageing toward an unresolved long-trail region and a future research box.",
-      "targeted_audit": "pass",
       "content_truth_audit": {
         "status": "pass",
         "violations": []
@@ -244,12 +260,20 @@
         "status": "pass",
         "violations": []
       },
-      "legacy_exact_text_audit": {
-        "status": "fail",
-        "violations": [
+      "historical_text_comparison": {
+        "status": "wording_divergence",
+        "differences": [
           "Unlisted scene labels include 短時間／清楚, 測試時間增加, 長距離山徑／還不清楚, 跑者疲勞, 鞋材壓縮老化 and the research-direction box heading."
-        ]
+        ],
+        "gating": false
       }
     }
-  ]
+  ],
+  "reader_contract": {
+    "central_claim": "The scoping review finds that footwear and wearable findings in trail running and hiking are heterogeneous and context dependent, so acute biomechanics or observational associations do not identify a universally best shoe or prove long-term benefit or injury prevention.",
+    "evidence_weight": "A scoping review maps sixteen heterogeneous studies and provides no formal critical appraisal or pooled best-shoe estimate.",
+    "limitations": "Experimental samples are small, female representation is limited, protocols differ and long-term fatigue-by-ageing evidence is sparse.",
+    "applicability": "Findings describe tested trail-running and hiking contexts, shoe constructions and acute proxy outcomes.",
+    "misuse_boundaries": "Acute biomechanics and observational injury associations do not establish long-term performance or injury prevention. Do not prescribe a universally best shoe or treat a wearable reading as interchangeable across devices."
+  }
 }

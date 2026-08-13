@@ -59,85 +59,138 @@
       "observation_id": "O001",
       "kind": "architecture",
       "description": "The article turns a scoping review into a research map: scope and distribution, AFT findings, biomechanical pathways, injury evidence, comfort, methods, gaps and decision boundary.",
-      "evidence_locations": ["article:這篇 review 在做什麼", "article:研究焦點分布", "article:AFT／碳板鞋", "article:方法上的進步"]
+      "evidence_locations": [
+        "article:這篇 review 在做什麼",
+        "article:研究焦點分布",
+        "article:AFT／碳板鞋",
+        "article:方法上的進步"
+      ]
     },
     {
       "observation_id": "O002",
       "kind": "calibration",
       "description": "The central result is framed as a map of what has been studied, not an effect ranking or personalised shoe prescription.",
-      "evidence_locations": ["article:一句話總結", "article:證據分級", "card:C01", "card:C06"]
+      "evidence_locations": [
+        "article:一句話總結",
+        "article:證據分級",
+        "card:C01",
+        "card:C06"
+      ]
     },
     {
       "observation_id": "O003",
       "kind": "mechanism",
       "description": "The explanatory tension is that footwear changes different acute proxy measures through different attributes, while fatigue, ageing, terrain and device disagreement obstruct a single long-term pathway.",
-      "evidence_locations": ["article:鞋子確實會改變動作", "article:方法上的進步", "card:C03", "card:C06"]
+      "evidence_locations": [
+        "article:鞋子確實會改變動作",
+        "article:方法上的進步",
+        "card:C03",
+        "card:C06"
+      ]
     },
     {
       "observation_id": "O004",
       "kind": "claim_transform",
       "description": "Small-study numerical findings are translated into direction and context, then capped by design heterogeneity and a prohibition on universal AFT benefit claims.",
-      "evidence_locations": ["article:AFT／碳板鞋在山徑上沒有一致優勢", "card:C02"]
+      "evidence_locations": [
+        "article:AFT／碳板鞋在山徑上沒有一致優勢",
+        "card:C02"
+      ]
     },
     {
       "observation_id": "O005",
       "kind": "calibration",
       "description": "Positive or null shoe findings are paired with the closest brake: acute proxy status, observational design, confounding, small samples or non-comparable protocols.",
-      "evidence_locations": ["article:AFT／碳板鞋", "article:鞋型與受傷、水泡之間", "article:舒適度會隨時間變化"]
+      "evidence_locations": [
+        "article:AFT／碳板鞋",
+        "article:鞋型與受傷、水泡之間",
+        "article:舒適度會隨時間變化"
+      ]
     },
     {
       "observation_id": "O006",
       "kind": "provenance",
       "description": "Review-wide evidence composition, single-study results, review-author cautions and future research proposals remain visibly attributed to different authority layers.",
-      "evidence_locations": ["article:研究焦點分布", "article:AFT／碳板鞋", "article:方法上的進步"]
+      "evidence_locations": [
+        "article:研究焦點分布",
+        "article:AFT／碳板鞋",
+        "article:方法上的進步"
+      ]
     },
     {
       "observation_id": "O007",
       "kind": "limitations",
       "description": "Method details that alter trust are kept visible: one pre-submission update, no formal critical appraisal, highly unequal sample sizes and male-heavy controlled studies.",
-      "evidence_locations": ["article:這篇 review 在做什麼", "article:研究焦點分布", "article:方法上的進步"]
+      "evidence_locations": [
+        "article:這篇 review 在做什麼",
+        "article:研究焦點分布",
+        "article:方法上的進步"
+      ]
     },
     {
       "observation_id": "O008",
       "kind": "limitations",
       "description": "Each limitation removes a stronger conclusion about universality, causality, long-term injury prevention, device interchangeability or personalised prescription.",
-      "evidence_locations": ["article:鞋子確實會改變動作", "article:鞋型與受傷、水泡之間", "article:方法上的進步"]
+      "evidence_locations": [
+        "article:鞋子確實會改變動作",
+        "article:鞋型與受傷、水泡之間",
+        "article:方法上的進步"
+      ]
     },
     {
       "observation_id": "O009",
       "kind": "decision_positioning",
       "description": "The ending permits research-direction claims about standardisation, longitudinal data and personalisation while prohibiting a current best-shoe prescription.",
-      "evidence_locations": ["article:方法上的進步", "article:證據分級", "card:C06"]
+      "evidence_locations": [
+        "article:方法上的進步",
+        "article:證據分級",
+        "card:C06"
+      ]
     },
     {
       "observation_id": "O010",
       "kind": "evidence_grade",
       "description": "Review-process transparency is separated from a thin substrate of small, heterogeneous, male-heavy studies without formal critical appraisal.",
-      "evidence_locations": ["article:證據分級"]
+      "evidence_locations": [
+        "article:證據分級"
+      ]
     },
     {
       "observation_id": "O011",
       "kind": "quantitative_semantics",
       "description": "Counts of studies by topic are treated as evidence-map coverage, not effect magnitude, importance or product ranking.",
-      "evidence_locations": ["article:研究焦點分布", "card:C01"]
+      "evidence_locations": [
+        "article:研究焦點分布",
+        "card:C01"
+      ]
     },
     {
       "observation_id": "O012",
       "kind": "quantitative_semantics",
       "description": "Acute biomechanical proxy changes are explicitly prevented from inheriting claims about injury prevention or durable performance.",
-      "evidence_locations": ["article:鞋子確實會改變動作", "card:C03"]
+      "evidence_locations": [
+        "article:鞋子確實會改變動作",
+        "card:C03"
+      ]
     },
     {
       "observation_id": "O013",
       "kind": "companion_artifact",
-      "description": "Five cards preserve source meaning; C05 invents precise watch readings 158 and 142 that are absent from both queue and paper. Literal wording differences are retained only in the non-gating legacy exact-text diagnostic.",
-      "evidence_locations": ["card_storyboard:C01-C06"]
+      "description": "Five cards preserve source meaning; C05 invents precise watch readings 158 and 142 that are absent from both queue and paper. Wording differences are retained only as non-gating historical comparisons.",
+      "evidence_locations": [
+        "card_storyboard:C01-C06"
+      ]
     },
     {
       "observation_id": "O014",
       "kind": "voice_register",
       "description": "The register is a calm research-map voice: concrete study-level findings are readable, but repeated adjacent brakes prevent shopping advice, causal claims and long-term extrapolation.",
-      "evidence_locations": ["article:一句話總結", "article:AFT／碳板鞋", "article:鞋型與受傷、水泡之間", "article:證據分級"]
+      "evidence_locations": [
+        "article:一句話總結",
+        "article:AFT／碳板鞋",
+        "article:鞋型與受傷、水泡之間",
+        "article:證據分級"
+      ]
     }
   ],
   "contamination_notes": [
@@ -154,5 +207,69 @@
       "preferred_handling": "Replace with '共同影響因素' or '潛在混雜因子'."
     }
   ],
-  "analysis_date": "2026-08-10"
+  "analysis_date": "2026-08-10",
+  "source_resolution": {
+    "searched_at": "2026-08-13T10:38:00+09:00",
+    "stage": "retrospective_backfill",
+    "query_keys": {
+      "title": "Exploring the Role of Footwear in Trail Running and Hiking: A Scoping Review",
+      "doi": "10.1002/jfa2.70197",
+      "filename": "JFA2-19-e70197.pdf"
+    },
+    "searches": [
+      {
+        "priority": 1,
+        "target_kind": "source_pdf",
+        "query": "10.1002/jfa2.70197",
+        "query_keys_used": [
+          "doi"
+        ],
+        "search_title_only": false,
+        "outcome": "not_found",
+        "candidate_library_file_ids": [],
+        "strategy": "doi"
+      },
+      {
+        "priority": 2,
+        "target_kind": "source_pdf",
+        "query": "Exploring the Role of Footwear in Trail Running and Hiking: A Scoping Review",
+        "query_keys_used": [
+          "title"
+        ],
+        "search_title_only": true,
+        "outcome": "not_found",
+        "candidate_library_file_ids": [],
+        "strategy": "exact_title"
+      },
+      {
+        "priority": 3,
+        "target_kind": "source_pdf",
+        "query": "JFA2-19-e70197.pdf",
+        "query_keys_used": [
+          "filename"
+        ],
+        "search_title_only": true,
+        "outcome": "found",
+        "candidate_library_file_ids": [
+          "libfile_fe07156f6c148191851bf539849eec3d"
+        ],
+        "strategy": "filename"
+      }
+    ],
+    "resolution": "library_selected",
+    "selected_pdf": {
+      "origin": "library",
+      "library_file_id": "libfile_fe07156f6c148191851bf539849eec3d",
+      "file_id": "file_00000000a05082118c018ca673d49f21",
+      "library_path": "/JFA2-19-e70197.pdf",
+      "filename": "JFA2-19-e70197.pdf",
+      "version": "0",
+      "version_state": "recorded",
+      "sha256": "6df8fdb88ca536049472b4f23e51a0de2dc1bc9778a4d8c1c57d062b90e2d6c2"
+    },
+    "fallback": {
+      "used": false,
+      "reason": null
+    }
+  }
 }
