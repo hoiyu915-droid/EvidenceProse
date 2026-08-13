@@ -5,7 +5,7 @@ EvidenceProse is an append-only observation registry before it is a writing syst
 ## Before editing
 
 1. Start from the current `main` branch and create a feature branch.
-2. Read `docs/induction_protocol.md` and `docs/terminology.md`.
+2. Read `docs/induction_protocol.md` and `docs/terminology.md`. If the change adds or validates a reader-facing delivery artifact, also read `docs/science_explainer_output_format.md`.
 3. Allocate the next ordered `S###` and `B###` identifiers. Never reuse an identifier from a removed or rejected record.
 4. Reuse an existing `R###` or `V###` only when the new observation actually tests that rule. Absence is not contradiction.
 
@@ -54,9 +54,26 @@ In the same change:
 
 Do not promote a rule merely because several samples share wording. The promotion gate in `docs/induction_protocol.md` still requires independent support, resolved counterexamples, held-out reconstruction, representable inputs, and an auditable output.
 
+## Reader-facing delivery artifacts
+
+Historical sample articles are evidence observations. Do not rewrite `data/samples/S###/article.md` merely to make an old sample match the current delivery shell.
+
+For a new reader-facing science explainer delivery artifact:
+
+1. Start from `templates/science_explainer.md`.
+2. Name the file `YYYYMMDD_<lowercase-kebab-slug>.md`.
+3. Keep the three H2 sections exactly and in order: `## 一句話總結`, `## 內容`, `## 引用來源`.
+4. Put the evidence grade after the public references as a label, not a fourth H2 section: `🟢/🟡/🔴 證據分級：高/中等/低。<rationale>`.
+5. Make `> 最後更新：YYYYMMDD` the final non-empty line.
+6. Keep internal source-audit evidence out of the reader artifact. `filecite`, `turnNfileM`, `file_...`, Library/file IDs, queue receipts, sandbox/container paths and bare local PDF filenames are internal provenance, not public citations.
+7. Use reader-resolvable bibliographic identity in `## 引用來源`: authors, year, title, venue/repository, and DOI/PMID/PMCID/arXiv or another stable public identifier when verified.
+8. If the source contains a real reporting inconsistency that matters to interpretation, it may be described under an optional `### 內容完整性註記`; state what is inconsistent and what it does or does not invalidate.
+
+The source PDF remains the authority for content-truth review even though its internal workspace filename must not appear in the delivered prose.
+
 ## Validate
 
-Run all three commands from the repository root:
+Run the registry checks from the repository root:
 
 ```bash
 python -m unittest discover -s tests -v
@@ -64,7 +81,14 @@ python scripts/validate_registry.py
 python scripts/validate_registry.py --json
 ```
 
-The first two commands must exit zero. The JSON command must return `"status": "pass"`. Do not weaken a validator to make a new record pass; correct the record or document why the contract itself must change. This green result certifies registry structure, not reader comprehension or science-communication quality.
+When a reader-facing delivery artifact is part of the change, also run:
+
+```bash
+python scripts/validate_explainer_output.py YYYYMMDD_<slug>.md
+python scripts/validate_explainer_output.py --json YYYYMMDD_<slug>.md
+```
+
+The first two registry commands must exit zero. The registry JSON command must return `"status": "pass"`. The explainer-output validator must also exit zero for every new delivery artifact. Do not weaken a validator to make a new record pass; correct the record or document why the contract itself must change. Green structural validation certifies packaging and registry consistency, not reader comprehension or science-communication quality.
 
 ## Pull-request checklist
 
@@ -74,5 +98,6 @@ The first two commands must exit zero. The JSON command must return `"status": "
 - [ ] A reader review confirms the intended evidence weight, limitations, applicability and causal/decision boundaries, including the forbidden takeaway.
 - [ ] Content-truth and substantive render-fidelity failures remain visible; engineering-only deviations are not presented as science-communication failures.
 - [ ] Any historical text comparison is clearly non-gating and has no pass/fail status.
+- [ ] If a reader-facing delivery artifact is included, its public citation layer contains no inaccessible internal provenance tokens and `validate_explainer_output.py` passes.
 - [ ] No rule was promoted without satisfying the documented gate.
 - [ ] Unit tests and the fail-closed validator pass.
