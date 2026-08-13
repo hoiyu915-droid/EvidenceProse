@@ -58,91 +58,142 @@
       "observation_id": "O001",
       "kind": "architecture",
       "description": "The article follows the benchmark's decision path: problem, three-part output contract, evidence types, construction, corpus profile, separated scoring, release limits and reusable design value.",
-      "evidence_locations": ["article:這篇論文想解決什麼問題", "article:任務怎麼定義", "article:怎麼評分", "article:論文自己承認的限制"]
+      "evidence_locations": [
+        "article:這篇論文想解決什麼問題",
+        "article:任務怎麼定義",
+        "article:怎麼評分",
+        "article:論文自己承認的限制"
+      ]
     },
     {
       "observation_id": "O002",
       "kind": "calibration",
       "description": "Answer correctness is repeatedly separated from paper retrieval and evidence grounding; success is permitted only when all three stages pass.",
-      "evidence_locations": ["article:一句話總結", "article:怎麼評分", "card:C01"]
+      "evidence_locations": [
+        "article:一句話總結",
+        "article:怎麼評分",
+        "card:C01"
+      ]
     },
     {
       "observation_id": "O003",
       "kind": "mechanism",
       "description": "The paper-evidence-answer trace acts as the explanatory spine, while oracle paper and oracle evidence are presented as bottleneck-isolation settings rather than scores.",
-      "evidence_locations": ["article:任務怎麼定義", "article:怎麼評分", "card:C01"]
+      "evidence_locations": [
+        "article:任務怎麼定義",
+        "article:怎麼評分",
+        "card:C01"
+      ]
     },
     {
       "observation_id": "O004",
       "kind": "claim_transform",
       "description": "Corpus numbers are translated into operational meaning and then capped: 61.9% is construction-time hardness metadata, not retrieval-augmented performance.",
-      "evidence_locations": ["article:這批資料長什麼樣子", "card:C04"]
+      "evidence_locations": [
+        "article:這批資料長什麼樣子",
+        "card:C04"
+      ]
     },
     {
       "observation_id": "O005",
       "kind": "calibration",
       "description": "Scale claims are paired with split and release-status brakes; diversity claims are paired with venue, duplicate-set and sparse-evidence warnings.",
-      "evidence_locations": ["article:資料是怎麼建構出來的", "article:這批資料長什麼樣子", "article:論文自己承認的限制"]
+      "evidence_locations": [
+        "article:資料是怎麼建構出來的",
+        "article:這批資料長什麼樣子",
+        "article:論文自己承認的限制"
+      ]
     },
     {
       "observation_id": "O006",
       "kind": "provenance",
       "description": "The public development split, larger local collection, paper-defined protocol, author-reported audit and future release requirements remain distinct authority layers.",
-      "evidence_locations": ["article:任務怎麼定義", "article:資料是怎麼建構出來的", "article:證據分級"]
+      "evidence_locations": [
+        "article:任務怎麼定義",
+        "article:資料是怎麼建構出來的",
+        "article:證據分級"
+      ]
     },
     {
       "observation_id": "O007",
       "kind": "limitations",
       "description": "Construction details are part of the evidence assessment: open-book generation, automated grounding, closed-book challenge filtering, deduplication and residual corpus anomalies.",
-      "evidence_locations": ["article:資料是怎麼建構出來的", "article:這批資料長什麼樣子"]
+      "evidence_locations": [
+        "article:資料是怎麼建構出來的",
+        "article:這批資料長什麼樣子"
+      ]
     },
     {
       "observation_id": "O008",
       "kind": "limitations",
       "description": "Unfinished locator normalization, official splits, licensing, human review and retrieval-augmented baselines directly prohibit calling the local collection a completed public benchmark release.",
-      "evidence_locations": ["article:論文自己承認的限制", "card:C06"]
+      "evidence_locations": [
+        "article:論文自己承認的限制",
+        "card:C06"
+      ]
     },
     {
       "observation_id": "O009",
       "kind": "decision_positioning",
       "description": "The article permits reuse of the three-stage diagnostic framework while withholding claims that the benchmark release and governance process are complete.",
-      "evidence_locations": ["article:為什麼這個設計值得注意", "article:論文自己承認的限制"]
+      "evidence_locations": [
+        "article:為什麼這個設計值得注意",
+        "article:論文自己承認的限制"
+      ]
     },
     {
       "observation_id": "O010",
       "kind": "evidence_grade",
       "description": "Paper-defined task semantics are separated from corpus statistics that remain author-reported and not independently replicated.",
-      "evidence_locations": ["article:證據分級"]
+      "evidence_locations": [
+        "article:證據分級"
+      ]
     },
     {
       "observation_id": "O011",
       "kind": "quantitative_semantics",
       "description": "A construction-time closed-book failure share must not inherit the meaning of an end-to-end or RAG benchmark score.",
-      "evidence_locations": ["article:這批資料長什麼樣子", "card:C04"]
+      "evidence_locations": [
+        "article:這批資料長什麼樣子",
+        "card:C04"
+      ]
     },
     {
       "observation_id": "O012",
       "kind": "quantitative_semantics",
       "description": "Joint success is a logical conjunction across paper, evidence and answer components, not an average and not a mathematical union.",
-      "evidence_locations": ["article:怎麼評分", "card:C01"]
+      "evidence_locations": [
+        "article:怎麼評分",
+        "card:C01"
+      ]
     },
     {
       "observation_id": "O013",
       "kind": "companion_artifact",
-      "description": "Four cards preserve source meaning and two fail semantically: C02 fabricates evidence-status grades for object classes and C05 fabricates venue-bar geometry that contradicts the source. C01 is source-aligned but contains unauthorised explanatory text. All six fail the exact visible-text render contract.",
-      "evidence_locations": ["card_storyboard:C01-C06"]
+      "description": "Four cards preserve source meaning and two fail semantically: C02 fabricates evidence-status grades for object classes and C05 fabricates venue-bar geometry that contradicts the source. C01 is source-aligned; its extra explanation is retained only as a non-gating historical comparison.",
+      "evidence_locations": [
+        "card_storyboard:C01-C06"
+      ]
     },
     {
       "observation_id": "O014",
       "kind": "voice_register",
       "description": "The register is diagnostic rather than promotional: compact technical terms are followed by concrete failure cases and immediate boundary language about what a statistic or release state does not mean.",
-      "evidence_locations": ["article:一句話總結", "article:怎麼評分", "article:論文自己承認的限制", "article:證據分級"]
+      "evidence_locations": [
+        "article:一句話總結",
+        "article:怎麼評分",
+        "article:論文自己承認的限制",
+        "article:證據分級"
+      ]
     },
     {
       "observation_id": "O015",
       "kind": "quantitative_semantics",
       "description": "A chart's category inclusion, ordering and geometry are quantitative claims; correct adjacent prose cannot rescue a chart that omits the dominant category or reverses ranks.",
-      "evidence_locations": ["card:C05", "source:Figure 4"]
+      "evidence_locations": [
+        "card:C05",
+        "source:Figure 4"
+      ]
     }
   ],
   "contamination_notes": [
@@ -165,5 +216,69 @@
       "preferred_handling": "Say '三個 closed-book challenger 模型' or explicitly disclose the Gemma/Gemini naming inconsistency."
     }
   ],
-  "analysis_date": "2026-08-11"
+  "analysis_date": "2026-08-11",
+  "source_resolution": {
+    "searched_at": "2026-08-13T10:38:00+09:00",
+    "stage": "retrospective_backfill",
+    "query_keys": {
+      "title": "LitTraceQA: A Benchmark for Multi-Stage Grounding and Verification in Scientific Question Answering",
+      "doi": "10.48550/arXiv.2608.07370",
+      "filename": "2608.07370(1).pdf"
+    },
+    "searches": [
+      {
+        "priority": 1,
+        "target_kind": "source_pdf",
+        "query": "10.48550/arXiv.2608.07370",
+        "query_keys_used": [
+          "doi"
+        ],
+        "search_title_only": false,
+        "outcome": "not_found",
+        "candidate_library_file_ids": [],
+        "strategy": "doi"
+      },
+      {
+        "priority": 2,
+        "target_kind": "source_pdf",
+        "query": "LitTraceQA: A Benchmark for Multi-Stage Grounding and Verification in Scientific Question Answering",
+        "query_keys_used": [
+          "title"
+        ],
+        "search_title_only": true,
+        "outcome": "not_found",
+        "candidate_library_file_ids": [],
+        "strategy": "exact_title"
+      },
+      {
+        "priority": 3,
+        "target_kind": "source_pdf",
+        "query": "2608.07370(1).pdf",
+        "query_keys_used": [
+          "filename"
+        ],
+        "search_title_only": true,
+        "outcome": "found",
+        "candidate_library_file_ids": [
+          "libfile_4b53444896288191bd78471d8647e68c"
+        ],
+        "strategy": "filename"
+      }
+    ],
+    "resolution": "library_selected",
+    "selected_pdf": {
+      "origin": "library",
+      "library_file_id": "libfile_4b53444896288191bd78471d8647e68c",
+      "file_id": "file_00000000d06882118abd17b56d894b81",
+      "library_path": "/2608.07370(1).pdf",
+      "filename": "2608.07370(1).pdf",
+      "version": "0",
+      "version_state": "recorded",
+      "sha256": "dc3c008e2705091345b160bde11eafe4d81394f36c88ac26650d5e0a9c1215fa"
+    },
+    "fallback": {
+      "used": false,
+      "reason": null
+    }
+  }
 }

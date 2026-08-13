@@ -11,6 +11,7 @@
     "article_path",
     "article_sha256",
     "source",
+    "source_resolution",
     "study_profile",
     "observations",
     "contamination_notes",
@@ -32,6 +33,137 @@
         "pdf_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
         "verification_state": {"enum": ["metadata_only", "abstract", "full_text", "full_text_audited"]}
       }
+    },
+    "source_resolution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["searched_at", "stage", "query_keys", "searches", "resolution", "selected_pdf", "fallback"],
+      "properties": {
+        "searched_at": {"type": "string", "format": "date-time"},
+        "stage": {"enum": ["pre_audit", "retrospective_backfill"]},
+        "query_keys": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["title", "doi", "filename"],
+          "properties": {
+            "title": {"type": "string", "minLength": 1},
+            "doi": {"type": "string", "pattern": "^10\\."},
+            "filename": {"type": "string", "minLength": 1},
+            "authors": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {"type": "string", "minLength": 1}
+            },
+            "year": {"type": ["integer", "null"], "minimum": 1900}
+          }
+        },
+        "searches": {
+          "type": "array",
+          "minItems": 1,
+          "prefixItems": [
+            {
+              "allOf": [
+                {"$ref": "#/$defs/librarySearchReceipt"},
+                {
+                  "type": "object",
+                  "properties": {
+                    "priority": {"const": 1},
+                    "target_kind": {"const": "source_pdf"},
+                    "strategy": {"const": "doi"}
+                  }
+                }
+              ]
+            }
+          ],
+          "items": {"$ref": "#/$defs/librarySearchReceipt"}
+        },
+        "resolution": {"enum": ["library_selected", "current_upload_fallback", "unresolved"]},
+        "selected_pdf": {
+          "oneOf": [
+            {"$ref": "#/$defs/librarySelectedPdf"},
+            {"$ref": "#/$defs/uploadSelectedPdf"},
+            {"type": "null"}
+          ]
+        },
+        "fallback": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["used", "reason"],
+          "properties": {
+            "used": {"type": "boolean"},
+            "reason": {"type": ["string", "null"]}
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"resolution": {"const": "library_selected"}}},
+          "then": {
+            "properties": {
+              "selected_pdf": {"$ref": "#/$defs/librarySelectedPdf"},
+        "fallback": {
+          "type": "object",
+          "properties": {
+                  "used": {"const": false},
+                  "reason": {"type": "null"}
+                }
+              },
+        "searches": {
+          "type": "array",
+          "contains": {
+                  "type": "object",
+                  "properties": {
+                    "target_kind": {"const": "source_pdf"},
+                    "outcome": {"const": "found"}
+                  },
+                  "required": ["target_kind", "outcome"]
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {"properties": {"resolution": {"const": "current_upload_fallback"}}},
+          "then": {
+            "properties": {
+              "selected_pdf": {"$ref": "#/$defs/uploadSelectedPdf"},
+        "fallback": {
+          "type": "object",
+          "properties": {
+                  "used": {"const": true},
+                  "reason": {"type": "string", "minLength": 1}
+                }
+              },
+        "searches": {
+          "type": "array",
+          "contains": {
+                  "type": "object",
+                  "properties": {
+                    "target_kind": {"const": "source_pdf"},
+                    "outcome": {"const": "not_found"}
+                  },
+                  "required": ["target_kind", "outcome"]
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {"properties": {"resolution": {"const": "unresolved"}}},
+          "then": {
+            "properties": {
+              "selected_pdf": {"type": "null"},
+        "fallback": {
+          "type": "object",
+          "properties": {
+                  "used": {"const": false},
+                  "reason": {"type": "string", "minLength": 1}
+                }
+              }
+            }
+          }
+        }
+      ]
     },
     "study_profile": {
       "type": "object",
@@ -99,5 +231,94 @@
       }
     },
     "analysis_date": {"type": "string", "format": "date"}
+  },
+  "$defs": {
+    "librarySearchReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["priority", "target_kind", "strategy", "query", "query_keys_used", "search_title_only", "outcome", "candidate_library_file_ids"],
+      "properties": {
+        "priority": {"type": "integer", "minimum": 1},
+        "target_kind": {"enum": ["source_pdf", "supplement", "data"]},
+        "strategy": {
+          "enum": ["doi", "exact_title", "filename", "supplement", "data"],
+          "description": "Primary-PDF lookup order is DOI, exact title, then filename; supplement/data lookup follows primary resolution when relevant. Sequence enforcement belongs to the repository validator."
+        },
+        "query": {"type": "string", "minLength": 1},
+        "query_keys_used": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"enum": ["title", "doi", "filename", "authors", "year"]}
+        },
+        "search_title_only": {"type": "boolean"},
+        "outcome": {"enum": ["found", "not_found"]},
+        "candidate_library_file_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "librarySelectedPdf": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["origin", "library_file_id", "file_id", "library_path", "filename", "version", "version_state", "sha256"],
+      "properties": {
+        "origin": {"const": "library"},
+        "library_file_id": {"type": "string", "minLength": 1},
+        "file_id": {"type": "string", "minLength": 1},
+        "library_path": {"type": "string", "minLength": 1},
+        "filename": {"type": "string", "minLength": 1},
+        "version": {
+          "oneOf": [
+            {"type": "integer", "minimum": 0},
+            {"type": "string", "pattern": "^[0-9]+$"},
+            {"type": "null"}
+          ]
+        },
+        "version_state": {"enum": ["recorded", "not_exposed"]},
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$",
+          "description": "Must equal source.pdf_sha256; enforced by the repository validator because JSON Schema cannot compare sibling values."
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"version_state": {"const": "recorded"}}},
+          "then": {
+            "properties": {
+              "version": {
+                "oneOf": [
+                  {"type": "integer", "minimum": 0},
+                  {"type": "string", "pattern": "^[0-9]+$"}
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {"properties": {"version_state": {"const": "not_exposed"}}},
+          "then": {"properties": {"version": {"type": "null"}}}
+        }
+      ]
+    },
+    "uploadSelectedPdf": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["origin", "upload_file_id", "workspace_path", "filename", "sha256"],
+      "properties": {
+        "origin": {"const": "current_upload"},
+        "upload_file_id": {"type": "string", "minLength": 1},
+        "workspace_path": {"type": "string", "minLength": 1},
+        "filename": {"type": "string", "minLength": 1},
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$",
+          "description": "Must equal source.pdf_sha256; enforced by the repository validator because JSON Schema cannot compare sibling values."
+        }
+      }
+    }
   }
 }

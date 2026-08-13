@@ -12,8 +12,15 @@
     "reason": "Its six titles describe a different plan (C01 starts 數位介入有訊號，但證據底座很小), so it is not the specification for these rendered images."
   },
   "audit_policy": {
-    "semantic_track": "Check every result, outcome assignment, subgroup interpretation, clinical positioning and card-specific constraint against the PDF and the title-bound TP queue.",
-    "strict_render_track": "Treat title, visible_text, allowed_visible_numbers and exact-once citation as the complete visible contract; scene descriptions authorise objects and layout but not added labels, legends, axes or treatment hierarchies.",
+    "materiality_test": {
+      "gate_only_substantive": true,
+      "substantive_definition": "A deviation is substantive when it can materially change the reader understanding of the finding, evidence weight, uncertainty, scope, provenance, causal boundary or decision ceiling.",
+      "presentation_only_handling": "Record presentation-only deviations in historical_text_comparison; they do not block publication or alter the derived reader outcome."
+    },
+    "content_truth_track": "Before rendering, compare the proposed card content with the resolved primary PDF and check both factual accuracy and material omissions across the reader contract.",
+    "render_fidelity_track": "After rendering, compare the image with the approved specification and reader contract. Paraphrase, abbreviation, layout labels and non-claim decoration pass unless they introduce a substantive error or misleading data geometry.",
+    "engineering_conformance_track": "JSON exactness rules are purpose-scoped guardrails. A required object, relation, exact_once or unlisted-text deviation is blocking only when it protects substantive truth or source traceability and the deviation is material.",
+    "historical_text_comparison_track": "Historical wording comparison records equivalent wording or wording divergence without pass/fail language and has zero weight in the science-communication verdict.",
     "global_constraints_checked": [
       "no claim that every OAB symptom improves",
       "no ranking of digitally supervised support as proven best",
@@ -22,16 +29,35 @@
       "no assignment of the overall pooled SMD to the telemedicine subgroup",
       "no attribution of a multicomponent effect to one digital ingredient",
       "no replacement claim or invented first-, second- and third-line care hierarchy"
-    ]
+    ],
+    "engineering_conformance_is_gate": false
   },
   "summary": {
     "cards": 6,
-    "semantic_passes": 4,
-    "semantic_failures": 2,
-    "strict_render_passes": 0,
-    "strict_render_failures": 6,
-    "targeted_correction_ids": ["C01", "C03", "C05", "C06"],
-    "interpretation": "C02, C04 and C05 preserve the source result semantics, while C01 is source-aligned but adds a legend and an unsupported certainty sentence. C03 mislabels the overall SMD as favouring telemedicine; C06 invents a three-line treatment pathway. Every card contains visible labels, axes or explanatory text outside the queue's exact visible_text contract."
+    "content_truth_passes": 6,
+    "content_truth_failures": 0,
+    "render_fidelity_passes": 4,
+    "render_fidelity_failures": 2,
+    "historical_text_equivalent": 0,
+    "historical_text_wording_divergence": 6,
+    "targeted_correction_ids": [
+      "C03",
+      "C06"
+    ],
+    "derived_reader_outcome": {
+      "status": "misleading",
+      "central_claim": "distorted",
+      "evidence_weight": "distorted",
+      "limitations": "clear",
+      "applicability": "distorted",
+      "misuse_boundaries": "distorted",
+      "blocking_card_ids": [
+        "C03",
+        "C06"
+      ],
+      "interpretation": "C03 misattributes the pooled effect to telemedicine and C06 invents a treatment hierarchy, distorting the central claim, evidence weight, applicability and misuse boundary."
+    },
+    "interpretation": "The pre-upload specification is source-aligned. Ordinary clocks, plot ticks and zero axes are non-claim presentation elements. C03 materially misattributes the pooled effect to telecare, and C06 invents a treatment hierarchy."
   },
   "cards": [
     {
@@ -46,17 +72,28 @@
         "小型證據庫與偏倚風險限制結論可信度。",
         "標籤與框線表示內容功能；小標記表示證據狀態。"
       ],
-      "allowed_visible_numbers": ["7 unitless", "544 unitless", "5 unitless", "2 unitless"],
+      "allowed_visible_numbers": [
+        "7 unitless",
+        "544 unitless",
+        "5 unitless",
+        "2 unitless"
+      ],
       "main_visual_scene": "以研究證據堆疊與風險標記呈現一組數位照護工具，中央是膀胱與手機介面，旁邊以警示符號標示方法學限制。",
-      "targeted_audit": "fail on exact text, pass on source semantics: the five authorised lines are correct, but the card adds an uncertainty sentence and a four-item evidence-state legend.",
-      "semantic_audit": "pass",
-      "required_correction": "刪除『仍有不確定性，需更多高品質研究補足。』及核心／推論／缺口／衝突四項圖例定義，只保留核准文字與場景物件。",
-      "strict_render_audit": {
-        "status": "fail",
-        "violations": [
+      "content_truth_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "render_fidelity_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "historical_text_comparison": {
+        "status": "wording_divergence",
+        "differences": [
           "The method panel adds the unlisted sentence 仍有不確定性，需更多高品質研究補足。",
           "The complete 核心／推論／缺口／衝突 evidence-state definition legend is unlisted visible text, as are multiple phone and panel labels."
-        ]
+        ],
+        "gating": false
       }
     },
     {
@@ -70,16 +107,33 @@
         "夜尿：MD −0.84（−1.91 至 +0.22），沒有顯著差異；異質性 90%。",
         "這些客觀結果只來自少數試驗，不能外推成所有症狀都改善。"
       ],
-      "allowed_visible_numbers": ["-2.55 unitless", "-4.22 unitless", "-0.89 unitless", "-2.07 unitless", "-2.72 unitless", "-1.42 unitless", "-0.84 unitless", "-1.91 unitless", "+0.22 unitless", "90 %"],
+      "allowed_visible_numbers": [
+        "-2.55 unitless",
+        "-4.22 unitless",
+        "-0.89 unitless",
+        "-2.07 unitless",
+        "-2.72 unitless",
+        "-1.42 unitless",
+        "-0.84 unitless",
+        "-1.91 unitless",
+        "+0.22 unitless",
+        "90 %"
+      ],
       "main_visual_scene": "以膀胱日誌作為中央物件，分成排尿頻率、急迫性尿失禁、夜尿三個並列結果模組，使用不帶因果的方向性符號與不確定性區間。",
-      "targeted_audit": "pass",
-      "semantic_audit": "pass",
-      "required_correction": null,
-      "strict_render_audit": {
-        "status": "fail",
-        "violations": [
+      "content_truth_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "render_fidelity_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "historical_text_comparison": {
+        "status": "wording_divergence",
+        "differences": [
           "The bladder-diary columns, clock times, axis labels and tick numbers are visible outside the exact visible_text and numeric contract."
-        ]
+        ],
+        "gating": false
       }
     },
     {
@@ -93,21 +147,33 @@
         "遠距照護的症狀效果接近對照；它的價值可能在可近性與照護效率。",
         "症狀效果接近對照，不能解讀成遠距照護沒有臨床價值。"
       ],
-      "allowed_visible_numbers": ["-1.07 unitless", "-2.18 unitless", "+0.05 unitless", "96 %"],
-      "main_visual_scene": "中央是一份主觀症狀問卷，旁邊以寬廣的不確定性帶呈現整體結果；另一側以視訊門診介面表示遠距照護，避免勝負排名。",
-      "targeted_audit": "fail: the central plot labels the pooled overall SMD as favouring telemedicine even though telemedicine is a separate near-zero subgroup; the questionnaire items and uncertainty sentence are also unlisted.",
-      "semantic_audit": "fail",
-      "semantic_violations": [
-        "圖表把五項研究的整體 SMD −1.07 方向標為『較有利於遠距照護』，錯把總體合併結果指定給遠距照護子群；原文遠距照護子群為接近零效應。"
+      "allowed_visible_numbers": [
+        "-1.07 unitless",
+        "-2.18 unitless",
+        "+0.05 unitless",
+        "96 %"
       ],
-      "required_correction": "把中央方向改為『較有利於數位介入／較有利於對照』或取消組別方向，只呈現整體不顯著區間；刪除未列出的問卷細項與右下不確定性句。",
-      "strict_render_audit": {
+      "main_visual_scene": "中央是一份主觀症狀問卷，旁邊以寬廣的不確定性帶呈現整體結果；另一側以視訊門診介面表示遠距照護，避免勝負排名。",
+      "targeted_audit": "fail: the central plot labels the pooled overall SMD as favouring telemedicine even though telemedicine is a separate near-zero subgroup; the questionnaire labels and uncertainty sentence are non-blocking presentation differences.",
+      "required_correction": "把中央方向改為『較有利於數位介入／較有利於對照』或取消組別方向，只呈現整體不顯著區間；問卷細項與不確定性句若語意正確可保留。",
+      "content_truth_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "render_fidelity_audit": {
         "status": "fail",
         "violations": [
+          "圖表把五項研究的整體 SMD −1.07 方向標為『較有利於遠距照護』，錯把總體合併結果指定給遠距照護子群；原文遠距照護子群為接近零效應。"
+        ]
+      },
+      "historical_text_comparison": {
+        "status": "wording_divergence",
+        "differences": [
           "The questionnaire invents six unlisted item names and response-scale labels.",
           "The plot adds unlisted headings, axis numbers, 無差異 and the incorrect 較有利於遠距照護 direction label.",
           "The bottom-right uncertainty sentence is absent from visible_text."
-        ]
+        ],
+        "gating": false
       }
     },
     {
@@ -120,16 +186,30 @@
         "退組率：RR 0.92（0.59 至 1.45），與對照沒有顯著差異。",
         "短期退組率相近，不等於已證明長期依從性更好。"
       ],
-      "allowed_visible_numbers": ["+1.47 unitless", "+0.11 unitless", "+2.84 unitless", "94 %", "0.92 unitless", "0.59 unitless", "1.45 unitless"],
+      "allowed_visible_numbers": [
+        "+1.47 unitless",
+        "+0.11 unitless",
+        "+2.84 unitless",
+        "94 %",
+        "0.92 unitless",
+        "0.59 unitless",
+        "1.45 unitless"
+      ],
       "main_visual_scene": "以生活品質量表與短期試驗留存圖示做左右對照，生活品質一側顯示改善方向，退組率一側顯示兩組相近；底部明確區分短期退組與長期依從性。",
-      "targeted_audit": "pass",
-      "semantic_audit": "pass",
-      "required_correction": null,
-      "strict_render_audit": {
-        "status": "fail",
-        "violations": [
+      "content_truth_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "render_fidelity_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "historical_text_comparison": {
+        "status": "wording_divergence",
+        "differences": [
           "Unlisted headings, group labels, scale labels and axis tick numbers are rendered beyond the exact visible_text and numeric contract."
-        ]
+        ],
+        "gating": false
       }
     },
     {
@@ -143,17 +223,33 @@
         "生活品質的大效果量來自單一視訊監督皮拉提斯研究。",
         "探索性結果：不能據此判定高強度數位監督優於其他模式。六至十三週是探索性訊號，不是已確立的最佳療程長度。單一研究的巨大效果量不能代表整個數位監督類別。"
       ],
-      "allowed_visible_numbers": ["-2.51 unitless", "-5.03 unitless", "+0.01 unitless", "97 %", "6 unitless", "13 unitless", "-1.41 unitless", "-2.70 unitless", "-0.11 unitless"],
+      "allowed_visible_numbers": [
+        "-2.51 unitless",
+        "-5.03 unitless",
+        "+0.01 unitless",
+        "97 %",
+        "6 unitless",
+        "13 unitless",
+        "-1.41 unitless",
+        "-2.70 unitless",
+        "-0.11 unitless"
+      ],
       "main_visual_scene": "以兩個探索性分支呈現監督強度與介入長度，全部使用虛線框與警示標記，不做冠軍排名；旁邊放置單一視訊運動研究作為不可外推的例子。",
-      "targeted_audit": "fail on exact text, pass on source semantics because structure and axis labels were rendered as additional prose.",
-      "semantic_audit": "pass",
-      "required_correction": "刪除兩個『探索性分支』標題、單一研究例子標題與偏向實驗／偏向對照座標文字；讓虛線框與物件承擔結構。",
-      "strict_render_audit": {
-        "status": "fail",
-        "violations": [
+      "content_truth_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "render_fidelity_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "historical_text_comparison": {
+        "status": "wording_divergence",
+        "differences": [
           "Unlisted structure labels identify two exploratory branches and a single video-exercise example.",
           "The plots add unlisted 偏向實驗／偏向對照 and zero-axis labels."
-        ]
+        ],
+        "gating": false
       }
     },
     {
@@ -169,19 +265,33 @@
       ],
       "allowed_visible_numbers": [],
       "main_visual_scene": "以一個臨床工具箱呈現手機、視訊、提醒與遠距支持，旁邊以缺口模組列出尚未回答的問題；不畫替代標準照護的箭頭。",
-      "targeted_audit": "fail: the card invents a first-, second- and third-line OAB treatment ladder and labels the basket as a configurable digital toolbox, none of which is authorised visible text or an evidence-tested pathway.",
-      "semantic_audit": "fail",
-      "semantic_violations": [
-        "左側『第一線／第二線／第三線』階梯把保守治療、行為與藥物、進一步評估與治療排成原論文未提出也未驗證的治療分線框架。"
-      ],
-      "required_correction": "移除三線治療階梯與工具箱文字，只保留無階級的數位工具物件、四句核准結論及研究缺口；不要暗示已建立的臨床序列。",
-      "strict_render_audit": {
+      "targeted_audit": "fail: the card invents a first-, second- and third-line OAB treatment ladder that the paper did not establish; the configurable-toolbox label is a non-blocking presentation choice.",
+      "required_correction": "移除三線治療階梯與任何已建立臨床序列的暗示；數位工具箱文字若保留『可當工具，不是定案』的邊界可繼續使用。",
+      "content_truth_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "render_fidelity_audit": {
         "status": "fail",
         "violations": [
+          "左側『第一線／第二線／第三線』階梯把保守治療、行為與藥物、進一步評估與治療排成原論文未提出也未驗證的治療分線框架。"
+        ]
+      },
+      "historical_text_comparison": {
+        "status": "wording_divergence",
+        "differences": [
           "The complete first-, second- and third-line ladder is unlisted visible text and an unsupported treatment hierarchy.",
           "數位介入工具箱／可選擇・可搭配・可調整, 研究缺口, future-RCT labels and other module text are outside visible_text."
-        ]
+        ],
+        "gating": false
       }
     }
-  ]
+  ],
+  "reader_contract": {
+    "central_claim": "A seven-RCT meta-analysis found preliminary, outcome-specific signals that some digital interventions may improve objective overactive-bladder symptoms and quality of life, but effects and certainty vary and do not establish a best modality, duration or treatment pathway.",
+    "evidence_weight": "A seven-RCT meta-analysis shows preliminary signals for some objective symptoms and quality of life, with high uncertainty elsewhere.",
+    "limitations": "The evidence base is small, most trials have high or uncertain bias, several outcomes are highly heterogeneous and publication bias was not tested.",
+    "applicability": "Effects vary by intervention function, supervision and duration; subgroup estimates often rest on one or two dissimilar studies.",
+    "misuse_boundaries": "Exploratory subgroups and short-term attrition do not establish the best mode, optimal duration or long-term adherence. Do not replace standard care, rank supervised digital care as proven best, or invent a first-to-third-line treatment pathway."
+  }
 }

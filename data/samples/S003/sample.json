@@ -55,85 +55,135 @@
       "observation_id": "O001",
       "kind": "architecture",
       "description": "The article reorganises a primary-study report into reader questions about the research question, intervention, result, explanation, and causal boundary.",
-      "evidence_locations": ["article:研究在問什麼", "article:研究怎麼做的", "article:主要發現", "article:為什麼不能說是療效"]
+      "evidence_locations": [
+        "article:研究在問什麼",
+        "article:研究怎麼做的",
+        "article:主要發現",
+        "article:為什麼不能說是療效"
+      ]
     },
     {
       "observation_id": "O002",
       "kind": "calibration",
       "description": "The higher-frequency association is accompanied by a boundary stream covering baseline imbalance, loss of significance in sensitivity analysis, reverse causation, single-centre design and absent long-term follow-up.",
-      "evidence_locations": ["article:一句話總結", "article:主要發現", "article:為什麼不能說是運動降低了疲勞"]
+      "evidence_locations": [
+        "article:一句話總結",
+        "article:主要發現",
+        "article:為什麼不能說是運動降低了疲勞"
+      ]
     },
     {
       "observation_id": "O003",
       "kind": "mechanism",
       "description": "Reverse causation and inseparability of exercise frequency from cumulative exercise volume form the explanatory tension connecting participation and fatigue.",
-      "evidence_locations": ["article:這個關聯可能怎麼解釋", "article:為什麼不能說是運動降低了疲勞", "card:C06"]
+      "evidence_locations": [
+        "article:這個關聯可能怎麼解釋",
+        "article:為什麼不能說是運動降低了疲勞",
+        "card:C06"
+      ]
     },
     {
       "observation_id": "O004",
       "kind": "claim_transform",
       "description": "The main coefficient is translated into direction and domain, then capped by the non-significant sensitivity analysis and the observational design.",
-      "evidence_locations": ["article:主要發現", "card:C01", "card:C04"]
+      "evidence_locations": [
+        "article:主要發現",
+        "card:C01",
+        "card:C04"
+      ]
     },
     {
       "observation_id": "O005",
       "kind": "calibration",
       "description": "The significant primary physical-CFS model is paired with non-significant affective, cognitive and total outcomes, a non-significant sensitivity model, and pre-existing baseline differences.",
-      "evidence_locations": ["article:主要發現", "card:C03", "card:C04"]
+      "evidence_locations": [
+        "article:主要發現",
+        "card:C03",
+        "card:C04"
+      ]
     },
     {
       "observation_id": "O006",
       "kind": "provenance",
       "description": "The prose distinguishes raw HF/LF medians, the main adjusted model, a sensitivity analysis, source-author mechanisms and explainer-level cautions.",
-      "evidence_locations": ["article:主要發現", "article:這個關聯可能怎麼解釋"]
+      "evidence_locations": [
+        "article:主要發現",
+        "article:這個關聯可能怎麼解釋"
+      ]
     },
     {
       "observation_id": "O007",
       "kind": "limitations",
       "description": "Two source-level reporting discrepancies are preserved rather than silently resolved: text versus table sensitivity p-values and Figure 2 versus Table 1 subgroup counts.",
-      "evidence_locations": ["source_pdf:Results and Table 4", "source_pdf:Figure 2 and Table 1", "article:主要發現", "article:為什麼不能說是運動降低了疲勞"]
+      "evidence_locations": [
+        "source_pdf:Results and Table 4",
+        "source_pdf:Figure 2 and Table 1",
+        "article:主要發現",
+        "article:為什麼不能說是運動降低了疲勞"
+      ]
     },
     {
       "observation_id": "O008",
       "kind": "limitations",
       "description": "Each limitation removes a stronger claim: causality, independent frequency effect, durability, or broad external validity.",
-      "evidence_locations": ["article:為什麼不能說是運動降低了疲勞"]
+      "evidence_locations": [
+        "article:為什麼不能說是運動降低了疲勞"
+      ]
     },
     {
       "observation_id": "O009",
       "kind": "decision_positioning",
       "description": "The ending permits an association claim and a need for prospective long-term study while prohibiting a treatment-efficacy claim.",
-      "evidence_locations": ["article:為什麼不能說是運動降低了疲勞", "card:C06"]
+      "evidence_locations": [
+        "article:為什麼不能說是運動降低了疲勞",
+        "card:C06"
+      ]
     },
     {
       "observation_id": "O010",
       "kind": "evidence_grade",
       "description": "The evidence grade lists adjusted modelling and sensitivity analysis as strengths while retaining the causal limits of a single-centre retrospective cohort.",
-      "evidence_locations": ["article:證據分級"]
+      "evidence_locations": [
+        "article:證據分級"
+      ]
     },
     {
       "observation_id": "O011",
       "kind": "quantitative_semantics",
       "description": "The supported association is confined to the physical CFS domain; affective, cognitive and total CFS do not inherit that result.",
-      "evidence_locations": ["article:一句話總結", "article:主要發現", "card:C04"]
+      "evidence_locations": [
+        "article:一句話總結",
+        "article:主要發現",
+        "card:C04"
+      ]
     },
     {
       "observation_id": "O012",
       "kind": "quantitative_semantics",
       "description": "Non-participation percentages are identified as proportions of reasons among sessions where exercise was not performed, not patient prevalence.",
-      "evidence_locations": ["source_pdf:Figure 2 continuation", "article:主要發現", "card:C05"]
+      "evidence_locations": [
+        "source_pdf:Figure 2 continuation",
+        "article:主要發現",
+        "card:C05"
+      ]
     },
     {
       "observation_id": "O013",
       "kind": "companion_artifact",
-      "description": "Five cards preserve source meaning and one card reverses the observed fatigue direction; all six fail the queue's strict no-unlisted-visible-text contract.",
-      "evidence_locations": ["card_storyboard:C01-C06"]
+      "description": "Five cards preserve source meaning and one card reverses the observed fatigue direction; wording differences are retained only as non-gating historical comparisons.",
+      "evidence_locations": [
+        "card_storyboard:C01-C06"
+      ]
     },
     {
       "observation_id": "O014",
       "kind": "voice_register",
       "description": "The prose is direct and reader-facing but keeps a measured observational stance: the primary-model association is named with its outcome domain, then immediately narrowed by sensitivity loss, reverse causation and the ban on efficacy language.",
-      "evidence_locations": ["article:一句話總結", "article:主要發現", "article:為什麼不能說是「運動降低了疲勞」"]
+      "evidence_locations": [
+        "article:一句話總結",
+        "article:主要發現",
+        "article:為什麼不能說是「運動降低了疲勞」"
+      ]
     }
   ],
   "contamination_notes": [
@@ -150,5 +200,69 @@
       "preferred_handling": "State that only physical CFS was significant in the primary adjusted model and immediately disclose that the ECOG-PS sensitivity analysis crossed the conventional significance threshold."
     }
   ],
-  "analysis_date": "2026-08-10"
+  "analysis_date": "2026-08-10",
+  "source_resolution": {
+    "searched_at": "2026-08-13T10:38:00+09:00",
+    "stage": "retrospective_backfill",
+    "query_keys": {
+      "title": "Frequency of exercise and cancer-related fatigue among patients with lymphoma",
+      "doi": "10.1038/s44276-026-00246-6",
+      "filename": "44276_2026_Article_246.pdf"
+    },
+    "searches": [
+      {
+        "priority": 1,
+        "target_kind": "source_pdf",
+        "query": "10.1038/s44276-026-00246-6",
+        "query_keys_used": [
+          "doi"
+        ],
+        "search_title_only": false,
+        "outcome": "not_found",
+        "candidate_library_file_ids": [],
+        "strategy": "doi"
+      },
+      {
+        "priority": 2,
+        "target_kind": "source_pdf",
+        "query": "Frequency of exercise and cancer-related fatigue among patients with lymphoma",
+        "query_keys_used": [
+          "title"
+        ],
+        "search_title_only": true,
+        "outcome": "not_found",
+        "candidate_library_file_ids": [],
+        "strategy": "exact_title"
+      },
+      {
+        "priority": 3,
+        "target_kind": "source_pdf",
+        "query": "44276_2026_Article_246.pdf",
+        "query_keys_used": [
+          "filename"
+        ],
+        "search_title_only": true,
+        "outcome": "found",
+        "candidate_library_file_ids": [
+          "libfile_f3eaa903940c8191939333a725266214"
+        ],
+        "strategy": "filename"
+      }
+    ],
+    "resolution": "library_selected",
+    "selected_pdf": {
+      "origin": "library",
+      "library_file_id": "libfile_f3eaa903940c8191939333a725266214",
+      "file_id": "file_0000000090cc8206a097b68fcfe30715",
+      "library_path": "/44276_2026_Article_246.pdf",
+      "filename": "44276_2026_Article_246.pdf",
+      "version": "0",
+      "version_state": "recorded",
+      "sha256": "7bb9c6da0547b1213bc87a0ae74f2119653c7c51c6a9cd186299dbbe1dd81dc7"
+    },
+    "fallback": {
+      "used": false,
+      "reason": null
+    }
+  }
 }

@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1.0",
+  "schema_version": "0.4.0",
   "last_updated": "2026-08-12",
   "batch_count": 7,
   "batches": [
@@ -41,12 +41,37 @@
       "method_result": "用系統—病人—成本—應對的讀者問題重排敘事；把研究報告頻率與效果大小分開，並在單一國家、區域調查與回顧層級之間保留來源層次。",
       "voice_result": "系統性但不煽情；先說可介入的方向，再用觀察性證據、區域性結果與不可外推性收窄結論。",
       "companion_audit": {
-        "status": "semantic_pass_strict_fail",
+        "status": "reader_safe",
         "cards": 6,
-        "semantic_passes": 6,
-        "semantic_failures": 0,
-        "strict_render_passes": 0,
-        "strict_render_failures": 6
+        "content_truth_passes": 6,
+        "content_truth_failures": 0,
+        "render_fidelity_passes": 6,
+        "render_fidelity_failures": 0,
+        "content_truth_failure_ids": [],
+        "render_fidelity_failure_ids": [],
+        "targeted_correction_ids": [],
+        "engineering_conformance_is_gate": false,
+        "historical_text_equivalent": 0,
+        "historical_text_wording_divergence": 6,
+        "historical_text_wording_divergence_ids": [
+          "C01",
+          "C02",
+          "C03",
+          "C04",
+          "C05",
+          "C06"
+        ],
+        "historical_text_comparison_note": "Historical wording comparison is traceability telemetry only; it has no pass/fail status and no weight in the science-communication verdict.",
+        "derived_reader_outcome": {
+          "status": "communicated",
+          "central_claim": "clear",
+          "evidence_weight": "clear",
+          "limitations": "clear",
+          "applicability": "clear",
+          "misuse_boundaries": "clear",
+          "blocking_card_ids": [],
+          "interpretation": "All five reader-contract dimensions are communicated; no card contains a substantive render-fidelity failure."
+        }
       },
       "induced_rule_ids": [
         "R011"
@@ -77,15 +102,44 @@
       "method_result": "以研究問題—研究做法—主要結果—可能機制—為何不能說是療效的順序，並把結果域、變項單位、基線不平衡、敏感度分析與原文數字落差逐一固定在敘事中。",
       "voice_result": "直接、讀者導向但保持觀察性研究的克制；標題先限定身體域，再立即補上敏感度失去顯著與反向因果，避免把相關寫成因果。",
       "companion_audit": {
-        "status": "semantic_partial_strict_fail",
+        "status": "reader_outcome_blocked_by_material_render_error",
         "cards": 6,
-        "semantic_passes": 5,
-        "semantic_failures": 1,
-        "strict_render_passes": 0,
-        "strict_render_failures": 6,
-        "semantic_failure_ids": [
+        "content_truth_passes": 6,
+        "content_truth_failures": 0,
+        "render_fidelity_passes": 5,
+        "render_fidelity_failures": 1,
+        "content_truth_failure_ids": [],
+        "render_fidelity_failure_ids": [
           "C03"
-        ]
+        ],
+        "targeted_correction_ids": [
+          "C03"
+        ],
+        "render_fidelity_failure_note": "The pre-upload specification is source-aligned. C03 alone fails after rendering because its timeline reverses the source values and therefore changes the reader's understanding of the result direction.",
+        "engineering_conformance_is_gate": false,
+        "historical_text_equivalent": 0,
+        "historical_text_wording_divergence": 6,
+        "historical_text_wording_divergence_ids": [
+          "C01",
+          "C02",
+          "C03",
+          "C04",
+          "C05",
+          "C06"
+        ],
+        "historical_text_comparison_note": "Historical wording comparison is traceability telemetry only; it has no pass/fail status and no weight in the science-communication verdict.",
+        "derived_reader_outcome": {
+          "status": "misleading",
+          "central_claim": "distorted",
+          "evidence_weight": "clear",
+          "limitations": "clear",
+          "applicability": "clear",
+          "misuse_boundaries": "clear",
+          "blocking_card_ids": [
+            "C03"
+          ],
+          "interpretation": "C03 reverses the rendered fatigue trajectories, distorting the central finding even though evidence weight, limitations, applicability and misuse boundaries remain clear."
+        }
       },
       "induced_rule_ids": [
         "R012",
@@ -114,16 +168,44 @@
       "method_result": "依研究版圖—AFT 衝突—多路徑代理指標—觀察性傷害—時間性舒適—方法與長期缺口重排；把研究數量與效果大小、急性代理指標與防傷／長期表現分開。",
       "voice_result": "以平靜的研究地圖語態呈現小型研究的具體方向；每個可讀結果旁立即放入異質性、代理結果、觀察性設計或外推限制，最後只保留研究方向，不給購鞋處方。",
       "companion_audit": {
-        "status": "semantic_partial_strict_fail",
+        "status": "reader_outcome_blocked_by_material_render_error",
         "cards": 6,
-        "semantic_passes": 5,
-        "semantic_failures": 1,
-        "strict_render_passes": 0,
-        "strict_render_failures": 6,
-        "semantic_failure_ids": [
+        "content_truth_passes": 6,
+        "content_truth_failures": 0,
+        "render_fidelity_passes": 5,
+        "render_fidelity_failures": 1,
+        "content_truth_failure_ids": [],
+        "render_fidelity_failure_ids": [
           "C05"
         ],
-        "semantic_failure_note": "C05 adds fictional watch readings 158 and 142 that are absent from the queue and source paper."
+        "targeted_correction_ids": [
+          "C05"
+        ],
+        "render_fidelity_failure_note": "The pre-upload specification is source-aligned. C05 alone fails after rendering because precise fictional watch readings can reasonably be mistaken for measurements reported by the paper.",
+        "engineering_conformance_is_gate": false,
+        "historical_text_equivalent": 0,
+        "historical_text_wording_divergence": 6,
+        "historical_text_wording_divergence_ids": [
+          "C01",
+          "C02",
+          "C03",
+          "C04",
+          "C05",
+          "C06"
+        ],
+        "historical_text_comparison_note": "Historical wording comparison is traceability telemetry only; it has no pass/fail status and no weight in the science-communication verdict.",
+        "derived_reader_outcome": {
+          "status": "misleading",
+          "central_claim": "clear",
+          "evidence_weight": "distorted",
+          "limitations": "clear",
+          "applicability": "clear",
+          "misuse_boundaries": "clear",
+          "blocking_card_ids": [
+            "C05"
+          ],
+          "interpretation": "C05 presents fabricated numeric device readings in a realistic measurement format, distorting the evidentiary basis while the other reader-contract dimensions remain clear."
+        }
       },
       "induced_rule_ids": [
         "R014",
@@ -152,22 +234,47 @@
       "method_result": "依問題—三段輸出—五種證據—建構—資料輪廓—評分—發布缺口重排；把建構期 hardness metadata 與 RAG 成績、資料規模與公開狀態、證據物件類型與證據強度分開。",
       "voice_result": "診斷式、技術密度高但不宣傳；以『不是』『不能把』和具體失敗例緊貼每個易誤讀統計，最後只保留可借鏡的評分框架，不宣稱基準已完工。",
       "companion_audit": {
-        "status": "semantic_partial_strict_fail",
+        "status": "reader_outcome_blocked_by_material_render_error",
         "cards": 6,
-        "semantic_passes": 4,
-        "semantic_failures": 2,
-        "strict_render_passes": 0,
-        "strict_render_failures": 6,
-        "semantic_failure_ids": [
+        "content_truth_passes": 6,
+        "content_truth_failures": 0,
+        "render_fidelity_passes": 4,
+        "render_fidelity_failures": 2,
+        "content_truth_failure_ids": [],
+        "render_fidelity_failure_ids": [
           "C02",
           "C05"
         ],
         "targeted_correction_ids": [
-          "C01",
           "C02",
           "C05"
         ],
-        "semantic_failure_note": "C02 invents evidence-status grades for object classes; C05 fabricates venue-chart ordering and omits dominant ICCV. C01 is source-aligned but violates the exact text contract."
+        "render_fidelity_failure_note": "The pre-upload specification is source-aligned. C02 materially invents evidence grades for object classes, and C05 fabricates venue-chart geometry that contradicts the stated ICCV distribution.",
+        "engineering_conformance_is_gate": false,
+        "historical_text_equivalent": 0,
+        "historical_text_wording_divergence": 6,
+        "historical_text_wording_divergence_ids": [
+          "C01",
+          "C02",
+          "C03",
+          "C04",
+          "C05",
+          "C06"
+        ],
+        "historical_text_comparison_note": "Historical wording comparison is traceability telemetry only; it has no pass/fail status and no weight in the science-communication verdict.",
+        "derived_reader_outcome": {
+          "status": "misleading",
+          "central_claim": "distorted",
+          "evidence_weight": "distorted",
+          "limitations": "clear",
+          "applicability": "clear",
+          "misuse_boundaries": "clear",
+          "blocking_card_ids": [
+            "C02",
+            "C05"
+          ],
+          "interpretation": "C02 invents evidence-strength grades and C05 contradicts the reported venue distribution, distorting both the central account and evidence weight."
+        }
       },
       "induced_rule_ids": [
         "R016",
@@ -198,13 +305,14 @@
       "method_result": "以族群與測量 → 七項功能測驗 → 分域 AHR → 性別與樣條 → 臨床定位 → 選擇與因果限制重排；把 AHR 的關聯幅度、複合指數的報告結果與 C statistic 缺口分開，並記錄平台型關聯不可直接變成介入門檻。",
       "voice_result": "臨床可讀、數字密度高但不把關聯寫成療效；每個可用結果旁即時放入觀察性、選擇偏差、單次測量或預測比較缺口，最後把體能定位為補充訊號而非勝出的風險模型。",
       "companion_audit": {
-        "status": "semantic_partial_strict_fail",
+        "status": "reader_outcome_blocked_by_material_render_error",
         "cards": 6,
-        "semantic_passes": 4,
-        "semantic_failures": 2,
-        "strict_render_passes": 0,
-        "strict_render_failures": 6,
-        "semantic_failure_ids": [
+        "content_truth_passes": 6,
+        "content_truth_failures": 0,
+        "render_fidelity_passes": 4,
+        "render_fidelity_failures": 2,
+        "content_truth_failure_ids": [],
+        "render_fidelity_failure_ids": [
           "C01",
           "C06"
         ],
@@ -212,7 +320,32 @@
           "C01",
           "C06"
         ],
-        "semantic_failure_note": "C01 replaces the 2-minute step and arm-curl/chair-stand measures with 6-minute walk and knee-extension labels; C06 repeats the knee-extension substitution and abbreviates the 8-foot up-and-go path."
+        "render_fidelity_failure_note": "The pre-upload specification is source-aligned. C01 and C06 fail after rendering because they substitute a knee-extension or six-minute-walk test that the study did not measure; simplifying the up-and-go path alone is not a blocker.",
+        "engineering_conformance_is_gate": false,
+        "historical_text_equivalent": 0,
+        "historical_text_wording_divergence": 6,
+        "historical_text_wording_divergence_ids": [
+          "C01",
+          "C02",
+          "C03",
+          "C04",
+          "C05",
+          "C06"
+        ],
+        "historical_text_comparison_note": "Historical wording comparison is traceability telemetry only; it has no pass/fail status and no weight in the science-communication verdict.",
+        "derived_reader_outcome": {
+          "status": "misleading",
+          "central_claim": "distorted",
+          "evidence_weight": "clear",
+          "limitations": "clear",
+          "applicability": "distorted",
+          "misuse_boundaries": "clear",
+          "blocking_card_ids": [
+            "C01",
+            "C06"
+          ],
+          "interpretation": "C01 and C06 substitute tests not used by the study, distorting the central account of measured functional fitness and its applicability."
+        }
       },
       "induced_rule_ids": [
         "R019",
@@ -243,23 +376,47 @@
       "method_result": "依依從性背景 → 介入分類 → 客觀／主觀症狀 → 生活品質／退組 → 療程 → 偏倚與臨床定位重排；把總體與子群估計、探索性最大點估計與治療排名、短期退組與長期依從性、研究分布導出的療程與最佳處方分開。",
       "voice_result": "以「可能」「沒有過門檻」「不能當答案」「不是定案」形成相鄰煞車；先給具體效果量，再立即交代少數試驗、高異質性、低確定性或代理指標邊界。",
       "companion_audit": {
-        "status": "semantic_partial_strict_fail",
+        "status": "reader_outcome_blocked_by_material_render_error",
         "cards": 6,
-        "semantic_passes": 4,
-        "semantic_failures": 2,
-        "strict_render_passes": 0,
-        "strict_render_failures": 6,
-        "semantic_failure_ids": [
+        "content_truth_passes": 6,
+        "content_truth_failures": 0,
+        "render_fidelity_passes": 4,
+        "render_fidelity_failures": 2,
+        "content_truth_failure_ids": [],
+        "render_fidelity_failure_ids": [
           "C03",
           "C06"
         ],
         "targeted_correction_ids": [
-          "C01",
           "C03",
+          "C06"
+        ],
+        "render_fidelity_failure_note": "The pre-upload specification is source-aligned. Ordinary clocks, plot ticks and zero axes are non-claim presentation elements. C03 materially misattributes the pooled effect to telecare, and C06 invents a treatment hierarchy.",
+        "engineering_conformance_is_gate": false,
+        "historical_text_equivalent": 0,
+        "historical_text_wording_divergence": 6,
+        "historical_text_wording_divergence_ids": [
+          "C01",
+          "C02",
+          "C03",
+          "C04",
           "C05",
           "C06"
         ],
-        "semantic_failure_note": "C03 assigns the overall pooled SMD direction to telemedicine; C06 invents a first-, second- and third-line treatment ladder. C01 and C05 are source-aligned but add unlisted text."
+        "historical_text_comparison_note": "Historical wording comparison is traceability telemetry only; it has no pass/fail status and no weight in the science-communication verdict.",
+        "derived_reader_outcome": {
+          "status": "misleading",
+          "central_claim": "distorted",
+          "evidence_weight": "distorted",
+          "limitations": "clear",
+          "applicability": "distorted",
+          "misuse_boundaries": "distorted",
+          "blocking_card_ids": [
+            "C03",
+            "C06"
+          ],
+          "interpretation": "C03 misattributes the pooled effect to telemedicine and C06 invents a treatment hierarchy, distorting the central claim, evidence weight, applicability and misuse boundary."
+        }
       },
       "induced_rule_ids": [
         "R021",
@@ -328,6 +485,6 @@
       "status": "hypothesis",
       "current_reading": "七批都呈現證據比例式、歸因清楚、邊界貼近結果、讀者導向且高密度但不煽情的語態；目前先作為觀察到的共同語態，不與方法規則混寫。"
     },
-    "next_gate": "新增不同來源與研究設計的樣本，先做看不到參考文章的 held-out reconstruction，再考慮把方法或語態規則提升為 conditional 或 stable。"
+  "next_gate": "Continue Library-first source binding, two-layer companion audits and blinded reader reconstruction. Render fidelity permits meaning-preserving wording and presentation changes; only material scientific, provenance or data-geometry errors are quality failures."
   }
 }

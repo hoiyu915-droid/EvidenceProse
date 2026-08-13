@@ -55,97 +55,166 @@
       "observation_id": "O001",
       "kind": "architecture",
       "description": "The explainer moves from adherence context and review construction to intervention taxonomy, objective and subjective outcomes, quality of life, attrition, duration, limitations and clinical positioning instead of mirroring the source page order.",
-      "evidence_locations": ["article:內容", "article:客觀症狀指標", "article:主觀症狀量表分數", "article:臨床定位"]
+      "evidence_locations": [
+        "article:內容",
+        "article:客觀症狀指標",
+        "article:主觀症狀量表分數",
+        "article:臨床定位"
+      ]
     },
     {
       "observation_id": "O002",
       "kind": "calibration",
       "description": "Every favourable signal is paired with its evidence brake: few trials for bladder-diary outcomes, high heterogeneity for subjective symptoms and quality of life, or low certainty and short follow-up for attrition.",
-      "evidence_locations": ["article:客觀症狀指標", "article:主觀症狀量表分數", "article:生活品質", "article:退出率"]
+      "evidence_locations": [
+        "article:客觀症狀指標",
+        "article:主觀症狀量表分數",
+        "article:生活品質",
+        "article:退出率"
+      ]
     },
     {
       "observation_id": "O003",
       "kind": "mechanism",
       "description": "The article distinguishes symptom intensification from service value: telemedicine can remain useful through access and care efficiency even when its symptom estimate is close to control.",
-      "evidence_locations": ["article:主觀症狀量表分數", "source:Clinical Positioning of Telemedicine", "card:C03"]
+      "evidence_locations": [
+        "article:主觀症狀量表分數",
+        "source:Clinical Positioning of Telemedicine",
+        "card:C03"
+      ]
     },
     {
       "observation_id": "O004",
       "kind": "claim_transform",
       "description": "MD, SMD and RR are translated with confidence intervals, outcome names, significance status and heterogeneity rather than being converted into generic percentages of improvement.",
-      "evidence_locations": ["article:客觀症狀指標", "article:主觀症狀量表分數", "article:生活品質", "article:退出率"]
+      "evidence_locations": [
+        "article:客觀症狀指標",
+        "article:主觀症狀量表分數",
+        "article:生活品質",
+        "article:退出率"
+      ]
     },
     {
       "observation_id": "O005",
       "kind": "calibration",
       "description": "The registered review methods and random-effects synthesis are explicitly separated from the thin substrate of seven small trials, five at high overall risk of bias and several low- or very-low-certainty outcomes.",
-      "evidence_locations": ["article:偏倚風險與整體限制", "article:證據分級", "card:C01"]
+      "evidence_locations": [
+        "article:偏倚風險與整體限制",
+        "article:證據分級",
+        "card:C01"
+      ]
     },
     {
       "observation_id": "O006",
       "kind": "provenance",
       "description": "Pooled results, subgroup estimates, single-study quality-of-life effects, author hypotheses about duration and future stepped care, and the explainer's clinical translation are kept as distinct source layers.",
-      "evidence_locations": ["article:主觀症狀量表分數", "article:生活品質", "article:療程長度的子群分析", "article:臨床定位"]
+      "evidence_locations": [
+        "article:主觀症狀量表分數",
+        "article:生活品質",
+        "article:療程長度的子群分析",
+        "article:臨床定位"
+      ]
     },
     {
       "observation_id": "O007",
       "kind": "limitations",
       "description": "Bias, imprecision, small-study effects, intervention heterogeneity and the multicomponent inability to isolate a digital ingredient are treated as controls on what can be concluded, not as a detached checklist.",
-      "evidence_locations": ["article:偏倚風險與整體限制", "article:臨床定位", "source:Limitations"]
+      "evidence_locations": [
+        "article:偏倚風險與整體限制",
+        "article:臨床定位",
+        "source:Limitations"
+      ]
     },
     {
       "observation_id": "O008",
       "kind": "limitations",
       "description": "The limitations prohibit claims that every symptom improves, that a digital mode is best, that 6-13 weeks is an optimal prescription, or that short-term attrition establishes durable adherence.",
-      "evidence_locations": ["article:客觀症狀指標", "article:退出率", "article:療程長度的子群分析", "article:臨床定位"]
+      "evidence_locations": [
+        "article:客觀症狀指標",
+        "article:退出率",
+        "article:療程長度的子群分析",
+        "article:臨床定位"
+      ]
     },
     {
       "observation_id": "O009",
       "kind": "decision_positioning",
       "description": "Digital intervention is positioned as a potentially useful care option or tool that still requires larger, longer and more rigorous trials, not as a replacement for standard OAB care or a settled treatment ladder.",
-      "evidence_locations": ["article:臨床定位", "source:Conclusions", "card:C06"]
+      "evidence_locations": [
+        "article:臨床定位",
+        "source:Conclusions",
+        "card:C06"
+      ]
     },
     {
       "observation_id": "O010",
       "kind": "evidence_grade",
       "description": "Prospective registration, PRISMA, RoB 2, GRADE and prespecified subgroup analyses strengthen review conduct, while seven small trials, high risk of bias, extreme heterogeneity and absent publication-bias testing keep certainty limited.",
-      "evidence_locations": ["article:偏倚風險與整體限制", "article:證據分級"]
+      "evidence_locations": [
+        "article:偏倚風險與整體限制",
+        "article:證據分級"
+      ]
     },
     {
       "observation_id": "O011",
       "kind": "quantitative_semantics",
       "description": "The pooled overall subjective-symptom SMD cannot be relabelled as the telemedicine subgroup effect; the render's direction caption does exactly this even though the source reports telemedicine near zero.",
-      "evidence_locations": ["article:主觀症狀量表分數", "card:C03", "source:Figure 4"]
+      "evidence_locations": [
+        "article:主觀症狀量表分數",
+        "card:C03",
+        "source:Figure 4"
+      ]
     },
     {
       "observation_id": "O012",
       "kind": "quantitative_semantics",
       "description": "The largest exploratory subgroup point estimate is not a treatment ranking when its confidence interval crosses no effect, heterogeneity is 97%, only two therapeutically different studies contribute, and a quality-of-life estimate comes from one study.",
-      "evidence_locations": ["article:主觀症狀量表分數", "article:生活品質", "card:C05"]
+      "evidence_locations": [
+        "article:主觀症狀量表分數",
+        "article:生活品質",
+        "card:C05"
+      ]
     },
     {
       "observation_id": "O013",
       "kind": "companion_artifact",
-      "description": "Four cards are semantically aligned and two fail: C03 misassigns the overall SMD to telemedicine, while C06 invents a first-, second- and third-line treatment ladder. All six fail the exact visible-text render contract because each adds unlisted labels or explanatory text.",
-      "evidence_locations": ["card_storyboard:C01-C06", "card:C03", "card:C06"]
+      "description": "Four cards are semantically aligned and two fail: C03 misassigns the overall SMD to telemedicine, while C06 invents a first-, second- and third-line treatment ladder. Other wording differences are retained only as non-gating historical comparisons.",
+      "evidence_locations": [
+        "card_storyboard:C01-C06",
+        "card:C03",
+        "card:C06"
+      ]
     },
     {
       "observation_id": "O014",
       "kind": "voice_register",
       "description": "The register is clinically readable, cautious and contrast-driven: '可能', '不能解讀成', '探索性' and '不是定案' are placed next to the result they constrain rather than deferred to the end.",
-      "evidence_locations": ["article:一句話總結", "article:主觀症狀量表分數", "article:退出率", "article:臨床定位"]
+      "evidence_locations": [
+        "article:一句話總結",
+        "article:主觀症狀量表分數",
+        "article:退出率",
+        "article:臨床定位"
+      ]
     },
     {
       "observation_id": "O015",
       "kind": "quantitative_semantics",
       "description": "No detected short-term attrition difference is not evidence of improved long-term adherence; attrition is a crude proxy and most included trials were short.",
-      "evidence_locations": ["article:退出率", "card:C04", "source:Optimal Duration and Attrition"]
+      "evidence_locations": [
+        "article:退出率",
+        "card:C04",
+        "source:Optimal Duration and Attrition"
+      ]
     },
     {
       "observation_id": "O016",
       "kind": "quantitative_semantics",
       "description": "A duration subgroup associated with symptom reduction can be described as a supportive exploratory signal, but its study-distribution-derived cutoffs cannot be converted into an established optimal treatment duration.",
-      "evidence_locations": ["article:療程長度的子群分析", "card:C05", "source:Optimal Duration and Attrition"]
+      "evidence_locations": [
+        "article:療程長度的子群分析",
+        "card:C05",
+        "source:Optimal Duration and Attrition"
+      ]
     }
   ],
   "contamination_notes": [
@@ -168,5 +237,69 @@
       "preferred_handling": "Name the outcomes with favourable signals and separately state which outcomes were nonsignificant, heterogeneous or very-low certainty."
     }
   ],
-  "analysis_date": "2026-08-12"
+  "analysis_date": "2026-08-12",
+  "source_resolution": {
+    "searched_at": "2026-08-13T10:38:00+09:00",
+    "stage": "retrospective_backfill",
+    "query_keys": {
+      "title": "Effects of Digital Interventions on Symptom Improvement and Quality of Life in Patients With Overactive Bladder: Systematic Review and Meta-Analysis",
+      "doi": "10.2196/88971",
+      "filename": "PDF 3(1).pdf"
+    },
+    "searches": [
+      {
+        "priority": 1,
+        "target_kind": "source_pdf",
+        "query": "10.2196/88971",
+        "query_keys_used": [
+          "doi"
+        ],
+        "search_title_only": false,
+        "outcome": "not_found",
+        "candidate_library_file_ids": [],
+        "strategy": "doi"
+      },
+      {
+        "priority": 2,
+        "target_kind": "source_pdf",
+        "query": "Effects of Digital Interventions on Symptom Improvement and Quality of Life in Patients With Overactive Bladder: Systematic Review and Meta-Analysis",
+        "query_keys_used": [
+          "title"
+        ],
+        "search_title_only": true,
+        "outcome": "not_found",
+        "candidate_library_file_ids": [],
+        "strategy": "exact_title"
+      },
+      {
+        "priority": 3,
+        "target_kind": "source_pdf",
+        "query": "PDF 3(1).pdf",
+        "query_keys_used": [
+          "filename"
+        ],
+        "search_title_only": true,
+        "outcome": "found",
+        "candidate_library_file_ids": [
+          "libfile_898cc55c4f04819197e981340a3f0b09"
+        ],
+        "strategy": "filename"
+      }
+    ],
+    "resolution": "library_selected",
+    "selected_pdf": {
+      "origin": "library",
+      "library_file_id": "libfile_898cc55c4f04819197e981340a3f0b09",
+      "file_id": "file_000000008c80822fbe9cc28d5659a8ba",
+      "library_path": "/PDF 3(1).pdf",
+      "filename": "PDF 3(1).pdf",
+      "version": "0",
+      "version_state": "recorded",
+      "sha256": "2efbd674598525665b4495ff387c489a0e0dac55883248f2348ea985997dfbac"
+    },
+    "fallback": {
+      "used": false,
+      "reason": null
+    }
+  }
 }

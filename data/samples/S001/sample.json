@@ -24,67 +24,102 @@
       "observation_id": "O001",
       "kind": "architecture",
       "description": "The article reorganises the source around reader decision questions rather than reproducing journal section order.",
-      "evidence_locations": ["article:一句話總結", "article:為什麼會有這篇文獻", "article:這篇文章對臨床角色的定位"]
+      "evidence_locations": [
+        "article:一句話總結",
+        "article:為什麼會有這篇文獻",
+        "article:這篇文章對臨床角色的定位"
+      ]
     },
     {
       "observation_id": "O002",
       "kind": "calibration",
       "description": "A favourable result stream is kept beside an evidence-boundary stream, and the boundary stream controls the final conclusion.",
-      "evidence_locations": ["article:一句話總結", "article:統合結果", "article:方法學限制"]
+      "evidence_locations": [
+        "article:一句話總結",
+        "article:統合結果",
+        "article:方法學限制"
+      ]
     },
     {
       "observation_id": "O003",
       "kind": "mechanism",
       "description": "Partial ablation preserving function while possibly preserving recurrence substrate acts as the explanatory spine.",
-      "evidence_locations": ["article:為什麼會有這篇文獻", "article:沒有被統合分析講清楚的部分"]
+      "evidence_locations": [
+        "article:為什麼會有這篇文獻",
+        "article:沒有被統合分析講清楚的部分"
+      ]
     },
     {
       "observation_id": "O004",
       "kind": "claim_transform",
       "description": "Major claims are expanded through result, clinical meaning, and interpretive ceiling.",
-      "evidence_locations": ["article:統合結果", "article:免疫學上有一個值得注意的現象"]
+      "evidence_locations": [
+        "article:統合結果",
+        "article:免疫學上有一個值得注意的現象"
+      ]
     },
     {
       "observation_id": "O005",
       "kind": "calibration",
       "description": "Positive findings are paired with explicit brakes such as failure rate, short follow-up, small samples, or absence of direct comparison.",
-      "evidence_locations": ["article:一句話總結", "article:統合結果", "article:方法學限制"]
+      "evidence_locations": [
+        "article:一句話總結",
+        "article:統合結果",
+        "article:方法學限制"
+      ]
     },
     {
       "observation_id": "O006",
       "kind": "provenance",
       "description": "The prose preserves whether a statement comes from pooled data, all included reports, one study, or interpretation.",
-      "evidence_locations": ["article:四篇研究長什麼樣子", "article:統合結果", "article:免疫學上有一個值得注意的現象"]
+      "evidence_locations": [
+        "article:四篇研究長什麼樣子",
+        "article:統合結果",
+        "article:免疫學上有一個值得注意的現象"
+      ]
     },
     {
       "observation_id": "O007",
       "kind": "limitations",
       "description": "Review-process details and unexplained PRISMA count differences are treated as substantive evidence information.",
-      "evidence_locations": ["article:這篇系統性回顧在問什麼問題"]
+      "evidence_locations": [
+        "article:這篇系統性回顧在問什麼問題"
+      ]
     },
     {
       "observation_id": "O008",
       "kind": "limitations",
       "description": "Each important limitation changes external validity, comparative claims, durability claims, or reproducibility.",
-      "evidence_locations": ["article:這篇系統性回顧自己列出的方法學限制"]
+      "evidence_locations": [
+        "article:這篇系統性回顧自己列出的方法學限制"
+      ]
     },
     {
       "observation_id": "O009",
       "kind": "decision_positioning",
       "description": "The ending sets a permitted clinical role rather than merely repeating the pooled estimate.",
-      "evidence_locations": ["article:這篇文章對臨床角色的定位"]
+      "evidence_locations": [
+        "article:這篇文章對臨床角色的定位"
+      ]
     },
     {
       "observation_id": "O010",
       "kind": "evidence_grade",
       "description": "Review conduct quality is separated from the strength and generalisability of the underlying observational evidence.",
-      "evidence_locations": ["article:引用來源", "article:中等證據強度"]
+      "evidence_locations": [
+        "article:引用來源",
+        "article:中等證據強度"
+      ]
     },
     {
       "observation_id": "O011",
       "kind": "voice_register",
       "description": "The prose uses a calm, evidence-proportional register: it states the pooled result plainly, attributes single-study signals, and places non-equivalence and durability limits in the same narrative field rather than using promotional or alarmist language.",
-      "evidence_locations": ["article:一句話總結", "article:免疫學上有一個值得注意的現象", "article:這篇文章對臨床角色的定位"]
+      "evidence_locations": [
+        "article:一句話總結",
+        "article:免疫學上有一個值得注意的現象",
+        "article:這篇文章對臨床角色的定位"
+      ]
     }
   ],
   "contamination_notes": [
@@ -107,5 +142,78 @@
       "preferred_handling": "State that no statistical heterogeneity was detected and retain the small-study limitation."
     }
   ],
-  "analysis_date": "2026-08-10"
+  "analysis_date": "2026-08-10",
+  "source_resolution": {
+    "searched_at": "2026-08-13T10:38:00+09:00",
+    "stage": "retrospective_backfill",
+    "query_keys": {
+      "title": "Ultrasound-guided thermal ablation in patients affected by Graves' disease: a systematic review and meta-analysis",
+      "doi": "10.1007/s12020-026-04740-2",
+      "filename": "s12020-026-04740-2.pdf"
+    },
+    "searches": [
+      {
+        "priority": 1,
+        "target_kind": "source_pdf",
+        "query": "10.1007/s12020-026-04740-2",
+        "query_keys_used": [
+          "doi"
+        ],
+        "search_title_only": false,
+        "outcome": "not_found",
+        "candidate_library_file_ids": [],
+        "strategy": "doi"
+      },
+      {
+        "priority": 2,
+        "target_kind": "source_pdf",
+        "query": "Ultrasound-guided thermal ablation in patients affected by Graves' disease: a systematic review and meta-analysis",
+        "query_keys_used": [
+          "title"
+        ],
+        "search_title_only": true,
+        "outcome": "not_found",
+        "candidate_library_file_ids": [],
+        "strategy": "exact_title"
+      },
+      {
+        "priority": 3,
+        "target_kind": "source_pdf",
+        "query": "s12020-026-04740-2.pdf",
+        "query_keys_used": [
+          "filename"
+        ],
+        "search_title_only": true,
+        "outcome": "found",
+        "candidate_library_file_ids": [
+          "libfile_6abd05cd58548191a69d0985b181634b"
+        ],
+        "strategy": "filename"
+      }
+    ],
+    "resolution": "library_selected",
+    "selected_pdf": {
+      "origin": "library",
+      "library_file_id": "libfile_6abd05cd58548191a69d0985b181634b",
+      "file_id": "file_0000000013988209802e27715927a356",
+      "library_path": "/s12020-026-04740-2.pdf",
+      "filename": "s12020-026-04740-2.pdf",
+      "version": "0",
+      "version_state": "recorded",
+      "sha256": "c2a03ae5a28229b3ac3d51220b3153e6988de725526159dc7254d670572f4338"
+    },
+    "fallback": {
+      "used": false,
+      "reason": null
+    }
+  },
+  "artifact_receipts": [
+    {
+      "artifact_id": "A001",
+      "kind": "source_pdf",
+      "filename": "s12020-026-04740-2.pdf",
+      "sha256": "c2a03ae5a28229b3ac3d51220b3153e6988de725526159dc7254d670572f4338",
+      "role": "Canonical full-text source used for factual and methodological audit; Library identity was retrospectively bound on 2026-08-13."
+    }
+  ]
 }

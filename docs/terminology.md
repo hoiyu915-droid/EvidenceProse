@@ -25,8 +25,13 @@
 | Explanatory spine | One central tension or mechanism used to connect otherwise separate findings. |
 | Source-layer preservation | Explicitly retaining whether a claim is pooled, single-study, source interpretation, or explainer inference. |
 | Control-bearing limitation | A limitation that changes the conclusion, recommendation, or permitted wording. |
-| Artifact binding | The evidence-backed pairing of a rendered output with its canonical queue or specification before compliance checking. |
-| Strict render compliance | Bidirectional agreement between authorised and rendered text/numbers, independent of whether extra content is semantically reasonable. |
+| Science-communication success | The primary outcome: a reasonable non-specialist can identify what is supported, its evidence weight, material limitations, applicable population/context, and the causal or practical conclusion that is not justified. |
+| Reader-safe comprehension | A reader's mental model preserves the intended takeaway and rejects the forbidden takeaway without needing access to the internal checklist. |
+| Artifact binding | The evidence-backed pairing of a rendered output with its canonical queue or specification to establish provenance. Binding enables audit but does not certify explanation quality. |
+| Content truth | Pre-upload agreement between the proposed explainer content and the verified primary source, including facts, evidence strength, attribution, limitations, applicability, causal structure and conclusion ceiling. |
+| Substantive render fidelity | Post-upload preservation of scientific meaning and reader boundaries across words and data-bearing visual relationships. Meaning-preserving paraphrase, abbreviation, restructuring and explanatory labels are allowed. |
+| Engineering conformance | Adherence to queue, object, relation, citation and layout instructions. It becomes a substantive gate only when the instruction protects a named scientific or traceability interest and its violation can materially alter reader understanding. |
+| Historical text comparison | The former bidirectional visible-text whitelist comparison. It may be retained for traceability, has no pass/fail status, and does not contribute to the science-communication verdict. |
 | Visual data fidelity | Agreement between the source and data-bearing geometry such as point positions, trajectories, arrows, scales, colour encodings, and relative ordering. |
 
 ## Method and voice layers

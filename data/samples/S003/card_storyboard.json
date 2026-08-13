@@ -12,8 +12,15 @@
     "reason": "Title-sequence mismatch."
   },
   "audit_policy": {
-    "semantic_track": "Check whether wording, numbers, visual data encodings and causal structure remain faithful to the source and card-specific constraints.",
-    "strict_render_track": "Treat card.title, card.visible_text, allowed_visible_numbers and the exact-once citation as the complete visible render contract; scene descriptions authorise objects, not extra labels.",
+    "materiality_test": {
+      "gate_only_substantive": true,
+      "substantive_definition": "A deviation is substantive when it can materially change the reader understanding of the finding, evidence weight, uncertainty, scope, provenance, causal boundary or decision ceiling.",
+      "presentation_only_handling": "Record presentation-only deviations in historical_text_comparison; they do not block publication or alter the derived reader outcome."
+    },
+    "content_truth_track": "Before rendering, compare the proposed card content with the resolved primary PDF and check both factual accuracy and material omissions across the reader contract.",
+    "render_fidelity_track": "After rendering, compare the image with the approved specification and reader contract. Paraphrase, abbreviation, layout labels and non-claim decoration pass unless they introduce a substantive error or misleading data geometry.",
+    "engineering_conformance_track": "JSON exactness rules are purpose-scoped guardrails. A required object, relation, exact_once or unlisted-text deviation is blocking only when it protects substantive truth or source traceability and the deviation is material.",
+    "historical_text_comparison_track": "Historical wording comparison records equivalent wording or wording divergence without pass/fail language and has zero weight in the science-communication verdict.",
     "global_constraints_checked": [
       "no causal claim that exercise frequency reduced CRF",
       "no generalisation from physical CFS to affective, cognitive or total CFS",
@@ -22,15 +29,33 @@
       "no implication that frequency is independent of cumulative exercise volume",
       "no long-term benefit claim",
       "no causal arrows"
-    ]
+    ],
+    "engineering_conformance_is_gate": false
   },
   "summary": {
     "cards": 6,
-    "semantic_passes": 5,
-    "semantic_failures": 1,
-    "strict_render_passes": 0,
-    "strict_render_failures": 6,
-    "interpretation": "Five cards are source-aligned in meaning, while C03 reverses the observed discharge direction in its timeline. Every card also violates the canonical queue's exact visible-text contract."
+    "content_truth_passes": 6,
+    "content_truth_failures": 0,
+    "render_fidelity_passes": 5,
+    "render_fidelity_failures": 1,
+    "historical_text_equivalent": 0,
+    "historical_text_wording_divergence": 6,
+    "targeted_correction_ids": [
+      "C03"
+    ],
+    "derived_reader_outcome": {
+      "status": "misleading",
+      "central_claim": "distorted",
+      "evidence_weight": "clear",
+      "limitations": "clear",
+      "applicability": "clear",
+      "misuse_boundaries": "clear",
+      "blocking_card_ids": [
+        "C03"
+      ],
+      "interpretation": "C03 reverses the rendered fatigue trajectories, distorting the central finding even though evidence weight, limitations, applicability and misuse boundaries remain clear."
+    },
+    "interpretation": "The pre-upload specification is source-aligned. C03 alone fails after rendering because its timeline reverses the source values and therefore changes the reader's understanding of the result direction."
   },
   "cards": [
     {
@@ -45,16 +70,30 @@
         "相關而非因果；只有身體CFS在主要調整模型達顯著",
         "標籤與框線表示內容功能；小標記表示證據狀態。"
       ],
-      "allowed_visible_numbers": ["130", "-2.10", "95%", "-4.20", "-0.05", "0.04"],
+      "allowed_visible_numbers": [
+        "130",
+        "-2.10",
+        "95%",
+        "-4.20",
+        "-0.05",
+        "0.04"
+      ],
       "main_visual_scene": "一位住院化療患者沿著一週運動日曆走向較低的身體疲勞量表，旁邊以小型回歸係數卡呈現調整後關聯；使用關聯線而非因果箭頭。",
-      "targeted_audit": "pass",
-      "semantic_audit": "pass",
-      "strict_render_audit": {
-        "status": "fail",
-        "violations": [
+      "content_truth_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "render_fidelity_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "historical_text_comparison": {
+        "status": "wording_divergence",
+        "differences": [
           "Unlisted visible scene labels include 一週運動參與日曆、休息、出院時身體疲勞程度（CFS）、高、低 and 調整後關聯（主要模型）.",
           "The weekday grid renders additional day characters beyond the authorised visible-text strings."
-        ]
+        ],
+        "gating": false
       }
     },
     {
@@ -68,16 +107,32 @@
         "實際參與頻率中位數71.4%；觀察期共1854次課程",
         "這是院內建議方案，不是已驗證的最佳運動處方。"
       ],
-      "allowed_visible_numbers": ["1", "6", "12", "13", "10", "20", "71.4%", "1854"],
+      "allowed_visible_numbers": [
+        "1",
+        "6",
+        "12",
+        "13",
+        "10",
+        "20",
+        "71.4%",
+        "1854"
+      ],
       "main_visual_scene": "住院病房中的週曆、腳踏車與阻力訓練器材並列；用六個運動日格和頻率計量條表示建議方案與實際參與。",
-      "targeted_audit": "pass",
-      "semantic_audit": "pass",
-      "strict_render_audit": {
-        "status": "fail",
-        "violations": [
+      "content_truth_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "render_fidelity_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "historical_text_comparison": {
+        "status": "wording_divergence",
+        "differences": [
           "The calendar adds 一週計畫, weekday labels and 建議：每日1次、每週6天, none of which is an exact listed visible_text item.",
           "The once-daily and six-days-per-week content is duplicated between the calendar and authorised sentence."
-        ]
+        ],
+        "gating": false
       }
     },
     {
@@ -91,22 +146,34 @@
         "兩組在治療開始前就不是同一個疲勞起點",
         "基線已存在差異；原始組間差不可當療效"
       ],
-      "allowed_visible_numbers": ["4.0", "1.0", "5.0", "2.0"],
+      "allowed_visible_numbers": [
+        "4.0",
+        "1.0",
+        "5.0",
+        "2.0"
+      ],
       "main_visual_scene": "兩條平行的疲勞量表軌跡，各自在基線和出院有清楚標記；強調兩條線起點不同，不畫治療造成下降的因果箭頭。",
       "targeted_audit": "fail: the timeline positions discharge at 6 for HF and 7 for LF despite the authorised discharge values 1.0 and 4.0.",
-      "semantic_audit": "fail",
-      "semantic_violations": [
-        "The HF timeline encodes discharge at 6 rather than 1.0.",
-        "The LF timeline encodes discharge at 7 rather than 4.0.",
-        "Both trajectories visually rise from baseline even though the source reports lower discharge medians in both groups."
-      ],
-      "required_correction": "Place HF baseline at 2.0 and discharge at 1.0; place LF baseline at 5.0 and discharge at 4.0. Remove every unlisted scale number and label unless the queue is formally revised.",
-      "strict_render_audit": {
+      "required_correction": "Place HF baseline at 2.0 and discharge at 1.0; place LF baseline at 5.0 and discharge at 4.0, preserving the correct direction and relative ordering. Ordinary axis labels or scale marks may remain when they are clearly presentational and cannot be mistaken for additional source results.",
+      "content_truth_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "render_fidelity_audit": {
         "status": "fail",
         "violations": [
+          "The HF timeline encodes discharge at 6 rather than 1.0.",
+          "The LF timeline encodes discharge at 7 rather than 4.0.",
+          "Both trajectories visually rise from baseline even though the source reports lower discharge medians in both groups."
+        ]
+      },
+      "historical_text_comparison": {
+        "status": "wording_divergence",
+        "differences": [
           "The timelines render 0, 1, 2, 3, 4, 5, 6 and 7 although only 1.0, 2.0, 4.0 and 5.0 are authorised.",
           "Unlisted labels include 高頻運動（HF組）, 低頻運動（LF組）, 基線（治療開始前）, 出院時, 疲勞量表（CFS） and the scale-note sentence."
-        ]
+        ],
+        "gating": false
       }
     },
     {
@@ -120,17 +187,32 @@
         "加入ECOG-PS：B=-2.04；正文 p=0.055（表格 p=0.06）",
         "相關而非因果；敏感度分析未達統計顯著"
       ],
-      "allowed_visible_numbers": ["0.04", "0.33", "0.65", "0.30", "-2.04", "0.055", "0.06"],
+      "allowed_visible_numbers": [
+        "0.04",
+        "0.33",
+        "0.65",
+        "0.30",
+        "-2.04",
+        "0.055",
+        "0.06"
+      ],
       "main_visual_scene": "四個CFS面向以小型量表卡並列，只有身體面向有主要模型顯著標記；下方另設敏感度分析框，清楚標示未達統計顯著。",
-      "targeted_audit": "fail: two footer lines were added beyond visible_text.",
-      "semantic_audit": "pass",
-      "strict_render_audit": {
-        "status": "fail",
-        "violations": [
+      "content_truth_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "render_fidelity_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "historical_text_comparison": {
+        "status": "wording_divergence",
+        "differences": [
           "Unlisted footer text: 研究對象：住院淋巴瘤患者接受化學治療（基線分析）.",
           "Unlisted footer text: 量表：CFS（癌症相關疲勞量表）.",
           "The panel headings 身體、情感、認知、總分 are also separately rendered labels rather than exact authorised strings."
-        ]
+        ],
+        "gating": false
       }
     },
     {
@@ -144,15 +226,26 @@
         "化療相關不良事件原因合計 29.8%",
         "百分比分母是未執行運動的session／原因，不是患者比例。"
       ],
-      "allowed_visible_numbers": ["20.0%", "17.8%", "29.8%"],
+      "allowed_visible_numbers": [
+        "20.0%",
+        "17.8%",
+        "29.8%"
+      ],
       "main_visual_scene": "病房運動課程被三類障礙打斷：空著的治療師位置、疲勞患者、化療不良事件；使用原因分布卡，不畫成患者盛行率。",
-      "targeted_audit": "pass",
-      "semantic_audit": "pass",
-      "strict_render_audit": {
-        "status": "fail",
-        "violations": [
+      "content_truth_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "render_fidelity_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "historical_text_comparison": {
+        "status": "wording_divergence",
+        "differences": [
           "Scene decoration adds the unlisted sign 物理治療師 and the unlisted symptom labels 噁心、嘔吐、腹瀉、血球低下."
-        ]
+        ],
+        "gating": false
       }
     },
     {
@@ -168,15 +261,29 @@
       ],
       "allowed_visible_numbers": [],
       "main_visual_scene": "一個研究解讀煞車板，三個警示圖像依序為雙向箭頭代表反向因果、FITT量尺代表總運動量混雜、單一醫院與短時間軸代表外部效度和追蹤限制。",
-      "targeted_audit": "fail: an unlisted disclaimer sentence was added in the footer.",
-      "semantic_audit": "pass",
-      "strict_render_audit": {
-        "status": "fail",
-        "violations": [
+      "content_truth_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "render_fidelity_audit": {
+        "status": "pass",
+        "violations": []
+      },
+      "historical_text_comparison": {
+        "status": "wording_divergence",
+        "differences": [
           "Unlisted footer text: 本為研究解讀，不代表療效；證據尚有缺口與限制。",
           "Unlisted scene labels include FITT、頻率、總量、反向因果、混雜無法分開、住院期間、出院後 and 外部效度與追蹤限制."
-        ]
+        ],
+        "gating": false
       }
     }
-  ]
+  ],
+  "reader_contract": {
+    "central_claim": "In a small single-centre retrospective inpatient lymphoma cohort, more frequent exercise was associated with lower physical fatigue at discharge, but the study does not establish that increasing exercise frequency causes improvement or affects other fatigue domains.",
+    "evidence_weight": "A small single-centre retrospective cohort found a domain-specific adjusted association, not an exercise treatment effect.",
+    "limitations": "Baseline imbalance, exposure-unit ambiguity, sensitivity-model instability and source-flow inconsistencies limit certainty.",
+    "applicability": "Applies to the observed inpatient lymphoma cohort and physical fatigue domain.",
+    "misuse_boundaries": "Exercise frequency may correlate with discharge physical fatigue; reverse causation and confounding remain. Do not generalise to affective, cognitive or total fatigue, or claim that increasing frequency causes improvement."
+  }
 }

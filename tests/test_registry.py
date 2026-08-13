@@ -40,11 +40,13 @@ class RegistryTests(unittest.TestCase):
                 "voice_rules": 5,
                 "stable_voice_rules": 0,
                 "batches": 7,
-                "artifact_receipts": 24,
+                "artifact_receipts": 25,
                 "cards": 36,
                 "contamination_notes": 20,
-                "strict_render_failures": 36,
-                "semantic_failures": 8,
+                "historical_text_wording_divergences": 36,
+                "content_truth_failures": 0,
+                "render_fidelity_failures": 8,
+                "reader_outcome_blocking_cards": 8,
             },
         )
 
@@ -61,14 +63,97 @@ class RegistryTests(unittest.TestCase):
         storyboard = json.loads((ROOT / sample["card_storyboard_path"]).read_text(encoding="utf-8"))
         self.assertIn("56項研究看斷貨", article)
         self.assertEqual(storyboard["canonical_queue"]["plan_id"], "TA07-20260810-010543-18237b69")
-        self.assertEqual(storyboard["summary"]["strict_render_failures"], 6)
-        self.assertTrue(all(card["semantic_audit"] == "pass" for card in storyboard["cards"]))
+        self.assertEqual(storyboard["summary"]["historical_text_wording_divergence"], 6)
+        self.assertTrue(all(card["content_truth_audit"]["status"] == "pass" for card in storyboard["cards"]))
+        self.assertEqual(storyboard["summary"]["render_fidelity_failures"], 0)
+        c01 = next(card for card in storyboard["cards"] if card["card_id"] == "C01")
+        c05 = next(card for card in storyboard["cards"] if card["card_id"] == "C05")
+        self.assertEqual(c01["render_fidelity_audit"]["status"], "pass")
+        self.assertEqual(c05["render_fidelity_audit"]["status"], "pass")
+        self.assertTrue(all(card.get("historical_text_comparison", {}).get("status") == "wording_divergence" for card in storyboard["cards"]))
+        self.assertTrue(all(card["historical_text_comparison"]["gating"] is False for card in storyboard["cards"]))
 
     def test_narrative_review_does_not_invent_not_applicable_denominators(self) -> None:
         sample = json.loads((ROOT / "data/samples/S002/sample.json").read_text(encoding="utf-8"))
         profile = sample["study_profile"]
         self.assertIsNone(profile["total_participants"])
         self.assertIn("total_participants", profile["not_applicable_reasons"])
+
+    def test_library_first_source_resolution_is_recorded_for_every_sample(self) -> None:
+        for sample_id in json.loads((ROOT / "data/registry.json").read_text(encoding="utf-8"))["sample_ids"]:
+            sample = json.loads((ROOT / f"data/samples/{sample_id}/sample.json").read_text(encoding="utf-8"))
+            resolution = sample["source_resolution"]
+            primary = [search for search in resolution["searches"] if search["target_kind"] == "source_pdf"]
+            self.assertEqual([search["strategy"] for search in primary], ["doi", "exact_title", "filename"][: len(primary)])
+            self.assertEqual(resolution["selected_pdf"]["sha256"], sample["source"]["pdf_sha256"])
+            if resolution["selected_pdf"]["origin"] == "library":
+                version_state = resolution["selected_pdf"]["version_state"]
+                self.assertIn(version_state, {"recorded", "not_exposed"})
+                if version_state == "recorded":
+                    self.assertGreaterEqual(int(resolution["selected_pdf"]["version"]), 0)
+                else:
+                    self.assertIsNone(resolution["selected_pdf"]["version"])
+
+    def test_unexposed_library_version_is_valid_when_null(self) -> None:
+        with copied_registry() as root:
+            path = root / "data/samples/S001/sample.json"
+            document = json.loads(path.read_text(encoding="utf-8"))
+            document["source_resolution"]["selected_pdf"]["version_state"] = "not_exposed"
+            document["source_resolution"]["selected_pdf"]["version"] = None
+            rewrite_json(path, document)
+            self.assertEqual(validate(root)["samples"], 7)
+
+    def test_source_resolution_search_order_is_enforced(self) -> None:
+        with copied_registry() as root:
+            path = root / "data/samples/S001/sample.json"
+            document = json.loads(path.read_text(encoding="utf-8"))
+            searches = document["source_resolution"]["searches"]
+            searches[0], searches[1] = searches[1], searches[0]
+            searches[0]["priority"], searches[1]["priority"] = 1, 2
+            rewrite_json(path, document)
+            with self.assertRaisesRegex(ValidationError, "search order must be DOI"):
+                validate(root)
+
+    def test_selected_source_digest_must_match_verified_pdf(self) -> None:
+        with copied_registry() as root:
+            path = root / "data/samples/S001/sample.json"
+            document = json.loads(path.read_text(encoding="utf-8"))
+            document["source_resolution"]["selected_pdf"]["sha256"] = "0" * 64
+            rewrite_json(path, document)
+            with self.assertRaisesRegex(ValidationError, "does not match source pdf_sha256"):
+                validate(root)
+
+    def test_content_truth_and_render_fidelity_are_not_double_counted(self) -> None:
+        for sample_id in ("S002", "S003", "S004", "S005", "S006", "S007"):
+            storyboard = json.loads((ROOT / f"data/samples/{sample_id}/card_storyboard.json").read_text(encoding="utf-8"))
+            self.assertTrue(all(card["content_truth_audit"]["status"] == "pass" for card in storyboard["cards"]))
+        storyboard = json.loads((ROOT / "data/samples/S003/card_storyboard.json").read_text(encoding="utf-8"))
+        c03 = next(card for card in storyboard["cards"] if card["card_id"] == "C03")
+        self.assertEqual(c03["content_truth_audit"]["status"], "pass")
+        self.assertEqual(c03["render_fidelity_audit"]["status"], "fail")
+
+    def test_materiality_and_reader_contract_are_required(self) -> None:
+        for sample_id in ("S002", "S003", "S004", "S005", "S006", "S007"):
+            storyboard = json.loads((ROOT / f"data/samples/{sample_id}/card_storyboard.json").read_text(encoding="utf-8"))
+            self.assertTrue(storyboard["audit_policy"]["materiality_test"]["gate_only_substantive"])
+            self.assertFalse(storyboard["audit_policy"]["engineering_conformance_is_gate"])
+            self.assertEqual(
+                set(storyboard["reader_contract"]),
+                {"central_claim", "evidence_weight", "limitations", "applicability", "misuse_boundaries"},
+            )
+
+    def test_reader_outcome_blocking_ids_follow_substantive_render_failures(self) -> None:
+        expected = {
+            "S002": [],
+            "S003": ["C03"],
+            "S004": ["C05"],
+            "S005": ["C02", "C05"],
+            "S006": ["C01", "C06"],
+            "S007": ["C03", "C06"],
+        }
+        for sample_id, blocking_ids in expected.items():
+            storyboard = json.loads((ROOT / f"data/samples/{sample_id}/card_storyboard.json").read_text(encoding="utf-8"))
+            self.assertEqual(storyboard["summary"]["derived_reader_outcome"]["blocking_card_ids"], blocking_ids)
 
     def test_third_sample_preserves_model_and_source_discrepancies(self) -> None:
         sample = json.loads((ROOT / "data/samples/S003/sample.json").read_text(encoding="utf-8"))
@@ -77,10 +162,12 @@ class RegistryTests(unittest.TestCase):
         self.assertIn("正文報告p=0.055,對應表格數值則為0.06", article)
         self.assertIn("流程圖(Fig. 2)標示高頻率組n=64", article)
         self.assertEqual(storyboard["canonical_queue"]["plan_id"], "TP_20260810_s44276_026_00246_6")
-        self.assertEqual(storyboard["summary"]["semantic_failures"], 1)
+        self.assertEqual(storyboard["summary"]["content_truth_failures"], 0)
+        self.assertEqual(storyboard["summary"]["render_fidelity_failures"], 1)
         c03 = next(card for card in storyboard["cards"] if card["card_id"] == "C03")
-        self.assertEqual(c03["semantic_audit"], "fail")
-        self.assertIn("6", " ".join(c03["strict_render_audit"]["violations"]))
+        self.assertEqual(c03["content_truth_audit"]["status"], "pass")
+        self.assertEqual(c03["render_fidelity_audit"]["status"], "fail")
+        self.assertIn("6", " ".join(c03["historical_text_comparison"]["differences"]))
 
     def test_domain_and_denominator_rules_remain_hypotheses(self) -> None:
         rules = {rule["rule_id"]: rule for rule in json.loads((ROOT / "data/rules/rules.json").read_text(encoding="utf-8"))["rules"]}
@@ -93,11 +180,11 @@ class RegistryTests(unittest.TestCase):
         storyboard = json.loads((ROOT / sample["card_storyboard_path"]).read_text(encoding="utf-8"))
         self.assertIn("這是一張「研究地圖」，不是效果大小排名", article)
         self.assertEqual(storyboard["canonical_queue"]["plan_id"], "JFA2_19_e70197")
-        self.assertEqual(storyboard["summary"]["semantic_failures"], 1)
+        self.assertEqual(storyboard["summary"]["content_truth_failures"], 0)
         c05 = next(card for card in storyboard["cards"] if card["card_id"] == "C05")
-        self.assertEqual(c05["semantic_audit"], "fail")
-        self.assertIn("158", " ".join(c05["semantic_violations"]))
-        self.assertIn("142", " ".join(c05["semantic_violations"]))
+        self.assertEqual(c05["content_truth_audit"]["status"], "pass")
+        self.assertIn("158", " ".join(c05["render_fidelity_audit"]["violations"]))
+        self.assertIn("142", " ".join(c05["render_fidelity_audit"]["violations"]))
 
     def test_fifth_sample_preserves_trace_and_visual_data_failures(self) -> None:
         sample = json.loads((ROOT / "data/samples/S005/sample.json").read_text(encoding="utf-8"))
@@ -106,15 +193,15 @@ class RegistryTests(unittest.TestCase):
         self.assertIn("答案對，不代表整條證據鏈都對", article)
         self.assertIn("三個正交的схема軸", article)
         self.assertEqual(storyboard["canonical_queue"]["plan_id"], "TP_20260811_2608_07370")
-        self.assertEqual(storyboard["summary"]["semantic_failures"], 2)
-        self.assertEqual(storyboard["summary"]["targeted_correction_ids"], ["C01", "C02", "C05"])
+        self.assertEqual(storyboard["summary"]["content_truth_failures"], 0)
+        self.assertEqual(storyboard["summary"]["targeted_correction_ids"], ["C02", "C05"])
         c01 = next(card for card in storyboard["cards"] if card["card_id"] == "C01")
         c02 = next(card for card in storyboard["cards"] if card["card_id"] == "C02")
         c05 = next(card for card in storyboard["cards"] if card["card_id"] == "C05")
-        self.assertEqual(c01["semantic_audit"], "pass")
-        self.assertEqual(c02["semantic_audit"], "fail")
-        self.assertEqual(c05["semantic_audit"], "fail")
-        self.assertIn("ICCV", " ".join(c05["semantic_violations"]))
+        self.assertEqual(c01["render_fidelity_audit"]["status"], "pass")
+        self.assertEqual(c02["render_fidelity_audit"]["status"], "fail")
+        self.assertEqual(c05["render_fidelity_audit"]["status"], "fail")
+        self.assertIn("ICCV", " ".join(c05["render_fidelity_audit"]["violations"]))
 
     def test_sixth_sample_preserves_title_binding_and_measurement_failures(self) -> None:
         sample = json.loads((ROOT / "data/samples/S006/sample.json").read_text(encoding="utf-8"))
@@ -123,12 +210,12 @@ class RegistryTests(unittest.TestCase):
         self.assertIn("體能表現如何預測老年人全因死亡率", article)
         self.assertIn("13,423", article)
         self.assertEqual(storyboard["canonical_queue"]["plan_id"], "TA07-20260812-014757-3db3a7b4")
-        self.assertEqual(storyboard["summary"]["semantic_failures"], 2)
+        self.assertEqual(storyboard["summary"]["content_truth_failures"], 0)
         self.assertEqual(storyboard["summary"]["targeted_correction_ids"], ["C01", "C06"])
         c01 = next(card for card in storyboard["cards"] if card["card_id"] == "C01")
         c06 = next(card for card in storyboard["cards"] if card["card_id"] == "C06")
-        self.assertIn("6分鐘", " ".join(c01["semantic_violations"]))
-        self.assertIn("膝伸展", " ".join(c06["semantic_violations"]))
+        self.assertIn("6分鐘", " ".join(c01["render_fidelity_audit"]["violations"]))
+        self.assertIn("膝伸展", " ".join(c06["render_fidelity_audit"]["violations"]))
 
     def test_sixth_batch_adds_calibrated_quantitative_rules(self) -> None:
         rules = {rule["rule_id"]: rule for rule in json.loads((ROOT / "data/rules/rules.json").read_text(encoding="utf-8"))["rules"]}
@@ -144,12 +231,44 @@ class RegistryTests(unittest.TestCase):
         self.assertIn("數位介入對膀胱過動症症狀與生活品質的效果", article)
         self.assertIn("7 項 RCT、544 人", article)
         self.assertEqual(storyboard["canonical_queue"]["plan_id"], "TA07-20260812-041247-175271ce")
-        self.assertEqual(storyboard["summary"]["semantic_failures"], 2)
-        self.assertEqual(storyboard["summary"]["targeted_correction_ids"], ["C01", "C03", "C05", "C06"])
+        self.assertEqual(storyboard["summary"]["content_truth_failures"], 0)
+        self.assertEqual(storyboard["summary"]["targeted_correction_ids"], ["C03", "C06"])
+        for card_id in ("C02", "C04", "C05"):
+            card = next(card for card in storyboard["cards"] if card["card_id"] == card_id)
+            self.assertEqual(card["render_fidelity_audit"]["status"], "pass")
         c03 = next(card for card in storyboard["cards"] if card["card_id"] == "C03")
         c06 = next(card for card in storyboard["cards"] if card["card_id"] == "C06")
-        self.assertIn("遠距照護", " ".join(c03["semantic_violations"]))
-        self.assertIn("治療分線框架", " ".join(c06["semantic_violations"]))
+        self.assertIn("遠距照護", " ".join(c03["render_fidelity_audit"]["violations"]))
+        self.assertIn("治療分線框架", " ".join(c06["render_fidelity_audit"]["violations"]))
+
+    def test_historical_wording_divergence_does_not_gate_render_fidelity(self) -> None:
+        storyboard = json.loads((ROOT / "data/samples/S007/card_storyboard.json").read_text(encoding="utf-8"))
+        c01 = next(card for card in storyboard["cards"] if card["card_id"] == "C01")
+        c05 = next(card for card in storyboard["cards"] if card["card_id"] == "C05")
+        self.assertEqual(c01["render_fidelity_audit"]["status"], "pass")
+        self.assertEqual(c05["render_fidelity_audit"]["status"], "pass")
+        self.assertEqual(c01["historical_text_comparison"]["status"], "wording_divergence")
+        self.assertEqual(c05["historical_text_comparison"]["status"], "wording_divergence")
+        self.assertFalse(c01["historical_text_comparison"]["gating"])
+        self.assertFalse(c05["historical_text_comparison"]["gating"])
+
+    def test_historical_wording_comparison_cannot_become_a_gate(self) -> None:
+        with copied_registry() as root:
+            path = root / "data/samples/S007/card_storyboard.json"
+            document = json.loads(path.read_text(encoding="utf-8"))
+            document["cards"][0]["historical_text_comparison"]["gating"] = True
+            rewrite_json(path, document)
+            with self.assertRaisesRegex(ValidationError, "historical wording comparison cannot be gating"):
+                validate(root)
+
+    def test_reader_outcome_blockers_must_match_substantive_render_failures(self) -> None:
+        with copied_registry() as root:
+            path = root / "data/samples/S003/card_storyboard.json"
+            document = json.loads(path.read_text(encoding="utf-8"))
+            document["summary"]["derived_reader_outcome"]["blocking_card_ids"] = ["C01"]
+            rewrite_json(path, document)
+            with self.assertRaisesRegex(ValidationError, "reader blocking cards must equal substantive render failures"):
+                validate(root)
 
     def test_seventh_batch_adds_subgroup_and_adherence_rules(self) -> None:
         rules = {rule["rule_id"]: rule for rule in json.loads((ROOT / "data/rules/rules.json").read_text(encoding="utf-8"))["rules"]}
@@ -207,7 +326,7 @@ class RegistryTests(unittest.TestCase):
         with copied_registry() as root:
             path = root / "data/batch_results.json"
             document = json.loads(path.read_text(encoding="utf-8"))
-            document["batches"][4]["companion_audit"]["semantic_failures"] = 1
+            document["batches"][4]["companion_audit"]["content_truth_failures"] = 1
             rewrite_json(path, document)
             with self.assertRaisesRegex(ValidationError, "does not match storyboard"):
                 validate(root)
