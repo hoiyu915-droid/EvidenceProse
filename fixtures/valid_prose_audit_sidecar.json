@@ -1,0 +1,45 @@
+{
+  "contract_version": "1.0",
+  "article_id": "demo-explainer",
+  "handoff_digest": "de01a4047d6208a0a9a81307f1b56ab794ccbec5d077872b9bb446f5ec17a03a",
+  "reader_contract_digest": "6ba71acb80ee3ca3009e852dfb34585e11fe0b59ce42305f88bb7844a1504a29",
+  "semantic_guard": {
+    "no_loss": "pass",
+    "no_add": "pass",
+    "numeric_fidelity": "pass",
+    "denominator_fidelity": "pass",
+    "comparator_fidelity": "pass",
+    "timeframe_fidelity": "pass",
+    "population_scope_fidelity": "pass",
+    "causal_strength_fidelity": "pass",
+    "uncertainty_fidelity": "pass",
+    "evidence_role_fidelity": "pass",
+    "attribution_fidelity": "pass",
+    "source_layer_fidelity": "pass",
+    "required_qualifiers_present": "pass",
+    "forbidden_overclaims_absent": "pass",
+    "headline_not_stronger_than_body": "pass",
+    "analogy_not_presented_as_mechanism": "pass",
+    "practical_meaning_not_upgraded_to_recommendation": "pass"
+  },
+  "reader_outcomes": {
+    "relevant": {"status": "pass", "note": "內容集中於讀者問題。"},
+    "findable": {"status": "pass", "note": "結論、限制與來源可定位。"},
+    "understandable": {"status": "pass", "note": "技術內容已白話化且保留限定詞。"},
+    "usable": {"status": "warning", "note": "研究沒有提供最佳門檻；不補造行動資訊。"}
+  },
+  "missing_action_info": ["最佳治療門檻未由證據提供"],
+  "lint_warnings": [
+    {
+      "category": "long_sentence",
+      "location": "## 內容，第 1 段",
+      "message": "句子偏長，但拆句可能削弱限定詞綁定。"
+    }
+  ],
+  "violations": [],
+  "targeted_repairs": [],
+  "final_gate": {
+    "status": "pass",
+    "rationale": "所有硬語義檢查通過，讀者結果無 fail；lint 僅警告。"
+  }
+}
