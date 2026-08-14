@@ -128,9 +128,10 @@ fixtures/
   20260815_demo-explainer.md    complete passing runtime bundle
 
 schemas/
-  ta06_prose_handoff.schema.json
-  prose_reader_contract.schema.json
-  prose_audit_sidecar.schema.json
+  runtime/
+    ta06_prose_handoff.schema.json
+    prose_reader_contract.schema.json
+    prose_audit_sidecar.schema.json
   registry.schema.json
   rule_catalog.schema.json
   rule.schema.json
