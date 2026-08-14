@@ -1,4 +1,4 @@
-name: Validate registry
+name: Validate EvidenceProse
 
 on:
   push:
@@ -31,5 +31,12 @@ jobs:
         run: python -m compileall -q scripts tests
       - name: Run unit tests
         run: python -m unittest discover -s tests -v
-      - name: Validate registry
+      - name: Validate induction registry
         run: python scripts/validate_registry.py --json
+      - name: Validate canonical TA06 prose runtime fixture
+        run: |
+          python scripts/validate_prose_runtime.py --json \
+            --handoff fixtures/valid_ta06_prose_handoff.json \
+            --reader-contract fixtures/valid_prose_reader_contract.json \
+            --audit-sidecar fixtures/valid_prose_audit_sidecar.json \
+            --article fixtures/20260815_demo-explainer.md

@@ -2,91 +2,135 @@
 
 [![Validate](https://github.com/hoiyu915-droid/EvidenceProse/actions/workflows/validate.yml/badge.svg)](https://github.com/hoiyu915-droid/EvidenceProse/actions/workflows/validate.yml)
 
-EvidenceProse is an evidence-to-prose research repository. It learns how calibrated Traditional Chinese science explainers are constructed from reviewed examples, records the supporting observations, and turns only stable patterns into generation and validation rules. Its highest success criterion is reader understanding: after reading, a non-specialist should be able to tell what the evidence supports, how much confidence it deserves, whom and which settings it applies to, and what causal or practical conclusion it cannot justify.
+EvidenceProse is an evidence-to-prose system for calibrated Traditional Chinese science explainers. It has two deliberately separate lanes:
 
-The project is deliberately data-first. A polished article is not treated as a template to copy. Each article is an observation sample that may support, qualify, contradict, or contaminate a candidate rule.
+- an **induction lane** that learns repeatable writing logic from reviewed examples without treating any polished article as a universal template;
+- a **TA06-backed live prose lane** that accepts already-audited scientific truth, locks the reader target, drafts prose, audits semantic fidelity and reader outcomes, and emits the reader-facing delivery shell.
+
+The highest success criterion is reader understanding: after reading, a non-specialist should be able to tell what the evidence supports, how much confidence it deserves, whom and which settings it applies to, and what causal or practical conclusion it cannot justify.
 
 ## Current status
 
-- Phase: pattern induction
-- Samples: 7 (`S001`–`S007`)
+- Induction samples: 7 (`S001`–`S007`)
 - Processing-rule catalogue: 24 (`R001`–`R024`): 9 candidates, 1 conditional rule, 14 hypotheses
 - Article-register catalogue: 5 (`V001`–`V005`), all hypotheses
-- Batch result index: 7 (`B001`–`B007`), keeping method and voice findings separate
+- Batch result index: 7 (`B001`–`B007`)
 - Recorded observations: 99; contamination notes: 20
-- Audited companion cards: 36 (36/36 content-truth passes; 28/36 substantive render-fidelity passes; 36 historical text comparisons with no pass/fail status)
-- Stable generation rules: 0
-- Delivery-shell contract: `EP-SCIENCE-EXPLAINER-OUTPUT v0.1` (structural packaging only; not a production generation authority)
-- Domains observed: clinical intervention meta-analyses, public-health systems narrative review, single-centre observational rehabilitation research, footwear scoping review, scientific-QA benchmark development, and a Taiwan older-adult mortality cohort
+- Audited companion cards: 36 (36/36 content-truth passes; 28/36 substantive render-fidelity passes)
+- Stable induction generation rules: 0
+- Live runtime contract: `EP_TA06_PROSE_RUNTIME v1.0`
+- Delivery-shell contract: `EP-SCIENCE-EXPLAINER-OUTPUT v0.1`
 - Primary output language: Traditional Chinese
 
-No candidate rule is production-authoritative yet.
+`R###` and `V###` rules are still induction evidence. None is production-authoritative merely because the live lane exists. The live lane is governed instead by TA06 scientific truth, the standalone reader contract, semantic preservation/no-add invariants, reader-outcome auditing, and the delivery shell.
 
-## Core pipeline
+## Live TA06-backed prose lane
+
+```text
+TA06 ta06_audit_packet
+  -> ta06_prose_handoff
+  -> standalone prose_reader_contract
+  -> prose draft
+  -> EP_PROSE_AUDIT_SIDECAR v1.0
+       - semantic preservation / NO_ADD
+       - numeric / denominator / comparator / timeframe fidelity
+       - population / causal / uncertainty / evidence-role fidelity
+       - headline / analogy / recommendation overclaim checks
+       - relevant / findable / understandable / usable
+       - zh-Hant warning-only lint
+  -> EP-SCIENCE-EXPLAINER-OUTPUT v0.1
+  -> runtime + delivery validation
+```
+
+A valid TA06 handoff is the scientific truth boundary. EvidenceProse does not silently redo source discovery in this lane. If the handoff is missing, blocked, internally inconsistent, or superseded by new evidence, route back to TA06 rather than guessing.
+
+The canonical runtime specification is [docs/ta06_prose_runtime.md](docs/ta06_prose_runtime.md). The machine contract is [contracts/EP_TA06_PROSE_RUNTIME_CONTRACT_v1.0.json](contracts/EP_TA06_PROSE_RUNTIME_CONTRACT_v1.0.json).
+
+### Standalone reader contract
+
+Before drafting, the live lane records:
+
+```text
+audience
+purpose
+reader_question
+intended_takeaway
+forbidden_takeaway
+central_claim
+evidence_weight
+limitations
+applicability
+misuse_boundaries
+```
+
+A local default is only a rendering target; it is never represented as a discovered fact about the user.
+
+### Semantic hard gate
+
+Every retained proposition must preserve material facts, numbers, units, denominators, comparators, conditions, population, setting, timeframe, uncertainty, causal strength, evidence role, attribution, and source layer.
+
+Unsupported new facts, evidence-bearing numbers, sources, quotations, mechanisms, causal explanations, recommendations, thresholds, prescriptions, actors, deadlines, or broader applicability are forbidden.
+
+Hard failures include association→causation, subgroup→whole population, pooled→subgroup estimate, proxy→clinical outcome, observational plateau→intervention threshold, exploratory subgroup→treatment ranking, short-term attrition→long-term adherence, analogy→demonstrated mechanism, practical meaning→recommendation, and a headline stronger than the body.
+
+### Reader outcomes and zh-Hant lint
+
+The completed draft is audited once on `relevant`, `findable`, `understandable`, and `usable`. These are audit axes, not four mandatory whole-article rewrite passes.
+
+Traditional-Chinese lint for long sentences/paragraphs, `的` chains, vague pronouns, unnecessary code switching, passive voice, hedge stacks, and jargon density is warning-only. It cannot override scientific precision.
+
+## Induction lane
+
+The induction lane remains data-first:
 
 ```text
 Reader decision + intended and forbidden takeaways
   -> Library search and primary-PDF binding
        (DOI -> exact title -> filename; supplementary files second; fallback last)
   -> reviewed source + provenance
-  -> sample record
+  -> immutable sample
   -> observable writing decisions
-  -> rule evidence
+  -> method-rule and voice-rule evidence
   -> candidate / conditional / contradicted rules
+  -> contamination detection
   -> saturation and held-out reconstruction
-  -> generation contract
-  -> prose draft
-  -> reader-facing delivery-shell projection
-       (fixed three-section artifact; internal audit citations stripped)
-  -> evidence-boundary comprehension audit
-  -> structural integrity validation
+  -> future rule promotion
 ```
+
+A polished article is an observation sample, not a template to copy. The full protocol is [docs/induction_protocol.md](docs/induction_protocol.md).
 
 ## Repository layout
 
 ```text
+contracts/
+  EP_TA06_PROSE_RUNTIME_CONTRACT_v1.0.json
+                                canonical live prose runtime contract
+
 data/
-  registry.json               canonical paths and ordered ID indexes
-  rules/rules.json            processing-method rule catalogue (`R###`)
-  voice/voice_rules.json      article-register rule catalogue (`V###`)
-  batch_results.json          cumulative seven-batch result index (`B###`)
-  samples/S001/
-    article.md                exact observed prose sample
-    sample.json               provenance, article digest, observations and cautions
-  samples/S002/
-    article.md                second exact observed prose sample
-    sample.json               source, artifact receipts and observations
-    card_storyboard.json      queue binding plus two-layer content/render audit
-  samples/S003/
-    article.md                third exact observed prose sample
-    sample.json               primary-study provenance and induced observations
-    card_storyboard.json      two-layer card audit with visual-data failure record
-  samples/S004/
-    article.md                fourth exact observed prose sample
-    sample.json               scoping-review provenance and induced observations
-    card_storyboard.json      title-bound queue audit with fabricated-reading record
-  samples/S005/
-    article.md                fifth exact observed prose sample
-    sample.json               benchmark-paper provenance and induced observations
-    card_storyboard.json      two-layer audit of unauthorised claims and visual-data fabrication
-  samples/S006/
-    article.md                sixth exact observed prose sample
-    sample.json               Taiwan cohort provenance, AHR semantics and contamination notes
-    card_storyboard.json      title-bound audit of test-label substitutions and render-fidelity failures
-  samples/S007/
-    article.md                seventh exact observed prose sample
-    sample.json               OAB meta-analysis provenance, subgroup semantics and contamination notes
-    card_storyboard.json      title-bound audit of pooled/subgroup mislabelling and invented care hierarchy
+  registry.json                 canonical induction paths and ID indexes
+  rules/rules.json              processing-method catalogue (`R###`)
+  voice/voice_rules.json        article-register catalogue (`V###`)
+  batch_results.json            cumulative batch index
+  samples/S###/                 immutable observed prose samples and audits
+
 docs/
-  batch_results.md            human-readable seven-batch summary
-  audit_standard.md           two-layer content-truth/render-fidelity contract
-  induction_protocol.md       how repeated examples update the model
+  audit_standard.md             source/card science-communication audit standard
+  induction_protocol.md         repeated-example induction protocol
   science_explainer_output_format.md
-                              reader-facing delivery-shell contract
-  terminology.md              evidence, method/voice and rule-state vocabulary
-templates/
-  science_explainer.md        copyable Traditional Chinese delivery template
+                                reader-facing delivery shell
+  ta06_prose_runtime.md         TA06-backed production prose lane
+  terminology.md                evidence, rule-state and audit vocabulary
+
+fixtures/
+  valid_ta06_prose_handoff.json
+  valid_prose_reader_contract.json
+  valid_prose_audit_sidecar.json
+  20260815_demo-explainer.md    complete passing runtime bundle
+
 schemas/
+  ta06_prose_handoff.schema.json
+  prose_reader_contract.schema.json
+  prose_audit_sidecar.schema.json
   registry.schema.json
   rule_catalog.schema.json
   rule.schema.json
@@ -95,35 +139,45 @@ schemas/
   batch_results.schema.json
   sample.schema.json
   card_storyboard.schema.json
+
 scripts/
-  validate_registry.py        dependency-free fail-closed registry validator
-  validate_explainer_output.py
-                              delivery-shell and internal-citation leak validator
+  validate_registry.py          fail-closed induction-registry validator
+  validate_explainer_output.py  delivery-shell/internal-reference validator
+  validate_prose_runtime.py     TA06 handoff + reader + semantic sidecar validator
+
+templates/
+  science_explainer.md          copyable reader-facing shell
+
 tests/
   test_registry.py
   test_explainer_output.py
+  test_prose_runtime.py
+
 .github/workflows/
-  validate.yml                Python-version matrix validation
+  validate.yml                  Python 3.11 / 3.13 validation matrix
 ```
 
 ## Design principles
 
 1. Preserve provenance before interpretation.
-2. Separate observed behaviour from proposed rules.
-3. Separate evidence facts, author interpretation, explainer inference, gaps, and clinical positioning.
-4. Record counterexamples and contamination; do not learn every polished sentence as a preferred rule.
-5. Promote a rule only after independent support and held-out reconstruction.
-6. Make limitations change the permitted conclusion instead of leaving them as a decorative final paragraph.
-7. Treat reader-safe comprehension as the primary quality gate. Provenance records, schemas and validators support that judgment; they do not replace it.
-8. Audit companion cards in two layers: source content truth before upload, then substantive render fidelity after upload. Meaning-preserving paraphrase, abbreviation, restructuring and explanatory labels are editorial freedom.
+2. Keep scientific truth authority separate from prose authority.
+3. Separate observed behaviour from proposed rules.
+4. Separate evidence facts, author interpretation, explainer inference, gaps, and clinical positioning.
+5. Record counterexamples and contamination; do not learn every polished sentence as a preferred rule.
+6. Promote an induction rule only after independent support and held-out reconstruction.
+7. Make limitations change the permitted conclusion instead of becoming a decorative disclaimer.
+8. Treat reader-safe comprehension as the primary quality gate.
 9. Name the exact outcome domain and denominator before translating a number into prose.
-10. Keep the processing method (`R###`) and article voice/register (`V###`) as separate induction layers.
-11. Apply a JSON or rendering lock as a failure gate only when it protects a substantive interest—factual accuracy, evidence strength, attribution, applicability, causal boundaries, data-bearing geometry or source traceability—and the violation can materially change reader understanding. Pure engineering conformance is not evidence of explainer quality.
-12. Keep the internal source-audit chain separate from reader-facing citations. Internal PDF filenames, Library/file IDs, `filecite`, sandbox/container paths, queue receipts and line-level verification markers may support audit work but must not leak into the delivered explainer. Reader citations must use public bibliographic identity and stable public identifiers when available.
+10. Keep processing method (`R###`) and article voice/register (`V###`) as separate induction layers.
+11. In the live lane, preserve meaning before improving readability; precision wins on conflict.
+12. Never invent missing action information for the sake of usability.
+13. Keep internal audit artefacts separate from reader-facing citations.
+14. Apply machine locks as science gates only when they protect a substantive interest and violation can materially change reader understanding.
+15. Repair the smallest failed sentence or paragraph instead of automatically rewriting a good article wholesale.
 
 ## Reader-facing delivery format
 
-The formal packaging contract is [docs/science_explainer_output_format.md](docs/science_explainer_output_format.md). New delivery artifacts use the canonical filename `YYYYMMDD_<slug>.md` and the fixed reader shell:
+The formal packaging contract is [docs/science_explainer_output_format.md](docs/science_explainer_output_format.md). New reader-facing artifacts use `YYYYMMDD_<slug>.md` and:
 
 ```text
 # title
@@ -134,41 +188,45 @@ The formal packaging contract is [docs/science_explainer_output_format.md](docs/
 > 最後更新：YYYYMMDD
 ```
 
-The three H2 sections are structural. Narrative detail inside `## 內容` remains evidence-driven and may use optional H3 subsections. Historical `data/samples/S###/article.md` files are immutable observations and are not retroactively rewritten to satisfy this new delivery contract.
+Narrative detail inside `## 內容` remains evidence-driven and may use optional H3 subsections. Historical `data/samples/S###/article.md` files are immutable observations and are not retroactively rewritten.
 
-The delivery validator deliberately rejects inaccessible internal references such as `filecite`, `turnNfileM`, `file_...`, sandbox/container paths, and bare local PDF filenames. A source PDF remains the authority for internal content verification; its workspace filename is not a reader citation.
+Reader-facing output must not expose `filecite`, `turnNfileM`, Library/file IDs, sandbox/container paths, local PDF filenames, handoff digests, claim IDs, or other internal verification machinery.
 
 ## Validation
 
-The registry validator uses only the Python standard library. From the repository root:
+Run the full repository suite:
 
 ```bash
 python -m unittest discover -s tests -v
-python scripts/validate_registry.py
 python scripts/validate_registry.py --json
 ```
 
-To validate a new reader-facing delivery artifact:
+Validate a reader-facing shell:
 
 ```bash
-python scripts/validate_explainer_output.py 20260813_example-topic.md
-python scripts/validate_explainer_output.py --json 20260813_example-topic.md
+python scripts/validate_explainer_output.py 20260815_example-topic.md
 ```
 
-To validate a copied or unpacked repository from elsewhere:
+Validate a complete TA06-backed prose bundle:
 
 ```bash
-python scripts/validate_registry.py --root /path/to/EvidenceProse
+python scripts/validate_prose_runtime.py \
+  --handoff path/to/ta06_prose_handoff.json \
+  --reader-contract path/to/prose_reader_contract.json \
+  --audit-sidecar path/to/prose_audit_sidecar.json \
+  --article 20260815_example-topic.md
 ```
 
-Registry validation is fail-closed across the whole registry. It checks immutable article digests, registered-versus-present samples, rule evidence links and dates, source and artifact receipts, queue binding, storyboard summaries, batch mirrors, contamination-note ledgers, ordered indexes, and schema-document integrity. Pull requests and pushes to `main` run the same checks in GitHub Actions. A green validation run proves structural consistency only; it does not prove that a reader received the correct evidence weight, limitations, applicability or causal boundary.
+A passing runtime validator proves that the bundle is correctly bound, its permission projection is consistent, all required semantic judgments are present and in a releasable state, repairs are verified, reader-outcome axes do not fail, and the article satisfies the delivery shell.
 
-The explainer-output validator likewise certifies packaging only: canonical filename, section order, evidence-grade label, update footnote, and absence of known internal citation tokens. It does not certify scientific truth.
+It does **not** prove scientific equivalence by string matching. The semantic auditor must actually compare the draft with the TA06 handoff and record the judgment in the sidecar.
 
-## Adding a reviewed sample
+## Adding a reviewed induction sample
 
-Treat an article, its interpretation record, its rule receipts, and its batch summary as one atomic change. The exact ID allocation, digest, queue-audit and promotion checklist is in [CONTRIBUTING.md](CONTRIBUTING.md).
+Treat an article, its interpretation record, rule receipts and batch summary as one atomic change. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Scope boundary
 
-EvidenceProse does not currently generate publication-ready articles. The first stage accumulates enough independent examples to distinguish invariant writing logic from topic-specific choices and accidental errors. The delivery-shell contract defines how a future generated or manually curated reader artifact must be packaged; defining that shell does not make the current induction rules production-ready.
+EvidenceProse now supports a deliverable TA06-backed prose runtime for already-audited evidence packages. That runtime does not claim that the induction catalogue has reached saturation, and it does not make non-stable `R###` or `V###` rules production authority.
+
+Source discovery and scientific re-audit remain upstream responsibilities in the live lane. When scientific truth changes, return to TA06; when only reader-facing expression changes, keep the same truth boundary and rerun the prose semantic audit.

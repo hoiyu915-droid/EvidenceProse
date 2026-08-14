@@ -1,0 +1,165 @@
+{
+  "contract_name": "EP_TA06_PROSE_RUNTIME",
+  "contract_version": "1.0.0",
+  "status": "canonical",
+  "scope": "TA06-backed Traditional-Chinese science-explainer production lane",
+  "standards_note": "Local reader-outcome and plain-language implementation. This is not an ISO 24495 conformity, certification, or compliance claim.",
+  "authority_model": {
+    "scientific_truth_authority": "TA06 ta06_audit_packet projected through ta06_prose_handoff",
+    "reader_target_authority": "prose_reader_contract",
+    "writer_authority": [
+      "reader-facing title",
+      "narrative order",
+      "paragraphing and optional H3 headings",
+      "meaning-preserving paraphrase",
+      "explicitly non-empirical analogy",
+      "transitions",
+      "plain-language explanation inside the evidence boundary"
+    ],
+    "writer_forbidden_authority": [
+      "new empirical facts",
+      "new evidence-bearing numbers",
+      "new sources or quotations",
+      "new mechanisms presented as evidence",
+      "stronger causal claims",
+      "new clinical or practical recommendations",
+      "new thresholds or prescriptions",
+      "broader populations, settings, timeframes, or comparators"
+    ],
+    "rv_rule_status": "R### processing rules and V### register rules remain induction evidence. Until stable, they may inform drafting but cannot override TA06 truth, the reader contract, or this runtime gate."
+  },
+  "routes": {
+    "live_ta06_lane": {
+      "entry": "valid ta06_prose_handoff",
+      "source_rediscovery": "forbidden_by_default",
+      "fallback": "If the handoff is missing, blocked, internally inconsistent, or superseded by new source material, return to TA06. EvidenceProse does not silently repair scientific truth."
+    },
+    "induction_lane": {
+      "entry": "Library/PDF source binding under docs/induction_protocol.md",
+      "purpose": "observation, rule induction, contamination detection, held-out reconstruction"
+    }
+  },
+  "reader_contract_required_fields": [
+    "audience",
+    "purpose",
+    "reader_question",
+    "intended_takeaway",
+    "forbidden_takeaway",
+    "central_claim",
+    "evidence_weight",
+    "limitations",
+    "applicability",
+    "misuse_boundaries"
+  ],
+  "semantic_preservation": {
+    "preserve": [
+      "facts",
+      "numbers",
+      "units",
+      "denominators",
+      "comparators",
+      "conditions",
+      "population",
+      "setting",
+      "timeframe",
+      "uncertainty",
+      "causal_strength",
+      "evidence_role",
+      "attribution",
+      "source_layer"
+    ],
+    "no_add_without_ta06_support": [
+      "facts",
+      "numbers",
+      "dates",
+      "actors",
+      "organisations",
+      "mechanisms",
+      "causal_explanations",
+      "recommendations",
+      "thresholds",
+      "deadlines",
+      "sources",
+      "quotations"
+    ],
+    "forbidden_promotions": [
+      "association_to_causation",
+      "possibility_to_certainty",
+      "subgroup_to_whole_population",
+      "pooled_estimate_to_subgroup_estimate",
+      "proxy_to_clinical_outcome",
+      "observational_plateau_to_intervention_threshold",
+      "exploratory_subgroup_to_treatment_ranking",
+      "short_term_attrition_to_long_term_adherence",
+      "study_duration_band_to_optimal_prescription",
+      "analogy_to_mechanism",
+      "practical_meaning_to_recommendation",
+      "headline_stronger_than_body"
+    ],
+    "precision_precedence": "When readability and scientific precision conflict, scientific precision wins."
+  },
+  "reader_outcome_audit": {
+    "axes": [
+      "relevant",
+      "findable",
+      "understandable",
+      "usable"
+    ],
+    "states": [
+      "pass",
+      "warning",
+      "fail"
+    ],
+    "execution": "Audit the completed draft. These axes are not four mandatory full-document rewrite passes.",
+    "usable_boundary": "Usability may clarify already-supported implications or actions. Missing actor, deadline, destination, threshold, prescription, or next step is recorded in missing_action_info and must not be invented."
+  },
+  "zh_hant_lint": {
+    "warning_only": true,
+    "checks": [
+      "long_sentence",
+      "long_paragraph",
+      "de_chain",
+      "vague_pronoun",
+      "unnecessary_code_switching",
+      "passive_voice",
+      "hedge_stack",
+      "jargon_density"
+    ],
+    "fixed_thresholds_are_standards_requirements": false,
+    "may_reduce_precision": false
+  },
+  "repair_policy": {
+    "hard_failure": "Target the smallest sentence or paragraph that repairs the failed semantic invariant.",
+    "global_rewrite": "Not required unless the user explicitly requests it or local repair cannot restore a coherent article.",
+    "warning_lint": "May be left unresolved when repair would reduce precision or distort register."
+  },
+  "release_gate": {
+    "hard_semantic_checks": [
+      "no_loss",
+      "no_add",
+      "numeric_fidelity",
+      "denominator_fidelity",
+      "comparator_fidelity",
+      "timeframe_fidelity",
+      "population_scope_fidelity",
+      "causal_strength_fidelity",
+      "uncertainty_fidelity",
+      "evidence_role_fidelity",
+      "attribution_fidelity",
+      "source_layer_fidelity",
+      "required_qualifiers_present",
+      "forbidden_overclaims_absent",
+      "headline_not_stronger_than_body",
+      "analogy_not_presented_as_mechanism",
+      "practical_meaning_not_upgraded_to_recommendation"
+    ],
+    "pass_rule": "All hard semantic checks must pass and no reader-outcome axis may be fail.",
+    "lint_warnings_block_delivery": false
+  },
+  "delivery": {
+    "reader_shell": "EP-SCIENCE-EXPLAINER-OUTPUT v0.1",
+    "public_copy": "Markdown reader artifact only",
+    "internal_sidecar": "EP_PROSE_AUDIT_SIDECAR v1.0",
+    "sidecar_visibility": "hidden_by_default"
+  }
+}

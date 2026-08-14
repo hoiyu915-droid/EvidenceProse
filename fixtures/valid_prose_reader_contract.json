@@ -1,0 +1,17 @@
+{
+  "contract_version": "1.0",
+  "article_id": "demo-explainer",
+  "handoff_digest": "de01a4047d6208a0a9a81307f1b56ab794ccbec5d077872b9bb446f5ec17a03a",
+  "audience": "一般非專業讀者",
+  "purpose": "理解這份研究能說到哪裡",
+  "reader_question": "這個結果代表什麼，又不能代表什麼？",
+  "intended_takeaway": "研究提供短期有利方向，但不足以確立長期優勢或最佳門檻。",
+  "forbidden_takeaway": "研究已證明最佳治療門檻或長期臨床優勢。",
+  "central_claim": "短期結果有利，但結論受證據邊界限制。",
+  "evidence_weight": "中等；有直接結果，但樣本與追蹤限制仍重要。",
+  "limitations": "樣本與追蹤時間限制可外推程度。",
+  "applicability": "只適用於研究所涵蓋的成年族群與設定。",
+  "misuse_boundaries": "不能升級成最佳處方、門檻或長期優勢。",
+  "resolution_source": "explicit_user",
+  "local_default_is_user_fact": false
+}

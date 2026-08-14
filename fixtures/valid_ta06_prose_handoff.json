@@ -1,0 +1,119 @@
+{
+  "contract_version": "1.0",
+  "handoff_id": "EPH-DEMO-001",
+  "producer": "TA06",
+  "consumer": "EvidenceProse",
+  "ta06_packet": {
+    "audit_id": "TA06-DEMO-001",
+    "packet_version": "1.0",
+    "packet_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "status": "pass",
+    "execution_profile": "full",
+    "source_count": 1
+  },
+  "reader_context": {
+    "audience": "一般非專業讀者",
+    "purpose": "理解研究支持的結論、限制與不能推出的實務含義",
+    "resolution_source": "explicit_user"
+  },
+  "claims": [
+    {
+      "claim_id": "CLM001",
+      "claim_text": "介入組在主要結果上出現有利方向。",
+      "label": "CORE",
+      "permission": "allowed",
+      "condition_if_any": null,
+      "source_ids": ["SRC001"],
+      "source_locators": ["Results, p. 6"],
+      "support_state": "supported",
+      "boundary_note": "不得寫成已證實的長期臨床優勢。"
+    },
+    {
+      "claim_id": "CLM002",
+      "claim_text": "一個可能機制可作為解釋性推測。",
+      "label": "INFERENCE",
+      "permission": "conditional",
+      "condition_if_any": "必須明示為推測，不得寫成研究已證實的機制。",
+      "source_ids": ["SRC001"],
+      "source_locators": ["Discussion, p. 9"],
+      "support_state": "plausible_unverified",
+      "boundary_note": "只可作推測。"
+    },
+    {
+      "claim_id": "CLM003",
+      "claim_text": "研究已證明最佳治療門檻。",
+      "label": "GAP",
+      "permission": "forbidden",
+      "condition_if_any": null,
+      "source_ids": ["SRC001"],
+      "source_locators": [],
+      "support_state": "unsupported",
+      "boundary_note": "沒有直接門檻證據。"
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "E001",
+      "claim_id": "CLM001",
+      "source_id": "SRC001",
+      "source_locator": "Results, p. 6",
+      "design": "randomized controlled trial",
+      "population": "成年參與者",
+      "effect_direction": "favourable",
+      "value": "7",
+      "sign": null,
+      "unit": "studies",
+      "surface": "7 項研究",
+      "uncertainty": "仍受樣本與追蹤時間限制",
+      "evidence_role": "direct_result"
+    },
+    {
+      "evidence_id": "E002",
+      "claim_id": "CLM002",
+      "source_id": "SRC001",
+      "source_locator": "Discussion, p. 9",
+      "design": "author interpretation",
+      "population": "同研究族群",
+      "effect_direction": null,
+      "value": null,
+      "sign": null,
+      "unit": null,
+      "surface": null,
+      "uncertainty": "mechanistic inference",
+      "evidence_role": "author_interpretation"
+    }
+  ],
+  "citations": [
+    {
+      "citation_id": "CIT001",
+      "source_ids": ["SRC001"],
+      "public_reference": "Example Author et al. 2026. Example study. Example Journal. doi:10.1000/example",
+      "verification_state": "externally_verified"
+    }
+  ],
+  "terminology": {
+    "preferred_terms": ["有利方向", "可能"],
+    "forbidden_aliases": ["證明最佳"],
+    "required_qualifiers": ["短期", "可能"]
+  },
+  "numeric_ledger": [
+    {
+      "ledger_id": "N001",
+      "claim_id": "CLM001",
+      "source_id": "SRC001",
+      "source_locator": "Results, p. 6",
+      "value": "7",
+      "sign": null,
+      "unit": "studies",
+      "surface": "7 項研究",
+      "transformation_state": "direct"
+    }
+  ],
+  "permission": {
+    "document_permission": "conditional",
+    "released_claim_ids": ["CLM001", "CLM002"],
+    "blocked_claim_ids": ["CLM003"],
+    "forbidden_overclaims": ["最佳治療門檻已被證實", "已證實長期臨床優勢"],
+    "required_qualifiers": ["短期", "可能"]
+  }
+}
