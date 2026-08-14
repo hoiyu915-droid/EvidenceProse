@@ -28,7 +28,7 @@ If the TA06 handoff is missing, blocked, internally inconsistent, or superseded 
 
 ## Input authority
 
-`schemas/ta06_prose_handoff.schema.json` defines the transport boundary. The handoff is a projection, not a second audit. It carries only the material needed for prose:
+`schemas/runtime/ta06_prose_handoff.schema.json` defines the transport boundary. The handoff is a projection, not a second audit. It carries only the material needed for prose:
 
 - TA06 audit identity, packet version and digest;
 - reader context already known upstream;
@@ -43,7 +43,7 @@ The full TA06 packet remains the scientific authority. The handoff digest and so
 
 ## Standalone reader contract
 
-Before drafting, create a `prose_reader_contract` using `schemas/prose_reader_contract.schema.json`.
+Before drafting, create a `prose_reader_contract` using `schemas/runtime/prose_reader_contract.schema.json`.
 
 Required fields are:
 
@@ -115,7 +115,7 @@ When readability and precision conflict, precision wins.
 
 ## Draft audit
 
-The semantic auditor reads the completed draft against the TA06 handoff and the reader contract and writes `EP_PROSE_AUDIT_SIDECAR v1.0`.
+The semantic auditor reads the completed draft against the TA06 handoff and the reader contract and writes `EP_PROSE_AUDIT_SIDECAR v1.0`. Its schema is `schemas/runtime/prose_audit_sidecar.schema.json`.
 
 The sidecar has two tracks.
 
