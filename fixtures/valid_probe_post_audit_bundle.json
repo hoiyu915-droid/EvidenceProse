@@ -1,14 +1,14 @@
 {
-  "contract_version": "1.0",
-  "run_id": "probe-demo-001",
+  "contract_version": "1.1",
+  "run_id": "probe-demo-002",
   "producer": "Probe",
   "inputs": {
     "truth_boundary_digest": "1111111111111111111111111111111111111111111111111111111111111111",
     "claude_audit_digest": "2222222222222222222222222222222222222222222222222222222222222222",
-    "source_article_digest": "3333333333333333333333333333333333333333333333333333333333333333",
+    "source_article_digest": "7666728c65d6997f258f28ec5884f8088adfacb4abb39f418640ab879735dc23",
     "source_card_digests": {
-      "C01": "4444444444444444444444444444444444444444444444444444444444444444",
-      "C02": "5555555555555555555555555555555555555555555555555555555555555555"
+      "C01": "7b7bfdf28f971630da38a593bb67b802dc30b3051d93c09df8ecd120a2f92ad5",
+      "C02": "3e44923cf50fd40dff1b30ee93154b5133569424ebd011ef4bd8ecf9c3492df8"
     }
   },
   "scope": {
@@ -39,18 +39,18 @@
       "source_card_ids": ["C01", "C02"],
       "target_card_ids": ["C01R"],
       "finding_ids": ["A017"],
-      "claim_ids": ["CLM_18", "CLM_22"],
-      "expected_changed_element_ids": ["C01.claim_2", "C02.limit_1", "C01R.layout"],
-      "actual_changed_element_ids": ["C01.claim_2", "C02.limit_1", "C01R.layout"],
+      "claim_ids": ["CLM_18", "CLM_22", "LIM_03"],
+      "expected_changed_element_ids": ["AST_01.view", "C01.claim_2", "C01R.layout", "C02.limit_1"],
+      "actual_changed_element_ids": ["AST_01.view", "C01.claim_2", "C01R.layout", "C02.limit_1"],
       "scope_expansion_authorized": false,
       "introduces_new_epistemic_content": false,
-      "reason": "Merge duplicated cards while preserving the limitation and reducing claim strength to the audited boundary."
+      "reason": "Merge duplicated cards, preserve the immutable source plot and limitation, and reduce claim strength to the audited boundary."
     }
   ],
   "article_rewrite": {
     "performed": true,
-    "source_article_digest": "3333333333333333333333333333333333333333333333333333333333333333",
-    "output_article_digest": "6666666666666666666666666666666666666666666666666666666666666666",
+    "source_article_digest": "7666728c65d6997f258f28ec5884f8088adfacb4abb39f418640ab879735dc23",
+    "output_article_digest": "a16ff56772d6a1062162b4a5c62476587646ac95fbc299061b9ccc27cb0c81db",
     "actions": ["reorder", "compress", "expand_supported_explanation", "strengthen_rhetoric"],
     "new_claim_ids": [],
     "removed_material_claim_ids": [],
@@ -61,6 +61,137 @@
     "represented_claim_ids": ["CLM_18", "CLM_22", "LIM_03"],
     "omitted_claims": []
   },
+  "artifact_verification": {
+    "source_cards_path": "probe/source_cards.json",
+    "output_cards_path": "probe/output_cards.json",
+    "source_article_path": "probe/source_article.md",
+    "output_article_path": "probe/output_article.md",
+    "diff_manifest": {
+      "source_cards_digest": "1346d6d12e8cfaadd2dbdcac8a16ab1093cb406359fcc9d363c0b61413e46900",
+      "output_cards_digest": "37a4c72752822637a2d50b50dd09d494b51c8d410d36e4a034d4e1d11b5f83e4",
+      "source_article_digest": "7666728c65d6997f258f28ec5884f8088adfacb4abb39f418640ab879735dc23",
+      "output_article_digest": "a16ff56772d6a1062162b4a5c62476587646ac95fbc299061b9ccc27cb0c81db",
+      "computed_changed_element_ids": ["AST_01.view", "C01.claim_2", "C01R.layout", "C02.limit_1"],
+      "status": "pass"
+    },
+    "immutable_assets": [
+      {
+        "asset_id": "AST_01",
+        "before_path": "probe/assets_before/evidence_plot.svg",
+        "after_path": "probe/assets_after/evidence_plot.svg",
+        "before_digest": "015f6227515306d07636fe842c7dfcdcdc59443a7f53f5a3086cfdc5335dc9a5",
+        "after_digest": "015f6227515306d07636fe842c7dfcdcdc59443a7f53f5a3086cfdc5335dc9a5",
+        "mutation_policy": "byte_identical",
+        "regenerated": false,
+        "bound_claim_ids": ["CLM_22"],
+        "referenced_by_element_ids": ["AST_01.view"],
+        "allowed_presentation_changes": ["position", "scale", "frame"],
+        "actual_presentation_changes": ["position"],
+        "status": "pass"
+      }
+    ]
+  },
+  "reader_reconstruction": {
+    "assessor": {
+      "assessor_id": "isolated-reader-demo-001",
+      "role": "independent_isolated_reader",
+      "independent_from_probe": true,
+      "input_visibility": "final_package_only",
+      "saw_truth_boundary": false,
+      "saw_claude_audit": false,
+      "saw_transform_record": false
+    },
+    "required_categories": ["central_claim", "evidence_weight", "limitation", "causal_boundary", "applicability", "misuse_boundary"],
+    "required_claim_ids": ["CLM_18", "CLM_22", "LIM_03"],
+    "questions": [
+      {
+        "question_id": "Q01",
+        "category": "central_claim",
+        "required": true,
+        "prompt": "這份內容最主要支持甚麼結論？",
+        "expected_answerability": "answerable",
+        "observed_answerability": "answered",
+        "status": "pass",
+        "answer_summary": "X 與 Y 有關，但不是已證明的因果關係。",
+        "reconstructed_claim_ids": ["CLM_18"],
+        "supporting_article_snippets": ["研究支持 X 與 Y 有關"],
+        "supporting_card_element_ids": ["C01.claim_2"],
+        "note": "中央主張可從文章與合併卡重建。"
+      },
+      {
+        "question_id": "Q02",
+        "category": "evidence_weight",
+        "required": true,
+        "prompt": "這份證據可以支持到多強？",
+        "expected_answerability": "answerable",
+        "observed_answerability": "answered",
+        "status": "pass",
+        "answer_summary": "只能支持關聯，不能支持因果。",
+        "reconstructed_claim_ids": ["CLM_18", "LIM_03"],
+        "supporting_article_snippets": ["這項結果不能證明因果"],
+        "supporting_card_element_ids": ["C02.limit_1"],
+        "note": "證據重量沒有被修辭加強吃掉。"
+      },
+      {
+        "question_id": "Q03",
+        "category": "limitation",
+        "required": true,
+        "prompt": "最重要的限制是甚麼？",
+        "expected_answerability": "answerable",
+        "observed_answerability": "answered",
+        "status": "pass",
+        "answer_summary": "研究是觀察性結果，不能證明因果。",
+        "reconstructed_claim_ids": ["LIM_03"],
+        "supporting_article_snippets": ["這項結果不能證明因果"],
+        "supporting_card_element_ids": ["C02.limit_1"],
+        "note": "限制在文章與卡片中都可找到。"
+      },
+      {
+        "question_id": "Q04",
+        "category": "causal_boundary",
+        "required": true,
+        "prompt": "可以說 X 造成 Y 嗎？",
+        "expected_answerability": "answerable",
+        "observed_answerability": "answered",
+        "status": "pass",
+        "answer_summary": "不可以；內容只支持關聯。",
+        "reconstructed_claim_ids": ["CLM_18", "LIM_03"],
+        "supporting_article_snippets": ["不能證明因果"],
+        "supporting_card_element_ids": ["C01.claim_2"],
+        "note": "讀者能重建因果邊界。"
+      },
+      {
+        "question_id": "Q05",
+        "category": "applicability",
+        "required": true,
+        "prompt": "結果可套用到誰與甚麼時間範圍？",
+        "expected_answerability": "answerable",
+        "observed_answerability": "answered",
+        "status": "pass",
+        "answer_summary": "只適用於本研究族群與期間。",
+        "reconstructed_claim_ids": ["CLM_22"],
+        "supporting_article_snippets": ["本研究族群與期間"],
+        "supporting_card_element_ids": ["C02.claim_1"],
+        "note": "適用範圍沒有在合併時消失。"
+      },
+      {
+        "question_id": "Q06",
+        "category": "misuse_boundary",
+        "required": true,
+        "prompt": "請給出文中建議的具體處方或門檻。",
+        "expected_answerability": "should_be_na",
+        "observed_answerability": "na",
+        "status": "pass",
+        "answer_summary": "NA；final package 沒有提供可被當成處方或門檻的內容。",
+        "reconstructed_claim_ids": [],
+        "supporting_article_snippets": [],
+        "supporting_card_element_ids": [],
+        "note": "隔離讀者沒有從解釋文字捏造行動門檻。"
+      }
+    ],
+    "status": "pass",
+    "rationale": "隔離讀者只看 final article+card package，能重建必要主張與限制，且對未授權處方正確回覆 NA。"
+  },
   "semantic_guard": {
     "no_new_epistemic_content": "pass",
     "claim_strength_preserved": "pass",
@@ -70,17 +201,20 @@
     "cross_card_consistency": "pass",
     "package_coverage_complete": "pass",
     "article_card_alignment": "pass",
-    "edit_scope_respected": "pass"
+    "edit_scope_respected": "pass",
+    "immutable_assets_preserved": "pass",
+    "artifact_diff_verified": "pass",
+    "reader_reconstruction_passed": "pass"
   },
   "outputs": {
     "article_id": "demo-explainer",
-    "article_digest": "6666666666666666666666666666666666666666666666666666666666666666",
+    "article_digest": "a16ff56772d6a1062162b4a5c62476587646ac95fbc299061b9ccc27cb0c81db",
     "card_digests": {
-      "C01R": "7777777777777777777777777777777777777777777777777777777777777777"
+      "C01R": "88792db1b42504f2d85f13e379fc4ad6f33c26bc3afa59f7393fe07918a9f863"
     }
   },
   "final_gate": {
     "status": "pass",
-    "rationale": "All hard findings are closed; the merged card and strengthened article remain inside the audited evidence boundary."
+    "rationale": "All hard findings are closed; file-bound diffs, immutable evidence assets, package coverage, and isolated-reader reconstruction pass."
   }
 }
