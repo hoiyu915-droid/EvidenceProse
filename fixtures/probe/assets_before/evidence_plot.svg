@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="180" viewBox="0 0 320 180">
+  <rect x="1" y="1" width="318" height="178" fill="white" stroke="black"/>
+  <polyline points="30,140 100,110 170,115 250,70" fill="none" stroke="black" stroke-width="4"/>
+  <text x="24" y="165" font-size="14">audited source plot</text>
+</svg>
