@@ -1,0 +1,53 @@
+{
+  "cards": [
+    {
+      "card_id": "C01R",
+      "elements": [
+        {
+          "element_id": "C01.claim_1",
+          "kind": "text",
+          "claim_ids": ["CLM_18"],
+          "text": "研究觀察到 X 與 Y 有關。",
+          "slot": "lead"
+        },
+        {
+          "element_id": "C01.claim_2",
+          "kind": "text",
+          "claim_ids": ["CLM_18"],
+          "text": "研究支持 X 與 Y 有關，不能直接說 X 造成 Y。",
+          "slot": "body"
+        },
+        {
+          "element_id": "AST_01.view",
+          "kind": "evidence_asset",
+          "asset_id": "AST_01",
+          "claim_ids": ["CLM_22"],
+          "slot": "right",
+          "presentation": {
+            "scale": "100%",
+            "frame": "full"
+          }
+        },
+        {
+          "element_id": "C02.limit_1",
+          "kind": "text",
+          "claim_ids": ["LIM_03"],
+          "text": "這是觀察性結果，不能證明因果。",
+          "slot": "callout"
+        },
+        {
+          "element_id": "C02.claim_1",
+          "kind": "text",
+          "claim_ids": ["CLM_22"],
+          "text": "結果只適用於研究族群與期間。",
+          "slot": "body"
+        },
+        {
+          "element_id": "C01R.layout",
+          "kind": "layout",
+          "layout": "two_column"
+        }
+      ]
+    }
+  ]
+}

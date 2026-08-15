@@ -1,0 +1,76 @@
+{
+  "contract_name": "EP_PROBE_POST_AUDIT_TRANSFORM",
+  "contract_version": "1.1.0",
+  "status": "canonical",
+  "supersedes": "1.0.0",
+  "scope": "Post-audit synthesis, card merge/repair, prose strengthening, artifact-integrity verification, and isolated-reader reconstruction after TA06/TP production and Claude semantic audit",
+  "role": "evidence-preserving transformer with independently gated outputs",
+  "authority_model": {
+    "scientific_truth_authority": "TA06/TP producer artifacts plus the Claude audit finding set; Probe may not create new scientific truth",
+    "probe_may": [
+      "keep",
+      "patch",
+      "merge",
+      "recompose",
+      "regenerate only when narrower repair cannot restore coherence",
+      "reorder prose",
+      "compress repetition",
+      "expand supported explanation",
+      "simplify wording",
+      "strengthen rhetoric without strengthening epistemic force",
+      "add supported connective explanation",
+      "retitle within the audited claim boundary",
+      "move, scale, or frame an immutable evidence asset without changing its bytes"
+    ],
+    "probe_may_not": [
+      "invent empirical claims",
+      "invent evidence-bearing numbers",
+      "strengthen causal or certainty language beyond audit authority",
+      "drop material qualifiers or limitations without an explicit disposition",
+      "silently widen population, setting, comparator, timeframe, or recommendation scope",
+      "regenerate or mutate immutable evidence assets",
+      "declare its own reader reconstruction successful without an isolated-reader record",
+      "treat its own rewrite as self-validating"
+    ]
+  },
+  "transform_order": [
+    "KEEP",
+    "PATCH",
+    "MERGE",
+    "RECOMPOSE",
+    "REGENERATE"
+  ],
+  "principles": {
+    "audit_driven": "Every substantive repair binds to an audit finding, claim hook, or explicit package-coverage requirement.",
+    "semantic_budget": "Rhetoric may change freely inside the audited evidence boundary; epistemic strength may not increase without upstream authority.",
+    "package_coverage": "The final article+card package accounts for material claims and limitations in the required coverage set.",
+    "computed_diff": "The validator reads before/after card JSON, computes stable-element changes, and requires exact equality with the operation change manifest.",
+    "immutable_evidence_assets": "Source plots, tables, and other declared evidence assets retain byte-identical content; only declared presentation changes are allowed.",
+    "isolated_reader_reconstruction": "A separate reader sees only the final article and cards, reconstructs required claims and limits from visible support, and must return NA for content the package is not authorized to provide.",
+    "independent_gate": "Probe emits a transform record; release is derived from file bindings, declared guards, reader results, and deterministic consistency checks."
+  },
+  "reader_reconstruction_minimum_categories": [
+    "central_claim",
+    "limitation",
+    "causal_boundary",
+    "applicability",
+    "misuse_boundary"
+  ],
+  "hard_guards": [
+    "no_new_epistemic_content",
+    "claim_strength_preserved",
+    "numeric_fidelity",
+    "required_qualifiers_preserved",
+    "forbidden_overclaims_absent",
+    "cross_card_consistency",
+    "package_coverage_complete",
+    "article_card_alignment",
+    "edit_scope_respected",
+    "immutable_assets_preserved",
+    "artifact_diff_verified",
+    "reader_reconstruction_passed"
+  ],
+  "release_rule": "PASS only when every hard guard passes, every hard Claude finding is resolved, package coverage is complete, article rewriting adds no claim or strength, computed artifact diffs equal declared operation diffs, immutable assets remain byte-identical, and isolated-reader reconstruction passes.",
+  "compatibility": "The validator continues to accept v1.0 bundles. New production bundles use v1.1 and the v1.1 schema.",
+  "non_goal": "This contract does not move source discovery, primary scientific audit, or producer-time rendering logic into Probe or TA/TP."
+}

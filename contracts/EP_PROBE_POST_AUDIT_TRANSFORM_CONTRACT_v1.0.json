@@ -1,7 +1,8 @@
 {
   "contract_name": "EP_PROBE_POST_AUDIT_TRANSFORM",
   "contract_version": "1.0.0",
-  "status": "canonical",
+  "status": "superseded",
+  "superseded_by": "1.1.0",
   "scope": "Post-audit synthesis, card merge/repair, and prose strengthening after TA06/TP production and Claude semantic audit",
   "role": "evidence-preserving transformer",
   "authority_model": {
@@ -29,7 +30,13 @@
       "treat its own rewrite as self-validating"
     ]
   },
-  "transform_order": ["KEEP", "PATCH", "MERGE", "RECOMPOSE", "REGENERATE"],
+  "transform_order": [
+    "KEEP",
+    "PATCH",
+    "MERGE",
+    "RECOMPOSE",
+    "REGENERATE"
+  ],
   "principles": {
     "audit_driven": "Every substantive repair must bind to an audit finding, claim hook, or explicit package-coverage requirement.",
     "semantic_budget": "Rhetoric may change freely inside the audited evidence boundary; epistemic strength may not increase without upstream authority.",
