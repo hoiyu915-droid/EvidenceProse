@@ -40,3 +40,7 @@ jobs:
             --reader-contract fixtures/valid_prose_reader_contract.json \
             --audit-sidecar fixtures/valid_prose_audit_sidecar.json \
             --article fixtures/20260815_demo-explainer.md
+      - name: Validate canonical Probe post-audit transform fixture
+        run: |
+          python scripts/validate_probe_post_audit.py \
+            fixtures/valid_probe_post_audit_bundle.json --json
