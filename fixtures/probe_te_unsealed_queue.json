@@ -1,0 +1,114 @@
+{
+  "artifact_type": "portable_imagegen_queue",
+  "schema_version": "1.3",
+  "plan_id": "DEMO",
+  "workflow_state": "content_truth_edit_unsealed",
+  "generation_authorized": false,
+  "REMARK": {
+    "remark_version": "1.1-direct-dispatch",
+    "audience": "GPT_WORK",
+    "read_first": true,
+    "instruction_zh_hant": [
+      "尚未 reseal；不得直接送圖。",
+      "執行前一次性 recompile/reseal。"
+    ],
+    "direct_execution": {}
+  },
+  "preparation_attestation": {
+    "contract_version": "1.2-direct-dispatch",
+    "status": "STALE_AFTER_CONTENT_EDIT",
+    "artifact_phase": "content_truth_edit_unsealed",
+    "dispatch_authorized": false,
+    "image_backend_calls_made": 0,
+    "plan_id": "DEMO",
+    "card_count": 2,
+    "card_ids": [
+      "C01",
+      "C02"
+    ]
+  },
+  "source_binding": {
+    "artifact_type": "embedded_preparation_attestation",
+    "artifact_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "projection": "demo"
+  },
+  "projection_contract": {
+    "version": "2.0-minimal-render-spec"
+  },
+  "portable_handoff": {
+    "cross_session_ready": "requires_reseal",
+    "instruction_zh_hant": "demo",
+    "tool_call_expression": "image_gen.imagegen(**items[n].imagegen_args)",
+    "copy_arguments_without_reconstruction": true,
+    "infer_prompt_from_conversation": false
+  },
+  "dispatch_contract": {
+    "dispatch": "sequential"
+  },
+  "asset_resolution_contract": {},
+  "card_count": 2,
+  "items": [
+    {
+      "sequence": 1,
+      "card_id": "C01",
+      "renderer_payload_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "prompt_projection_version": "2.0-minimal-render-spec",
+      "prompt_char_count": 1,
+      "imagegen_args_digest": "sha256:72c191d12ac18362d4191e12fd8b2a9a317ae2df1e1b8e4a7c676ef0380f7e9f",
+      "imagegen_args": {
+        "prompt": "BACKGROUND LOCK (IMMUTABLE, HIGHEST PRIORITY): demo.\nMODULE FILL LOCK (IMMUTABLE, HIGHEST PRIORITY): demo.\nTITLE/EVIDENCE LAYOUT LOCK (IMMUTABLE, HIGHEST PRIORITY): demo.\n\nMINIMAL_RENDER_SPEC_JSON:\n{\n  \"card\": {\n    \"title\": \"修訂後主張\",\n    \"visible_text\": [\n      \"修訂後主張\"\n    ]\n  },\n  \"card_id\": \"C01\",\n  \"projection_version\": \"2.0-minimal-render-spec\",\n  \"render_spec\": {\n    \"canvas\": {\n      \"exact_size\": \"1254x1254\"\n    }\n  }\n}"
+      }
+    },
+    {
+      "sequence": 2,
+      "card_id": "C02",
+      "renderer_payload_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+      "prompt_projection_version": "2.0-minimal-render-spec",
+      "prompt_char_count": 1,
+      "imagegen_args_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+      "imagegen_args": {
+        "prompt": "BACKGROUND LOCK (IMMUTABLE, HIGHEST PRIORITY): demo.\nMODULE FILL LOCK (IMMUTABLE, HIGHEST PRIORITY): demo.\nTITLE/EVIDENCE LAYOUT LOCK (IMMUTABLE, HIGHEST PRIORITY): demo.\n\nMINIMAL_RENDER_SPEC_JSON:\n{\n  \"card\": {\n    \"title\": \"保留限制\",\n    \"visible_text\": [\n      \"保留限制\"\n    ]\n  },\n  \"card_id\": \"C02\",\n  \"projection_version\": \"2.0-minimal-render-spec\",\n  \"render_spec\": {\n    \"canvas\": {\n      \"exact_size\": \"1254x1254\"\n    }\n  }\n}"
+      },
+      "series_reference_dependency": {
+        "contract_version": "1.1",
+        "mode": "verified_first_card_style_reference",
+        "source_card_id": "C01",
+        "source_imagegen_args_digest": "sha256:72c191d12ac18362d4191e12fd8b2a9a317ae2df1e1b8e4a7c676ef0380f7e9f",
+        "source_renderer_payload_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        "source_queue_item_identity_digest": "sha256:bb71bdb50381b3d85825979aa8bd8ee42b174480310a3ff869565f49eedf7f68",
+        "target_card_id": "C02",
+        "source_policy": "original_verified_first_card_only",
+        "style_lock_id": "C01_STYLE_LOCK_V1",
+        "reference_role": "style_only",
+        "reference_chain_allowed": false,
+        "required_source_audit_status": "PASS",
+        "allowed_runtime_argument": "referenced_image_paths",
+        "prompt_mutation_allowed": false,
+        "allowed_transfer": [
+          "medium_and_line_quality"
+        ],
+        "forbidden_transfer": [
+          "visible_text"
+        ],
+        "sealed_prompt_guard": "demo",
+        "dependency_digest": "sha256:c6250220323809e8ecdf6d692ea7fa186d33587112947130d780d6beec6de2b3"
+      }
+    }
+  ],
+  "artifact_execution_contract": {
+    "contract_version": "1.2-clean-direct-dispatch",
+    "authorization_model": "requires_reseal_after_content_edit",
+    "generation_authorized": false,
+    "load_transition_required": false,
+    "second_confirmation_required": false,
+    "dispatch_immediately": false
+  },
+  "queue_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+  "content_truth_merge": {
+    "status": "UNSEALED",
+    "source_files": [
+      "TP_demo.json"
+    ],
+    "integrity_note": "reseal/recompile once at execution stage."
+  }
+}
