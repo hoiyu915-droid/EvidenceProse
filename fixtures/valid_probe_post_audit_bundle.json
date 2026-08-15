@@ -12,8 +12,13 @@
     }
   },
   "scope": {
-    "source_card_ids": ["C01", "C02"],
-    "target_card_ids": ["C01R"],
+    "source_card_ids": [
+      "C01",
+      "C02"
+    ],
+    "target_card_ids": [
+      "C01R"
+    ],
     "article_id": "demo-explainer"
   },
   "audit_findings": [
@@ -22,7 +27,9 @@
       "severity": "hard",
       "status": "resolved",
       "reason": "C01 causal wording was reduced to the audited association strength.",
-      "operation_ids": ["OP01"]
+      "operation_ids": [
+        "OP01"
+      ]
     },
     {
       "finding_id": "A021",
@@ -36,12 +43,33 @@
     {
       "operation_id": "OP01",
       "kind": "MERGE",
-      "source_card_ids": ["C01", "C02"],
-      "target_card_ids": ["C01R"],
-      "finding_ids": ["A017"],
-      "claim_ids": ["CLM_18", "CLM_22", "LIM_03"],
-      "expected_changed_element_ids": ["AST_01.view", "C01.claim_2", "C01R.layout", "C02.limit_1"],
-      "actual_changed_element_ids": ["AST_01.view", "C01.claim_2", "C01R.layout", "C02.limit_1"],
+      "source_card_ids": [
+        "C01",
+        "C02"
+      ],
+      "target_card_ids": [
+        "C01R"
+      ],
+      "finding_ids": [
+        "A017"
+      ],
+      "claim_ids": [
+        "CLM_18",
+        "CLM_22",
+        "LIM_03"
+      ],
+      "expected_changed_element_ids": [
+        "AST_01.view",
+        "C01.claim_2",
+        "C01R.layout",
+        "C02.limit_1"
+      ],
+      "actual_changed_element_ids": [
+        "AST_01.view",
+        "C01.claim_2",
+        "C01R.layout",
+        "C02.limit_1"
+      ],
       "scope_expansion_authorized": false,
       "introduces_new_epistemic_content": false,
       "reason": "Merge duplicated cards, preserve the immutable source plot and limitation, and reduce claim strength to the audited boundary."
@@ -51,14 +79,27 @@
     "performed": true,
     "source_article_digest": "7666728c65d6997f258f28ec5884f8088adfacb4abb39f418640ab879735dc23",
     "output_article_digest": "a16ff56772d6a1062162b4a5c62476587646ac95fbc299061b9ccc27cb0c81db",
-    "actions": ["reorder", "compress", "expand_supported_explanation", "strengthen_rhetoric"],
+    "actions": [
+      "reorder",
+      "compress",
+      "expand_supported_explanation",
+      "strengthen_rhetoric"
+    ],
     "new_claim_ids": [],
     "removed_material_claim_ids": [],
     "claim_strength_changed": false
   },
   "coverage": {
-    "required_claim_ids": ["CLM_18", "CLM_22", "LIM_03"],
-    "represented_claim_ids": ["CLM_18", "CLM_22", "LIM_03"],
+    "required_claim_ids": [
+      "CLM_18",
+      "CLM_22",
+      "LIM_03"
+    ],
+    "represented_claim_ids": [
+      "CLM_18",
+      "CLM_22",
+      "LIM_03"
+    ],
     "omitted_claims": []
   },
   "artifact_verification": {
@@ -67,11 +108,16 @@
     "source_article_path": "probe/source_article.md",
     "output_article_path": "probe/output_article.md",
     "diff_manifest": {
-      "source_cards_digest": "1346d6d12e8cfaadd2dbdcac8a16ab1093cb406359fcc9d363c0b61413e46900",
-      "output_cards_digest": "37a4c72752822637a2d50b50dd09d494b51c8d410d36e4a034d4e1d11b5f83e4",
+      "source_cards_digest": "8215fb2839f7ccd157297203e0185dbdcc1f4ba555b1ac81cf33c00a659f35b9",
+      "output_cards_digest": "35e88f917a8149461e994d540dea6d3e6542b2c054d703944e1075d926c7c2a8",
       "source_article_digest": "7666728c65d6997f258f28ec5884f8088adfacb4abb39f418640ab879735dc23",
       "output_article_digest": "a16ff56772d6a1062162b4a5c62476587646ac95fbc299061b9ccc27cb0c81db",
-      "computed_changed_element_ids": ["AST_01.view", "C01.claim_2", "C01R.layout", "C02.limit_1"],
+      "computed_changed_element_ids": [
+        "AST_01.view",
+        "C01.claim_2",
+        "C01R.layout",
+        "C02.limit_1"
+      ],
       "status": "pass"
     },
     "immutable_assets": [
@@ -83,10 +129,20 @@
         "after_digest": "015f6227515306d07636fe842c7dfcdcdc59443a7f53f5a3086cfdc5335dc9a5",
         "mutation_policy": "byte_identical",
         "regenerated": false,
-        "bound_claim_ids": ["CLM_22"],
-        "referenced_by_element_ids": ["AST_01.view"],
-        "allowed_presentation_changes": ["position", "scale", "frame"],
-        "actual_presentation_changes": ["position"],
+        "bound_claim_ids": [
+          "CLM_22"
+        ],
+        "referenced_by_element_ids": [
+          "AST_01.view"
+        ],
+        "allowed_presentation_changes": [
+          "position",
+          "scale",
+          "frame"
+        ],
+        "actual_presentation_changes": [
+          "position"
+        ],
         "status": "pass"
       }
     ]
@@ -101,8 +157,19 @@
       "saw_claude_audit": false,
       "saw_transform_record": false
     },
-    "required_categories": ["central_claim", "evidence_weight", "limitation", "causal_boundary", "applicability", "misuse_boundary"],
-    "required_claim_ids": ["CLM_18", "CLM_22", "LIM_03"],
+    "required_categories": [
+      "central_claim",
+      "evidence_weight",
+      "limitation",
+      "causal_boundary",
+      "applicability",
+      "misuse_boundary"
+    ],
+    "required_claim_ids": [
+      "CLM_18",
+      "CLM_22",
+      "LIM_03"
+    ],
     "questions": [
       {
         "question_id": "Q01",
@@ -113,9 +180,15 @@
         "observed_answerability": "answered",
         "status": "pass",
         "answer_summary": "X 與 Y 有關，但不是已證明的因果關係。",
-        "reconstructed_claim_ids": ["CLM_18"],
-        "supporting_article_snippets": ["研究支持 X 與 Y 有關"],
-        "supporting_card_element_ids": ["C01.claim_2"],
+        "reconstructed_claim_ids": [
+          "CLM_18"
+        ],
+        "supporting_article_snippets": [
+          "研究支持 X 與 Y 有關"
+        ],
+        "supporting_card_element_ids": [
+          "C01.claim_2"
+        ],
         "note": "中央主張可從文章與合併卡重建。"
       },
       {
@@ -127,9 +200,16 @@
         "observed_answerability": "answered",
         "status": "pass",
         "answer_summary": "只能支持關聯，不能支持因果。",
-        "reconstructed_claim_ids": ["CLM_18", "LIM_03"],
-        "supporting_article_snippets": ["這項結果不能證明因果"],
-        "supporting_card_element_ids": ["C02.limit_1"],
+        "reconstructed_claim_ids": [
+          "CLM_18",
+          "LIM_03"
+        ],
+        "supporting_article_snippets": [
+          "這項結果不能證明因果"
+        ],
+        "supporting_card_element_ids": [
+          "C02.limit_1"
+        ],
         "note": "證據重量沒有被修辭加強吃掉。"
       },
       {
@@ -141,9 +221,15 @@
         "observed_answerability": "answered",
         "status": "pass",
         "answer_summary": "研究是觀察性結果，不能證明因果。",
-        "reconstructed_claim_ids": ["LIM_03"],
-        "supporting_article_snippets": ["這項結果不能證明因果"],
-        "supporting_card_element_ids": ["C02.limit_1"],
+        "reconstructed_claim_ids": [
+          "LIM_03"
+        ],
+        "supporting_article_snippets": [
+          "這項結果不能證明因果"
+        ],
+        "supporting_card_element_ids": [
+          "C02.limit_1"
+        ],
         "note": "限制在文章與卡片中都可找到。"
       },
       {
@@ -155,9 +241,16 @@
         "observed_answerability": "answered",
         "status": "pass",
         "answer_summary": "不可以；內容只支持關聯。",
-        "reconstructed_claim_ids": ["CLM_18", "LIM_03"],
-        "supporting_article_snippets": ["不能證明因果"],
-        "supporting_card_element_ids": ["C01.claim_2"],
+        "reconstructed_claim_ids": [
+          "CLM_18",
+          "LIM_03"
+        ],
+        "supporting_article_snippets": [
+          "不能證明因果"
+        ],
+        "supporting_card_element_ids": [
+          "C01.claim_2"
+        ],
         "note": "讀者能重建因果邊界。"
       },
       {
@@ -169,9 +262,15 @@
         "observed_answerability": "answered",
         "status": "pass",
         "answer_summary": "只適用於本研究族群與期間。",
-        "reconstructed_claim_ids": ["CLM_22"],
-        "supporting_article_snippets": ["本研究族群與期間"],
-        "supporting_card_element_ids": ["C02.claim_1"],
+        "reconstructed_claim_ids": [
+          "CLM_22"
+        ],
+        "supporting_article_snippets": [
+          "本研究族群與期間"
+        ],
+        "supporting_card_element_ids": [
+          "C02.claim_1"
+        ],
         "note": "適用範圍沒有在合併時消失。"
       },
       {
