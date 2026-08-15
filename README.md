@@ -2,10 +2,11 @@
 
 [![Validate](https://github.com/hoiyu915-droid/EvidenceProse/actions/workflows/validate.yml/badge.svg)](https://github.com/hoiyu915-droid/EvidenceProse/actions/workflows/validate.yml)
 
-EvidenceProse is an evidence-to-prose system for calibrated Traditional Chinese science explainers. It has two deliberately separate lanes:
+EvidenceProse is an evidence-to-prose system for calibrated Traditional Chinese science explainers. It has two deliberately separate evidence lanes and one post-audit transform stage:
 
 - an **induction lane** that learns repeatable writing logic from reviewed examples without treating any polished article as a universal template;
-- a **TA06-backed live prose lane** that accepts already-audited scientific truth, locks the reader target, drafts prose, audits semantic fidelity and reader outcomes, and emits the reader-facing delivery shell.
+- a **TA06-backed live prose lane** that accepts already-audited scientific truth, locks the reader target, drafts prose, audits semantic fidelity and reader outcomes, and emits the reader-facing delivery shell;
+- a **Probe post-audit stage** that may merge or repair card JSON and strengthen the audited prose, then verifies real before/after diffs, immutable evidence assets, package coverage, and isolated-reader reconstruction.
 
 The highest success criterion is reader understanding: after reading, a non-specialist should be able to tell what the evidence supports, how much confidence it deserves, whom and which settings it applies to, and what causal or practical conclusion it cannot justify.
 
@@ -19,10 +20,11 @@ The highest success criterion is reader understanding: after reading, a non-spec
 - Audited companion cards: 36 (36/36 content-truth passes; 28/36 substantive render-fidelity passes)
 - Stable induction generation rules: 0
 - Live runtime contract: `EP_TA06_PROSE_RUNTIME v1.0`
+- Probe transform contract: `EP_PROBE_POST_AUDIT_TRANSFORM v1.1`
 - Delivery-shell contract: `EP-SCIENCE-EXPLAINER-OUTPUT v0.1`
 - Primary output language: Traditional Chinese
 
-`R###` and `V###` rules are still induction evidence. None is production-authoritative merely because the live lane exists. The live lane is governed instead by TA06 scientific truth, the standalone reader contract, semantic preservation/no-add invariants, reader-outcome auditing, and the delivery shell.
+`R###` and `V###` rules are still induction evidence. None is production-authoritative merely because the live lane exists. The live lane is governed by TA06 scientific truth, the standalone reader contract, semantic preservation/no-add invariants, reader-outcome auditing, and the delivery shell. Probe is governed separately by the Claude audit, the same truth boundary, file-bound transform verification, and the isolated-reader gate.
 
 ## Live TA06-backed prose lane
 
@@ -38,6 +40,13 @@ TA06 ta06_audit_packet
        - headline / analogy / recommendation overclaim checks
        - relevant / findable / understandable / usable
        - zh-Hant warning-only lint
+  -> optional card package + Claude audit findings
+  -> Probe EP_PROBE_POST_AUDIT_TRANSFORM v1.1
+       - card merge / repair and prose strengthening
+       - computed before/after element diff
+       - immutable evidence-asset hashing
+       - package-level coverage
+       - isolated-reader EvidenceQuiz
   -> EP-SCIENCE-EXPLAINER-OUTPUT v0.1
   -> runtime + delivery validation
 ```
@@ -79,6 +88,20 @@ The completed draft is audited once on `relevant`, `findable`, `understandable`,
 
 Traditional-Chinese lint for long sentences/paragraphs, `的` chains, vague pronouns, unnecessary code switching, passive voice, hedge stacks, and jargon density is warning-only. It cannot override scientific precision.
 
+## Probe post-audit transform
+
+Probe receives producer card JSON, Claude audit findings, and the audited prose. It may keep, patch, merge, recompose, or—when narrower repair cannot restore coherence—regenerate a card. It may reorder, compress, simplify, expand supported explanation, add supported bridges, strengthen rhetoric, and retitle the prose.
+
+It may not create new scientific authority. In particular, Probe cannot add empirical claims or evidence-bearing numbers, strengthen causal or certainty language, erase material qualifiers, widen population or recommendation scope, mutate evidence assets, or certify its own reader outcome.
+
+Version 1.1 adds three executable gates:
+
+1. **computed transform diff** — the validator reads source and output card JSON, computes changes by stable `element_id`, and requires exact equality with the operation manifest;
+2. **immutable evidence assets** — declared source plots, tables, and evidence images remain byte-identical; only recorded position, scale, or frame changes are allowed;
+3. **isolated-reader EvidenceQuiz** — a reader that sees only the final article and cards must reconstruct all represented required claims and limits, while returning `NA` for unsupported prescriptions, mechanisms, thresholds, or other forbidden content.
+
+The specification is [docs/probe_post_audit_transform.md](docs/probe_post_audit_transform.md). The canonical contract is [contracts/EP_PROBE_POST_AUDIT_TRANSFORM_CONTRACT_v1.1.json](contracts/EP_PROBE_POST_AUDIT_TRANSFORM_CONTRACT_v1.1.json). Version 1.0 remains validator-compatible but is superseded for new bundles.
+
 ## Induction lane
 
 The induction lane remains data-first:
@@ -104,34 +127,46 @@ A polished article is an observation sample, not a template to copy. The full pr
 ```text
 contracts/
   EP_TA06_PROSE_RUNTIME_CONTRACT_v1.0.json
-                                canonical live prose runtime contract
+  EP_PROBE_POST_AUDIT_TRANSFORM_CONTRACT_v1.0.json
+  EP_PROBE_POST_AUDIT_TRANSFORM_CONTRACT_v1.1.json
 
 data/
-  registry.json                 canonical induction paths and ID indexes
-  rules/rules.json              processing-method catalogue (`R###`)
-  voice/voice_rules.json        article-register catalogue (`V###`)
-  batch_results.json            cumulative batch index
-  samples/S###/                 immutable observed prose samples and audits
+  registry.json
+  rules/rules.json
+  voice/voice_rules.json
+  batch_results.json
+  samples/S###/
 
 docs/
-  audit_standard.md             source/card science-communication audit standard
-  induction_protocol.md         repeated-example induction protocol
+  audit_standard.md
+  induction_protocol.md
+  probe_post_audit_transform.md
   science_explainer_output_format.md
-                                reader-facing delivery shell
-  ta06_prose_runtime.md         TA06-backed production prose lane
-  terminology.md                evidence, rule-state and audit vocabulary
+  ta06_prose_runtime.md
+  terminology.md
 
 fixtures/
   valid_ta06_prose_handoff.json
   valid_prose_reader_contract.json
   valid_prose_audit_sidecar.json
-  20260815_demo-explainer.md    complete passing runtime bundle
+  20260815_demo-explainer.md
+  valid_probe_post_audit_bundle.json
+  legacy_valid_probe_post_audit_bundle_v1.0.json
+  probe/
+    source_cards.json
+    output_cards.json
+    source_article.md
+    output_article.md
+    assets_before/
+    assets_after/
 
 schemas/
   runtime/
     ta06_prose_handoff.schema.json
     prose_reader_contract.schema.json
     prose_audit_sidecar.schema.json
+    probe_post_audit_bundle.schema.json
+    probe_post_audit_bundle_v1.0.schema.json
   registry.schema.json
   rule_catalog.schema.json
   rule.schema.json
@@ -142,20 +177,26 @@ schemas/
   card_storyboard.schema.json
 
 scripts/
-  validate_registry.py          fail-closed induction-registry validator
-  validate_explainer_output.py  delivery-shell/internal-reference validator
-  validate_prose_runtime.py     TA06 handoff + reader + semantic sidecar validator
+  validate_registry.py
+  validate_explainer_output.py
+  validate_prose_runtime.py
+  validate_probe_post_audit.py
+  probe_post_audit_common.py
+  probe_post_audit_core.py
+  probe_post_audit_artifacts.py
+  probe_post_audit_quiz.py
 
 templates/
-  science_explainer.md          copyable reader-facing shell
+  science_explainer.md
 
 tests/
   test_registry.py
   test_explainer_output.py
   test_prose_runtime.py
+  test_probe_post_audit.py
 
 .github/workflows/
-  validate.yml                  Python 3.11 / 3.13 validation matrix
+  validate.yml
 ```
 
 ## Design principles
@@ -174,7 +215,10 @@ tests/
 12. Never invent missing action information for the sake of usability.
 13. Keep internal audit artefacts separate from reader-facing citations.
 14. Apply machine locks as science gates only when they protect a substantive interest and violation can materially change reader understanding.
-15. Repair the smallest failed sentence or paragraph instead of automatically rewriting a good article wholesale.
+15. Repair the smallest failed sentence or paragraph before attempting a wholesale rewrite.
+16. Compute post-transform changes from artifacts instead of trusting a self-reported diff.
+17. Keep evidence-bearing assets immutable; permit layout changes around them, not regeneration of them.
+18. Test the final package through an isolated reader, including correct `NA` responses for unsupported content.
 
 ## Reader-facing delivery format
 
@@ -218,9 +262,16 @@ python scripts/validate_prose_runtime.py \
   --article 20260815_example-topic.md
 ```
 
-A passing runtime validator proves that the bundle is correctly bound, its permission projection is consistent, all required semantic judgments are present and in a releasable state, repairs are verified, reader-outcome axes do not fail, and the article satisfies the delivery shell.
+Validate a Probe v1.1 transform bundle and its bound artifacts:
 
-It does **not** prove scientific equivalence by string matching. The semantic auditor must actually compare the draft with the TA06 handoff and record the judgment in the sidecar.
+```bash
+python scripts/validate_probe_post_audit.py \
+  fixtures/valid_probe_post_audit_bundle.json --json
+```
+
+A passing prose-runtime validator proves that the bundle is correctly bound, its permission projection is consistent, all required semantic judgments are present and releasable, repairs are verified, reader-outcome axes do not fail, and the article satisfies the delivery shell. It does not prove scientific equivalence by string matching.
+
+A passing Probe validator additionally proves that declared source/output files match their digests, computed element changes match the operation manifest, immutable assets remain byte-identical, package coverage is complete, and the isolated-reader record reconstructs the required final-package evidence structure. It does not replace Claude's semantic audit.
 
 ## Adding a reviewed induction sample
 
@@ -228,6 +279,6 @@ Treat an article, its interpretation record, rule receipts and batch summary as 
 
 ## Scope boundary
 
-EvidenceProse now supports a deliverable TA06-backed prose runtime for already-audited evidence packages. That runtime does not claim that the induction catalogue has reached saturation, and it does not make non-stable `R###` or `V###` rules production authority.
+EvidenceProse supports a deliverable TA06-backed prose runtime for already-audited evidence packages and a bounded Probe post-audit transform stage. Neither lane claims that the induction catalogue has reached saturation, and neither makes non-stable `R###` or `V###` rules production authority.
 
-Source discovery and scientific re-audit remain upstream responsibilities in the live lane. When scientific truth changes, return to TA06; when only reader-facing expression changes, keep the same truth boundary and rerun the prose semantic audit.
+Source discovery and scientific re-audit remain upstream responsibilities. When scientific truth changes, return to TA06; when only reader-facing expression or package composition changes, keep the same truth boundary and rerun the prose and Probe gates.
