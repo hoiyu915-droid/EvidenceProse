@@ -47,14 +47,27 @@ def _validate_artifacts(
         errors.append("artifact_verification.diff_manifest must be an object")
         manifest = {}
         artifact_error = True
-    expected_file_digests = {
-        "source_cards_path": "source_cards_digest",
-        "output_cards_path": "output_cards_digest",
-        "source_article_path": "source_article_digest",
-        "output_article_path": "output_article_digest",
-    }
     actual_file_digests: dict[str, str] = {}
-    for path_key, manifest_key in expected_file_digests.items():
+    card_artifacts = (
+        ("source_cards_path", "source_cards_digest", source_cards_value),
+        ("output_cards_path", "output_cards_digest", output_cards_value),
+    )
+    for path_key, manifest_key, value in card_artifacts:
+        if paths[path_key] is None or not isinstance(value, dict):
+            artifact_error = True
+            continue
+        digest = _digest_json(value)
+        actual_file_digests[path_key] = digest
+        if manifest.get(manifest_key) != digest:
+            artifact_error = True
+            errors.append(
+                f"artifact_verification.diff_manifest.{manifest_key} "
+                "does not match canonical card JSON"
+            )
+    for path_key, manifest_key in (
+        ("source_article_path", "source_article_digest"),
+        ("output_article_path", "output_article_digest"),
+    ):
         path = paths[path_key]
         if path is None:
             artifact_error = True
@@ -63,7 +76,10 @@ def _validate_artifacts(
         actual_file_digests[path_key] = digest
         if manifest.get(manifest_key) != digest:
             artifact_error = True
-            errors.append(f"artifact_verification.diff_manifest.{manifest_key} does not match file bytes")
+            errors.append(
+                f"artifact_verification.diff_manifest.{manifest_key} "
+                "does not match article bytes"
+            )
     if actual_file_digests.get("source_article_path") != state["inputs"].get("source_article_digest"):
         artifact_error = True
         errors.append("inputs.source_article_digest does not match source article file")
