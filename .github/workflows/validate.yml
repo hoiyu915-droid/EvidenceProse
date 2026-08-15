@@ -44,3 +44,7 @@ jobs:
         run: |
           python scripts/validate_probe_post_audit.py \
             fixtures/valid_probe_post_audit_bundle.json --json
+      - name: Validate Probe TE auto-reseal delivery fixture
+        run: |
+          python scripts/finalize_probe_te_queue.py \
+            fixtures/probe_te_unsealed_queue.json --check

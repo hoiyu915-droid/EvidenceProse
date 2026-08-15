@@ -1,0 +1,65 @@
+{
+  "contract_name": "EP_PROBE_TE_DELIVERY",
+  "contract_version": "1.0.0",
+  "status": "canonical",
+  "scope": "Final EvidenceProse/Probe delivery after post-audit card/prose transformation",
+  "purpose": "Prevent post-audit intermediate queues from escaping as user-facing artifacts and make the final card JSON directly executable without a second user repair step.",
+  "output_namespace": {
+    "json_filename_prefix": "TE_",
+    "meaning": "EvidenceProse TextEdit final JSON",
+    "does_not_rename_upstream_producer_artifacts": true
+  },
+  "delivery_order": [
+    "science_explainer_textedit",
+    "te_json_attachment"
+  ],
+  "intermediate_state_policy": {
+    "content_truth_edit_unsealed_is_internal_only": true,
+    "stale_after_content_edit_is_recoverable": true,
+    "auto_reseal_before_delivery": true,
+    "user_confirmation_required_for_reseal": false,
+    "user_visible_unsealed_json_allowed": false
+  },
+  "reseal_invariants": [
+    "preserve final card prompt bytes",
+    "recompute prompt_char_count",
+    "recompute imagegen_args_digest",
+    "bind a new post-audit renderer projection digest to the final MINIMAL_RENDER_SPEC_JSON and upstream renderer digest",
+    "rebind C02..CN series-reference dependencies to the resealed C01 identity",
+    "recompute dependency digests",
+    "set preparation_attestation to PASS/probe_resealed/dispatch_authorized=true",
+    "recompute preparation-attestation source binding",
+    "restore direct cross-session handoff and preauthorized dispatch",
+    "recompute queue_digest",
+    "retain content-truth merge provenance while changing its status to SEALED"
+  ],
+  "final_direct_state": {
+    "workflow_state": "generate_authorized",
+    "generation_authorized": true,
+    "preparation_attestation_status": "PASS",
+    "preparation_attestation_artifact_phase": "probe_resealed",
+    "dispatch_authorized": true,
+    "portable_handoff_cross_session_ready": "direct",
+    "authorization_model": "preauthorized_at_compile",
+    "dispatch_immediately": true
+  },
+  "hard_fail_only_when": [
+    "queue is not portable_imagegen_queue schema 1.3",
+    "items are missing or malformed",
+    "current-card prompt is empty or exceeds the 18000-character transport budget",
+    "MINIMAL_RENDER_SPEC_JSON is missing, malformed, or bound to the wrong card_id",
+    "a dependent card lacks its series_reference_dependency"
+  ],
+  "forbidden_final_tokens": [
+    "content_truth_edit_unsealed",
+    "STALE_AFTER_CONTENT_EDIT",
+    "requires_reseal",
+    "requires_reseal_after_content_edit"
+  ],
+  "presentation_contract": {
+    "article_surface": "textedit_box",
+    "json_surface": "attachment",
+    "json_placement": "immediately_after_article_textedit_box",
+    "status_or_explanation_between_article_and_json": false
+  }
+}
