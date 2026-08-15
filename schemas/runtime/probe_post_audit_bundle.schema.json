@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://evidenceprose.local/schemas/probe_post_audit_bundle.schema.json",
+  "title": "EvidenceProse Probe post-audit transform bundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract_version", "run_id", "producer", "inputs", "scope", "audit_findings", "operations", "article_rewrite", "coverage", "semantic_guard", "outputs", "final_gate"],
+  "properties": {
+    "contract_version": {"const": "1.0"},
+    "run_id": {"type": "string", "minLength": 1},
+    "producer": {"const": "Probe"},
+    "inputs": {
+      "type": "object", "additionalProperties": false,
+      "required": ["truth_boundary_digest", "claude_audit_digest", "source_article_digest", "source_card_digests"],
+      "properties": {
+        "truth_boundary_digest": {"$ref": "#/$defs/sha256"},
+        "claude_audit_digest": {"$ref": "#/$defs/sha256"},
+        "source_article_digest": {"$ref": "#/$defs/sha256"},
+        "source_card_digests": {"type": "object", "minProperties": 1, "additionalProperties": {"$ref": "#/$defs/sha256"}}
+      }
+    },
+    "scope": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source_card_ids", "target_card_ids", "article_id"],
+      "properties": {
+        "source_card_ids": {"$ref": "#/$defs/nonemptyUniqueStrings"},
+        "target_card_ids": {"$ref": "#/$defs/nonemptyUniqueStrings"},
+        "article_id": {"type": "string", "minLength": 1}
+      }
+    },
+    "audit_findings": {"type": "array", "items": {"$ref": "#/$defs/finding"}},
+    "operations": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/operation"}},
+    "article_rewrite": {"$ref": "#/$defs/articleRewrite"},
+    "coverage": {"$ref": "#/$defs/coverage"},
+    "semantic_guard": {
+      "type": "object", "additionalProperties": false,
+      "required": ["no_new_epistemic_content", "claim_strength_preserved", "numeric_fidelity", "required_qualifiers_preserved", "forbidden_overclaims_absent", "cross_card_consistency", "package_coverage_complete", "article_card_alignment", "edit_scope_respected"],
+      "properties": {
+        "no_new_epistemic_content": {"$ref": "#/$defs/passFail"},
+        "claim_strength_preserved": {"$ref": "#/$defs/passFail"},
+        "numeric_fidelity": {"$ref": "#/$defs/passFail"},
+        "required_qualifiers_preserved": {"$ref": "#/$defs/passFail"},
+        "forbidden_overclaims_absent": {"$ref": "#/$defs/passFail"},
+        "cross_card_consistency": {"$ref": "#/$defs/passFail"},
+        "package_coverage_complete": {"$ref": "#/$defs/passFail"},
+        "article_card_alignment": {"$ref": "#/$defs/passFail"},
+        "edit_scope_respected": {"$ref": "#/$defs/passFail"}
+      }
+    },
+    "outputs": {
+      "type": "object", "additionalProperties": false,
+      "required": ["article_id", "article_digest", "card_digests"],
+      "properties": {
+        "article_id": {"type": "string", "minLength": 1},
+        "article_digest": {"$ref": "#/$defs/sha256"},
+        "card_digests": {"type": "object", "minProperties": 1, "additionalProperties": {"$ref": "#/$defs/sha256"}}
+      }
+    },
+    "final_gate": {
+      "type": "object", "additionalProperties": false,
+      "required": ["status", "rationale"],
+      "properties": {
+        "status": {"enum": ["pass", "fail"]},
+        "rationale": {"type": "string", "minLength": 1}
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "passFail": {"enum": ["pass", "fail"]},
+    "nonemptyUniqueStrings": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "finding": {
+      "type": "object", "additionalProperties": false,
+      "required": ["finding_id", "severity", "status", "reason", "operation_ids"],
+      "properties": {
+        "finding_id": {"type": "string", "minLength": 1},
+        "severity": {"enum": ["hard", "warning"]},
+        "status": {"enum": ["resolved", "accepted_warning"]},
+        "reason": {"type": "string", "minLength": 1},
+        "operation_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "operation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["operation_id", "kind", "source_card_ids", "target_card_ids", "finding_ids", "claim_ids", "expected_changed_element_ids", "actual_changed_element_ids", "scope_expansion_authorized", "introduces_new_epistemic_content", "reason"],
+      "properties": {
+        "operation_id": {"type": "string", "minLength": 1},
+        "kind": {"enum": ["KEEP", "PATCH", "MERGE", "RECOMPOSE", "REGENERATE"]},
+        "source_card_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "target_card_ids": {"$ref": "#/$defs/nonemptyUniqueStrings"},
+        "finding_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "claim_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "expected_changed_element_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "actual_changed_element_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "scope_expansion_authorized": {"type": "boolean"},
+        "introduces_new_epistemic_content": {"const": false},
+        "reason": {"type": "string", "minLength": 1}
+      }
+    },
+    "articleRewrite": {
+      "type": "object", "additionalProperties": false,
+      "required": ["performed", "source_article_digest", "output_article_digest", "actions", "new_claim_ids", "removed_material_claim_ids", "claim_strength_changed"],
+      "properties": {
+        "performed": {"type": "boolean"},
+        "source_article_digest": {"$ref": "#/$defs/sha256"},
+        "output_article_digest": {"$ref": "#/$defs/sha256"},
+        "actions": {"type": "array", "uniqueItems": true, "items": {"enum": ["reorder", "compress", "expand_supported_explanation", "simplify", "strengthen_rhetoric", "add_supported_bridge", "retitle"]}},
+        "new_claim_ids": {"type": "array", "maxItems": 0},
+        "removed_material_claim_ids": {"type": "array", "maxItems": 0},
+        "claim_strength_changed": {"const": false}
+      }
+    },
+    "coverage": {
+      "type": "object", "additionalProperties": false,
+      "required": ["required_claim_ids", "represented_claim_ids", "omitted_claims"],
+      "properties": {
+        "required_claim_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "represented_claim_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "omitted_claims": {
+          "type": "array", "items": {
+            "type": "object", "additionalProperties": false,
+            "required": ["claim_id", "disposition", "reason"],
+            "properties": {
+              "claim_id": {"type": "string", "minLength": 1},
+              "disposition": {"enum": ["out_of_scope", "blocked_upstream", "deferred"]},
+              "reason": {"type": "string", "minLength": 1}
+            }
+          }
+        }
+      }
+    }
+  }
+}
