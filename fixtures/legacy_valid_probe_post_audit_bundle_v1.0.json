@@ -1,0 +1,86 @@
+{
+  "contract_version": "1.0",
+  "run_id": "probe-demo-001",
+  "producer": "Probe",
+  "inputs": {
+    "truth_boundary_digest": "1111111111111111111111111111111111111111111111111111111111111111",
+    "claude_audit_digest": "2222222222222222222222222222222222222222222222222222222222222222",
+    "source_article_digest": "3333333333333333333333333333333333333333333333333333333333333333",
+    "source_card_digests": {
+      "C01": "4444444444444444444444444444444444444444444444444444444444444444",
+      "C02": "5555555555555555555555555555555555555555555555555555555555555555"
+    }
+  },
+  "scope": {
+    "source_card_ids": ["C01", "C02"],
+    "target_card_ids": ["C01R"],
+    "article_id": "demo-explainer"
+  },
+  "audit_findings": [
+    {
+      "finding_id": "A017",
+      "severity": "hard",
+      "status": "resolved",
+      "reason": "fixed",
+      "operation_ids": ["OP01"]
+    },
+    {
+      "finding_id": "A021",
+      "severity": "warning",
+      "status": "accepted_warning",
+      "reason": "accepted",
+      "operation_ids": []
+    }
+  ],
+  "operations": [
+    {
+      "operation_id": "OP01",
+      "kind": "MERGE",
+      "source_card_ids": ["C01", "C02"],
+      "target_card_ids": ["C01R"],
+      "finding_ids": ["A017"],
+      "claim_ids": ["CLM_18", "CLM_22"],
+      "expected_changed_element_ids": ["C01.claim_2", "C02.limit_1", "C01R.layout"],
+      "actual_changed_element_ids": ["C01.claim_2", "C02.limit_1", "C01R.layout"],
+      "scope_expansion_authorized": false,
+      "introduces_new_epistemic_content": false,
+      "reason": "merge"
+    }
+  ],
+  "article_rewrite": {
+    "performed": true,
+    "source_article_digest": "3333333333333333333333333333333333333333333333333333333333333333",
+    "output_article_digest": "6666666666666666666666666666666666666666666666666666666666666666",
+    "actions": ["reorder", "compress"],
+    "new_claim_ids": [],
+    "removed_material_claim_ids": [],
+    "claim_strength_changed": false
+  },
+  "coverage": {
+    "required_claim_ids": ["CLM_18", "CLM_22", "LIM_03"],
+    "represented_claim_ids": ["CLM_18", "CLM_22", "LIM_03"],
+    "omitted_claims": []
+  },
+  "semantic_guard": {
+    "no_new_epistemic_content": "pass",
+    "claim_strength_preserved": "pass",
+    "numeric_fidelity": "pass",
+    "required_qualifiers_preserved": "pass",
+    "forbidden_overclaims_absent": "pass",
+    "cross_card_consistency": "pass",
+    "package_coverage_complete": "pass",
+    "article_card_alignment": "pass",
+    "edit_scope_respected": "pass"
+  },
+  "outputs": {
+    "article_id": "demo-explainer",
+    "article_digest": "6666666666666666666666666666666666666666666666666666666666666666",
+    "card_digests": {
+      "C01R": "7777777777777777777777777777777777777777777777777777777777777777"
+    }
+  },
+  "final_gate": {
+    "status": "pass",
+    "rationale": "legacy compatibility fixture"
+  }
+}
