@@ -1,7 +1,8 @@
 {
   "contract_version": "1.0",
+  "method_revision": "1.1-topology-gated",
   "run_id": "rca-demo-001",
-  "created_at": "2026-08-18T21:00:00+09:00",
+  "created_at": "2026-08-18T22:50:00+09:00",
   "source_bindings": [
     {
       "source_id": "SRC001",
@@ -23,20 +24,99 @@
   "card_audits": [
     {
       "card_id": "C01",
+      "card_title": "示例：X 與 Y 的關聯",
       "image_path": "rendered_card_audit/C01.png",
       "image_sha256": "0367321eceb7336d6816079069732fc26d9679ee1b085d0dae125625ee0c8999",
       "blind_readback": {
         "frozen_before_comparison": true,
         "digest": "0577ad6fc33a1025fb105261cc592aad278bc66ca9231cac7768aca34f7db12e",
+        "visual_graph_digest": "f3b76a8a314844e6383641aa39b171d3f65dcbeaf2bdfdf56ec45dd04ecbc548",
         "legibility": "complete",
-        "central_message": "X 與 Y 有關，但圖卡沒有把關聯升級成因果。",
+        "central_message": "X 與 Y 有關，但沒有因果箭頭。",
         "apparent_evidence_strength": "association",
-        "apparent_causal_structure": "No causal path is implied.",
-        "limitations_as_read": [
-          "僅支持關聯"
-        ]
+        "apparent_causal_structure": "association only",
+        "limitations_as_read": ["僅支持關聯"]
       },
       "expected_semantic_packet_digest": "f684ea0624dc13372447e0cd1fe957d4627555faba4ae8580ec7fc92d8a0b78e",
+      "visual_semantic_reconciliation": {
+        "source_structure": {
+          "structure_required": true,
+          "source_kind": "body_text",
+          "source_locators": ["SRC001:results"],
+          "figure_or_table_directly_inspected": false,
+          "expected_graph_derived": true
+        },
+        "observed_graph": {
+          "nodes": [
+            {"node_id": "N1", "label": "X", "role": "exposure"},
+            {"node_id": "N2", "label": "Y", "role": "outcome"}
+          ],
+          "edges": [
+            {
+              "edge_id": "E1",
+              "from_node": "N1",
+              "to_node": "N2",
+              "relation_as_read": "association",
+              "visual_encoding": "dashed_arrow",
+              "condition_as_read": null,
+              "material": true
+            }
+          ]
+        },
+        "observed_graph_digest": "f3b76a8a314844e6383641aa39b171d3f65dcbeaf2bdfdf56ec45dd04ecbc548",
+        "expected_graph": {
+          "nodes": [
+            {"node_id": "N1", "label": "X"},
+            {"node_id": "N2", "label": "Y"}
+          ],
+          "relations": [
+            {
+              "relation_id": "R1",
+              "from_node": "N1",
+              "to_node": "N2",
+              "relation_type": "association",
+              "condition": null,
+              "material": true
+            }
+          ],
+          "branch_points": [],
+          "terminal_states": []
+        },
+        "expected_graph_digest": "71f47b87a9646d0a68a41e30b609add4886aa9d9999a39e709a506f3a4fbd652",
+        "edge_checks": [
+          {
+            "edge_id": "E1",
+            "status": "equivalent",
+            "expected_relation_id": "R1",
+            "material": true,
+            "finding_id": null,
+            "rationale": "Same association relation."
+          }
+        ],
+        "expected_relation_checks": [
+          {
+            "relation_id": "R1",
+            "status": "represented",
+            "observed_edge_ids": ["E1"],
+            "finding_id": null
+          }
+        ],
+        "branch_point_checks": [],
+        "terminal_state_checks": [],
+        "text_visual_consistency": {
+          "status": "pass",
+          "contradictions": [],
+          "finding_id": null
+        },
+        "topology_completion": {
+          "all_observed_material_edges_dispositioned": true,
+          "all_expected_material_relations_covered": true,
+          "all_material_branch_points_checked": true,
+          "all_material_terminal_states_checked": true,
+          "text_visual_consistency_checked": true,
+          "concept_presence_shortcut_not_used": true
+        }
+      },
       "axes": {
         "CONTENT_MEANING": "pass",
         "SOURCE_SURFACE": "pass",
@@ -56,15 +136,11 @@
     "status": "NOT_APPLICABLE",
     "scope": "cross_card_and_package_only",
     "cross_card_findings": [],
-    "package_coverage": {
-      "status": "NOT_APPLICABLE"
-    }
+    "package_coverage": {"status": "NOT_APPLICABLE"}
   },
   "methodological_risk": {
     "high_stakes_cardset": true,
-    "high_stakes_reasons": [
-      "causal_ceiling"
-    ],
+    "high_stakes_reasons": ["causal_ceiling"],
     "generator_model_family": "family-a",
     "auditor_model_family": "family-b",
     "relationship": "different_family",
@@ -74,7 +150,7 @@
     "secondary_review_status": "not_required",
     "secondary_review_outcome": "not_applicable",
     "release_effect": "none",
-    "materiality_reason": "Different model families in this structural fixture."
+    "materiality_reason": "Different model families in structural fixture."
   },
   "release_gate": {
     "status": "PASS",
@@ -92,6 +168,7 @@
     "release_allowed": true
   },
   "repair_tickets": [],
+  "human_repair_display": null,
   "provenance": {
     "auditor_role": "post_render_auditor",
     "mutated_upstream_artifacts": false,
@@ -100,9 +177,7 @@
       {
         "type": "CORRELATED_MODEL_ERROR",
         "status": "not_identified",
-        "material_to_run": false,
-        "derivation_source": "methodological_risk_policy",
-        "note": "Different-family audit lowers correlated-error risk; it does not prove mathematical independence."
+        "material_to_run": false
       }
     ]
   }
