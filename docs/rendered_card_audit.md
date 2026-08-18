@@ -1,134 +1,151 @@
 # Rendered Card Audit
 
-Contract: `EP_RENDERED_CARD_AUDIT v1.0`
+Contract: `EP_RENDERED_CARD_AUDIT v1.0`  
+Method revision: `1.1-topology-gated`
 
-Rendered Card Audit (RCA) is the read-only post-render lane for EvidenceProse companion cards. It answers one question that producer JSON cannot answer by itself: **what did the finished image actually tell the reader?**
+Rendered Card Audit (RCA) is the read-only post-render lane for EvidenceProse companion cards. Its question is not “did the renderer reproduce the requested words?” but **“what scientific model did the finished image make a reader see?”**
 
-RCA sits after image generation and before release. It does not modify TP03, reseal generation queues, edit images, or generate replacements.
+The v1.1 method revision closes a specific failure mode: a card may contain every correct term and even a correct explanatory sentence while its arrows, branch origin, grouping or terminal state communicate the opposite model. Such a card must fail.
+
+## Non-negotiable audit rule
+
+**Concept presence is not visual fidelity.** Seeing all expected nouns on the card is never sufficient. A material relation must be audited as a relation: source node, target node, direction, relation type, branch condition, branch parent, terminal/non-terminal behavior and path-level implication.
+
+If any one of those materially changes the reader’s causal/evidential model, `VISUAL_SEMANTICS = fail` even if all visible prose is correct.
+
+## Mandatory execution order
+
+The following sequence is normative. An auditor may add notes, but may not skip, merge away or reorder a gate in a way that hides its evidence.
+
+### RCA-00 — ingest, bind, deduplicate
+
+Bind every rendered asset to a stable `card_id`; compute/verify SHA-256; deduplicate byte-identical images. If card identity is ambiguous, stop that card as `BLOCK_UNVERIFIABLE` rather than guessing from topic similarity.
+
+### RCA-01 — bind and inspect literature
+
+Bind the primary source before adjudicating source structure. Search/bind using the existing EvidenceProse source policy. When a card reproduces or paraphrases a figure, table, taxonomy, ordered process or branch model, inspect **the figure/table itself plus caption and surrounding context**. Remembered body prose is not enough.
+
+### RCA-02 — build the expected semantic + structure packet
+
+Record the claim ceiling, evidence strength, limitations, applicability and forbidden takeaways. Separately extract source-defined terms, closed lists, categories, order, attribution and the **expected visual graph**.
+
+The expected graph must include, where material:
+
+- nodes and their epistemic roles;
+- allowed relations;
+- branch points and branch conditions;
+- terminal or deactivated states;
+- relations that are explicitly forbidden;
+- whether a path is causal, associative, conditional, moderating or only hypothetical.
+
+Do not manufacture a taxonomy or graph merely because related words appear near each other in the paper.
+
+### RCA-03 — blind render readback and freeze
+
+Before the expected packet is revealed, inspect only the rendered image. Extract:
+
+- all reader-visible material text/numbers/citations;
+- every material node;
+- every material edge with **from-node, to-node, direction, relation type, visual encoding and condition as read**;
+- every apparent branch point;
+- apparent terminal/non-terminal behavior;
+- grouping, hierarchy, sequence, size/scale, colour and uncertainty semantics;
+- the central message, apparent evidence strength and causal structure.
+
+Freeze this observed graph and bind it by canonical JSON SHA-256. The post-comparison record must use the same digest.
+
+### RCA-04 — topology reconciliation (mandatory edge-by-edge gate)
+
+After the expected packet is revealed, reconcile in this order:
+
+1. **Observed-edge closure:** every observed material edge receives exactly one disposition.
+2. **Expected-relation closure:** every expected material relation receives exactly one coverage result.
+3. **Source-node check:** did the arrow/line start from the scientifically correct parent?
+4. **Target-node check:** did it end at the correct target?
+5. **Direction check:** is direction reversible, one-way, bidirectional or unordered as supported?
+6. **Relation-type check:** causal vs association vs modifier vs sequence vs membership vs gap.
+7. **Condition check:** if the edge only applies under a condition, is that condition attached to the correct branch?
+8. **Branch-parent check:** do alternatives branch from the correct node, or has a later success/failure state been turned into the branch parent?
+9. **Terminal-state check:** if the source says a state terminates/deactivates a process, does the render improperly continue a material path from it?
+10. **Path-level implication:** can individually plausible edges combine into an unsupported causal chain/taxonomy?
+11. **Text–visual consistency:** does the image geometry contradict the card’s own explanatory text?
+
+Any material `wrong_source_node`, `wrong_target_node`, `wrong_direction`, `wrong_condition`, `wrong_relation_type`, `unsupported_relation`, material omission/distortion, failed branch check, failed terminal check, or text–visual contradiction makes `VISUAL_SEMANTICS = fail`. An unresolvable material relation makes it `unverifiable`.
+
+**Forbidden shortcut:** “the expected concepts are all present” is not a valid topology audit and must never be used to clear a card.
+
+### RCA-05 — content + source-surface reconciliation
+
+Only after the topology gate, check semantic-equivalence prose, numbers, evidence strength, causal ceiling, limitations, applicability, citation traceability, and source-defined terminology/list/cardinality/category/order/attribution. Wording may differ freely when meaning is preserved.
+
+### RCA-06 — per-card verdict
+
+- `PASS`: all substantive axes pass and mandatory topology closure is complete.
+- `PASS_WITH_WARNINGS`: only non-material deviations remain.
+- `FAIL_RENDER`: expected science/spec is sound, but the rendered image materially miscommunicates it.
+- `FAIL_SPEC`: render is faithful to a materially wrong upstream spec/truth/source binding.
+- `BLOCK_UNVERIFIABLE`: a material relation/source/identity cannot be checked without guessing.
+
+A text-correct / arrow-wrong card is `FAIL_RENDER`, not a warning.
+
+### RCA-07 — cross-card/package audit
+
+Check cross-card numbers/direction, evidence role, taxonomy, scope, limitations, citation/source layer and package coverage. `cardset_audit.status` is separate from per-card verdicts.
+
+### RCA-08 — repair ticket + human repair display
+
+Every `FAIL_RENDER` and `FAIL_SPEC` gets an executable repair ticket using the smallest sufficient operations: `REMOVE`, `REPLACE`, `RELABEL`, `REWIRE`, `RECOMPOSE`.
+
+Every failure also gets `human_repair_text`, regardless of whether the change is below 10%. The 10% weighted-semantic fraction only decides whether supported replacement material is mandatory; it does **not** decide whether the user gets an editable repair instruction.
+
+A structural trigger (for example a central visual graph rewire) is substantial even below 10%. Substantial repair must include source-supported replacement material when a reader-facing content hole would otherwise remain.
+
+## Writing-block projection — exact host format
+
+When one or more cards are `FAIL_RENDER` / `FAIL_SPEC`, the human repair instructions are shown in **exactly one ChatGPT writing block**. The first line is exactly:
 
 ```text
-audited truth / bound primary source
-        +
-final card specification
-        +
-rendered image
-        |
-        v
-RCA-00 ingest + SHA-256 dedup
-RCA-01 bind literature
-RCA-02 build expected semantic packet
-RCA-03 blind render readback  <-- freeze before expected semantics are shown
-RCA-04 semantic comparison
-RCA-05 per-card verdict
-RCA-06 cross-card/package audit
-RCA-07 release gate + repair tickets
+imgedit
 ```
 
-## Authority boundaries
-
-RCA keeps four authorities separate:
-
-1. `audited_truth_boundary` controls the scientific claim ceiling.
-2. the bound primary source controls source-defined terminology, lists, taxonomies, sequences and attribution;
-3. the final card JSON/queue records editorial intent but is not scientific authority;
-4. the rendered image is the authority for what a reader actually receives.
-
-If the image conflicts with a sound truth/spec packet, the verdict is `FAIL_RENDER`. If the image faithfully renders an upstream scientific or source-structure error, the verdict is `FAIL_SPEC` and `failure_origin` routes the repair to `FINAL_CARD_SPEC`, `TRUTH_BOUNDARY`, `SOURCE_BINDING`, or `MIXED`.
-
-## Text is semantic, not dictation
-
-RCA does not grade memorisation. Meaning-preserving paraphrase, translation, sentence splitting/merging, reordering, shortening, explanatory headings and harmless labels are allowed. `historical_text_comparison` may record `wording_divergence`, but wording divergence alone cannot fail a card.
-
-What must remain stable is the evidence model: claim identity, negation, direction, material magnitude, evidence strength, causal ceiling, uncertainty, population, setting, timeframe, comparator, material qualifiers, limitations, attribution, source layer, recommendation ceiling, source-defined set membership, source-defined order, and source-defined category membership.
-
-## Source-surface fidelity
-
-Image generators often hallucinate *structure* from individually plausible words. RCA therefore checks a source-sensitive ledger in addition to the central prose meaning.
-
-Protected classes are:
-
-- `CONTROLLED_TERM` — translation/paraphrase is allowed but concept identity cannot drift into a diagnosis, established mechanism, or stronger construct.
-- `CLOSED_SET` — a source-defined list cannot gain invented members, silently lose a material member while pretending completeness, or change cardinality.
-- `ORDERED_SEQUENCE` — a source-defined process cannot reverse or invent steps.
-- `CATEGORY_MEMBERSHIP` — an item cannot be reassigned to a stronger or different source-defined category.
-- `ATTRIBUTION_BINDING` — review synthesis, cited prior theory, author hypothesis and clinical implication remain distinct source layers.
-- `MATERIAL_VISUAL_RELATION` — arrows, grouping, hierarchy, order, scale or colour that carry scientific meaning must stay inside the permitted relation.
-
-Do not create a protected taxonomy merely because the paper mentions several related terms. The ledger protects structures that the source or audited truth actually establishes.
-
-## Blind readback
-
-RCA-03 sees the rendered card before it sees the expected semantic packet, truth boundary, generation prompt or sibling specification. It records the visible central message, apparent evidence strength, apparent causal structure, limitations, lists/categories/sequences and material visual relations. The readback is frozen before comparison.
-
-This is input isolation, not proof of model-error independence. A generator and auditor from the same model family can share systematic mistakes.
-
-## Audit axes
-
-`CONTENT_MEANING` checks the scientific claim, direction, numbers, evidence strength, causal ceiling, uncertainty, scope, limitations and forbidden takeaways.
-
-`SOURCE_SURFACE` checks terminology, list membership/cardinality, taxonomies, category membership, source attribution, evidence role, figure/table-derived structure and pseudo-precision.
-
-`VISUAL_SEMANTICS` checks arrows, grouping, order, hierarchy, size, scale, axes, colour, uncertainty depiction and attribution by layout.
-
-`CITATION_TRACEABILITY` checks source identity and whether material claims remain traceable. Harmless duplicate placement is a warning; wrong or unbound source identity is material.
-
-`ENGINEERING_CONFORMANCE` records size, typography, layout, extra wording, style locks and similar production deviations. It is warning-only unless the deviation materially changes scientific understanding or prevents verification, in which case it is escalated to the substantive axis it actually harms.
-
-## Verdicts
-
-- `PASS` — all substantive axes and engineering conformance pass.
-- `PASS_WITH_WARNINGS` — only non-material deviations remain.
-- `FAIL_RENDER` — expected science/spec is acceptable but the final image materially changes or invents meaning, source structure, visual semantics or traceability.
-- `FAIL_SPEC` — the render reflects a materially wrong or unsupported upstream specification/truth/source binding.
-- `BLOCK_UNVERIFIABLE` — a necessary source, card identity, rendered element or traceability link cannot be verified without guessing.
-
-`cardset_audit.status` is deliberately separate from per-card verdicts. It covers only cross-card conflicts and package coverage. A single failed card therefore does not automatically make `cardset_audit.status = FAIL`; the top-level `release_gate` aggregates both layers.
-
-## Correlated-model error
-
-Blind input isolation prevents answer leakage but does not make same-family model errors independent.
-
-RCA derives:
+Then each failed card appears once, in card order:
 
 ```text
-different_family -> material_to_run = false
-same_family      -> material_to_run = true
-unknown           -> material_to_run = true
+imgedit
+[圖卡名稱]
+修改內容
+
+[圖卡名稱n]
+修改內容
 ```
 
-If correlated-model risk is material on a high-stakes cardset, a secondary review is required. High stakes include causal ceilings, forbidden takeaways, clinical/safety boundaries, evidence-strength decisions, and source-defined structures whose hallucination would materially alter interpretation. Until that review agrees on the material axes, the release ceiling is `BLOCKED`.
+Rules:
 
-For non-high-stakes cardsets, material correlated-model risk does not force a second reviewer but caps release at `PASS_WITH_WARNINGS`.
+- `imgedit` is the first line of the writing block, not a chat label outside it.
+- `[圖卡名稱]` is the actual reader-facing card title in square brackets.
+- Include only `FAIL_RENDER` and `FAIL_SPEC` cards.
+- Put all failed cards in the same writing block.
+- Modification wording needs semantic correctness, not verbatim source/queue wording.
+- Outside the writing block, ordinary chat may report only counts/verdict/card IDs; do not duplicate the repair body.
+- If there are no failed cards, do not emit an empty repair writing block.
 
-## Repair tickets
+Canonical projection template: `templates/rendered_card_audit_repair_block.txt`.
 
-Every `FAIL_RENDER` and `FAIL_SPEC` requires an executable repair ticket. The allowed operations are:
+## Regression: C02 wrong branch source
 
-```text
-REMOVE
-REPLACE
-RELABEL
-REWIRE
-RECOMPOSE
-```
+For the Dewitte attachment card “威脅來時，依附系統怎麼分岔？”, the render placed outgoing hyperactivation/deactivation arrows on the “支持可得／安全感上升” node. The source model and the card’s own prose place those strategies under **persistent insecurity / unavailable or unresponsive attachment figure** instead. Security increase terminates/deactivates the attachment alarm; it is not the parent of the two insecurity strategies.
 
-The ticket states what to keep, remove, replace, rewire and not touch, plus the acceptance test and minimal recheck axes.
+This is a canonical `FAIL_RENDER` even though the terms “過度活化”, “去活化”, “安全感上升” and the sentence “持續不安時…” are all present and individually correct. The structural regression is encoded in `tests/test_rendered_card_audit.py`. The test deliberately records `wrong_source_node` and verifies that a PASS becomes structurally illegal; the Python validator still does not claim to infer the pixels itself.
 
-A substantial change is triggered by a source/meaning structural trigger or by the provisional 10% weighted-semantic heuristic when the card has enough semantic mass (`total_semantic_weight >= 10`). On very small cards, the percentage is ignored and structural triggers decide. The 10% threshold is an operator heuristic, not an empirically validated standard; it must be calibrated against at least 30 real repair cases before being treated as stable.
+## Correlated-model risk
 
-When a substantial remove/recompose creates a reader-facing content gap, supported replacement material is mandatory. Its source priority is audited truth/Probe content, then the bound primary source, then a semantic-preserving explainer paraphrase. If no supported material exists, record `BLOCKED_NO_SUPPORTED_MATERIAL`; do not invent filler.
-
-The user-facing repair report should show substantial replacement prose in an editable writing-block/text-edit surface. The JSON stores the same text as `replacement_material.text` for traceability.
-
-## Recheck
-
-Unchanged images with unchanged hashes and source bindings retain their prior audit. After repair, re-audit the changed card on the implicated axes, rerun citation traceability, and run a lightweight cross-card check for touched claims/terms. Full cardset re-audit is required when the truth boundary, source binding, shared taxonomy/terminology, shared material numbers, or package coverage changes.
+Blind input isolation reduces confirmation bias but does not prove model-family independence. Same-family/unknown-family risk remains material under the existing RCA policy; high-stakes material cases require secondary review before release.
 
 ## Validation
 
 ```bash
-python scripts/validate_rendered_card_audit.py \
-  fixtures/valid_rendered_card_audit.json --json
+python scripts/validate_rendered_card_audit.py fixtures/valid_rendered_card_audit.json --json
+python -m unittest tests/test_rendered_card_audit.py -v
 ```
 
-The validator checks closure, hashes, deduplication, repair-ticket requirements, substantial-change replacement rules, cardset aggregation, `FAIL_SPEC.failure_origin`, methodological-risk derivation and release-gate consistency. It does **not** decide whether the science or image semantics are correct; those judgments must already be recorded by the auditor.
+A green validator proves closure of the declared audit record, not the scientific correctness of the auditor’s judgments. The scientific/multimodal auditor still has to perform the source and image reading; the validator prevents that judgment from being reduced to “all the words looked right.”
