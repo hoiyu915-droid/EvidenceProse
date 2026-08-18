@@ -1,0 +1,109 @@
+{
+  "contract_version": "1.0",
+  "run_id": "rca-demo-001",
+  "created_at": "2026-08-18T21:00:00+09:00",
+  "source_bindings": [
+    {
+      "source_id": "SRC001",
+      "type": "primary_pdf",
+      "status": "verified",
+      "identity": {
+        "doi": "10.0000/example",
+        "exact_title": "Example source",
+        "filename": "example.pdf"
+      },
+      "source_digest": "49b080fa88fa02221b9c18f1f654e2cdb2f505442475f29a2dc7c7d578692773"
+    }
+  ],
+  "dedup_manifest": {
+    "unique_card_count": 1,
+    "duplicate_count": 0,
+    "duplicates": []
+  },
+  "card_audits": [
+    {
+      "card_id": "C01",
+      "image_path": "rendered_card_audit/C01.png",
+      "image_sha256": "0367321eceb7336d6816079069732fc26d9679ee1b085d0dae125625ee0c8999",
+      "blind_readback": {
+        "frozen_before_comparison": true,
+        "digest": "0577ad6fc33a1025fb105261cc592aad278bc66ca9231cac7768aca34f7db12e",
+        "legibility": "complete",
+        "central_message": "X 與 Y 有關，但圖卡沒有把關聯升級成因果。",
+        "apparent_evidence_strength": "association",
+        "apparent_causal_structure": "No causal path is implied.",
+        "limitations_as_read": [
+          "僅支持關聯"
+        ]
+      },
+      "expected_semantic_packet_digest": "f684ea0624dc13372447e0cd1fe957d4627555faba4ae8580ec7fc92d8a0b78e",
+      "axes": {
+        "CONTENT_MEANING": "pass",
+        "SOURCE_SURFACE": "pass",
+        "VISUAL_SEMANTICS": "pass",
+        "CITATION_TRACEABILITY": "pass",
+        "ENGINEERING_CONFORMANCE": "pass"
+      },
+      "findings": [],
+      "historical_text_comparison": "wording_divergence",
+      "verdict": "PASS",
+      "release_blocking": false,
+      "failure_origin": null,
+      "repair_ticket_id": null
+    }
+  ],
+  "cardset_audit": {
+    "status": "NOT_APPLICABLE",
+    "scope": "cross_card_and_package_only",
+    "cross_card_findings": [],
+    "package_coverage": {
+      "status": "NOT_APPLICABLE"
+    }
+  },
+  "methodological_risk": {
+    "high_stakes_cardset": true,
+    "high_stakes_reasons": [
+      "causal_ceiling"
+    ],
+    "generator_model_family": "family-a",
+    "auditor_model_family": "family-b",
+    "relationship": "different_family",
+    "correlated_error_risk": "low",
+    "material_to_run": false,
+    "secondary_review_required": false,
+    "secondary_review_status": "not_required",
+    "secondary_review_outcome": "not_applicable",
+    "release_effect": "none",
+    "materiality_reason": "Different model families in this structural fixture."
+  },
+  "release_gate": {
+    "status": "PASS",
+    "unique_card_count": 1,
+    "duplicate_count": 0,
+    "counts": {
+      "PASS": 1,
+      "PASS_WITH_WARNINGS": 0,
+      "FAIL_RENDER": 0,
+      "FAIL_SPEC": 0,
+      "BLOCK_UNVERIFIABLE": 0
+    },
+    "blocking_card_ids": [],
+    "warning_card_ids": [],
+    "release_allowed": true
+  },
+  "repair_tickets": [],
+  "provenance": {
+    "auditor_role": "post_render_auditor",
+    "mutated_upstream_artifacts": false,
+    "generation_calls_made": 0,
+    "methodological_limitations": [
+      {
+        "type": "CORRELATED_MODEL_ERROR",
+        "status": "not_identified",
+        "material_to_run": false,
+        "derivation_source": "methodological_risk_policy",
+        "note": "Different-family audit lowers correlated-error risk; it does not prove mathematical independence."
+      }
+    ]
+  }
+}
