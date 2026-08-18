@@ -48,3 +48,7 @@ jobs:
         run: |
           python scripts/finalize_probe_te_queue.py \
             fixtures/probe_te_unsealed_queue.json --check
+      - name: Validate canonical Rendered Card Audit fixture
+        run: |
+          python scripts/validate_rendered_card_audit.py \
+            fixtures/valid_rendered_card_audit.json --json

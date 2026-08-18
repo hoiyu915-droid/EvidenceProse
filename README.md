@@ -2,13 +2,14 @@
 
 [![Validate](https://github.com/hoiyu915-droid/EvidenceProse/actions/workflows/validate.yml/badge.svg)](https://github.com/hoiyu915-droid/EvidenceProse/actions/workflows/validate.yml)
 
-EvidenceProse is an evidence-to-prose system for calibrated Traditional Chinese science explainers. It has two deliberately separate evidence lanes and one post-audit transform stage:
+EvidenceProse is an evidence-to-prose system for calibrated Traditional Chinese science explainers. It has two deliberately separate evidence lanes, one post-audit transform stage, and one read-only post-render audit lane:
 
 - an **induction lane** that learns repeatable writing logic from reviewed examples without treating any polished article as a universal template;
 - a **TA06-backed live prose lane** that accepts already-audited scientific truth, locks the reader target, drafts prose, audits semantic fidelity and reader outcomes, and emits the reader-facing delivery shell;
-- a **Probe post-audit stage** that may merge or repair card JSON and strengthen the audited prose, then verifies real before/after diffs, immutable evidence assets, package coverage, and isolated-reader reconstruction.
+- a **Probe post-audit stage** that may merge or repair card JSON and strengthen the audited prose, then verifies real before/after diffs, immutable evidence assets, package coverage, and isolated-reader reconstruction;
+- a **Rendered Card Audit (RCA) lane** that reads the final rendered image after generation, blind-reads what the reader actually receives, checks source-surface hallucinations and visual semantics against audited truth and the bound primary source, and emits a release verdict plus executable repair ticket without mutating TP03 or Probe.
 
-The highest success criterion is reader understanding: after reading, a non-specialist should be able to tell what the evidence supports, how much confidence it deserves, whom and which settings it applies to, and what causal or practical conclusion it cannot justify.
+The highest success criterion is reader understanding: after reading, a non-specialist should be able to tell what the evidence supports, how much confidence that support deserves, whom and which settings it applies to, and what causal or practical conclusion it cannot justify.
 
 ## Current status
 
@@ -21,6 +22,7 @@ The highest success criterion is reader understanding: after reading, a non-spec
 - Stable induction generation rules: 0
 - Live runtime contract: `EP_TA06_PROSE_RUNTIME v1.0`
 - Probe transform contract: `EP_PROBE_POST_AUDIT_TRANSFORM v1.1`
+- Rendered-card audit contract: `EP_RENDERED_CARD_AUDIT v1.0`
 - Delivery-shell contract: `EP-SCIENCE-EXPLAINER-OUTPUT v0.1`
 - Primary output language: Traditional Chinese
 
@@ -102,6 +104,18 @@ Version 1.1 adds three executable gates:
 
 The specification is [docs/probe_post_audit_transform.md](docs/probe_post_audit_transform.md). The canonical contract is [contracts/EP_PROBE_POST_AUDIT_TRANSFORM_CONTRACT_v1.1.json](contracts/EP_PROBE_POST_AUDIT_TRANSFORM_CONTRACT_v1.1.json). Version 1.0 remains validator-compatible but is superseded for new bundles.
 
+## Rendered Card Audit
+
+`EP_RENDERED_CARD_AUDIT v1.0` is the executable form of the post-upload substantive-render-fidelity layer. It runs after image generation and before release, and is deliberately read-only: it may read rendered images, final card specs/queues, audited truth, and bound primary sources, but it does not modify or reseal TP03 queues, edit images, dispatch generation, or rewrite Probe output.
+
+RCA judges semantic equivalence rather than memorisation. Meaning-preserving paraphrase, translation, shortening, sentence restructuring, headings, and harmless labels are allowed. It separately audits `CONTENT_MEANING`, `SOURCE_SURFACE`, `VISUAL_SEMANTICS`, `CITATION_TRACEABILITY`, and warning-default `ENGINEERING_CONFORMANCE`. Source-defined terms, closed lists, taxonomies, category membership, ordered sequences, attribution layers, and material visual relations are protected against image-generation invention even when each individual word looks plausible.
+
+Before comparison, RCA freezes a blind readback of the rendered image without showing the auditor the expected semantic packet, truth boundary, generation prompt, or sibling spec. This input isolation reduces confirmation bias but does not prove independence of model-family error. Same-family or unknown-family generator/auditor relationships are therefore recorded as correlated-model-error risk; high-stakes material cases require a secondary review before release.
+
+Blocking cards use `FAIL_RENDER`, `FAIL_SPEC`, or `BLOCK_UNVERIFIABLE`. Every `FAIL_RENDER` / `FAIL_SPEC` carries an executable repair ticket. Substantial removal or recomposition also requires supported replacement material; the provisional 10% weighted-semantic threshold is an operator heuristic, not a validated scientific cutoff, and source/meaning structural triggers override it.
+
+The specification is [docs/rendered_card_audit.md](docs/rendered_card_audit.md). The canonical contract is [contracts/EP_RENDERED_CARD_AUDIT_CONTRACT_v1.0.json](contracts/EP_RENDERED_CARD_AUDIT_CONTRACT_v1.0.json).
+
 ## Induction lane
 
 The induction lane remains data-first:
@@ -129,6 +143,7 @@ contracts/
   EP_TA06_PROSE_RUNTIME_CONTRACT_v1.0.json
   EP_PROBE_POST_AUDIT_TRANSFORM_CONTRACT_v1.0.json
   EP_PROBE_POST_AUDIT_TRANSFORM_CONTRACT_v1.1.json
+  EP_RENDERED_CARD_AUDIT_CONTRACT_v1.0.json
 
 data/
   registry.json
@@ -141,6 +156,7 @@ docs/
   audit_standard.md
   induction_protocol.md
   probe_post_audit_transform.md
+  rendered_card_audit.md
   science_explainer_output_format.md
   ta06_prose_runtime.md
   terminology.md
@@ -152,6 +168,9 @@ fixtures/
   20260815_demo-explainer.md
   valid_probe_post_audit_bundle.json
   legacy_valid_probe_post_audit_bundle_v1.0.json
+  valid_rendered_card_audit.json
+  rendered_card_audit/
+    C01.png
   probe/
     source_cards.json
     output_cards.json
@@ -167,6 +186,7 @@ schemas/
     prose_audit_sidecar.schema.json
     probe_post_audit_bundle.schema.json
     probe_post_audit_bundle_v1.0.schema.json
+    rendered_card_audit.schema.json
   registry.schema.json
   rule_catalog.schema.json
   rule.schema.json
@@ -181,6 +201,7 @@ scripts/
   validate_explainer_output.py
   validate_prose_runtime.py
   validate_probe_post_audit.py
+  validate_rendered_card_audit.py
   probe_post_audit_common.py
   probe_post_audit_core.py
   probe_post_audit_artifacts.py
@@ -194,6 +215,7 @@ tests/
   test_explainer_output.py
   test_prose_runtime.py
   test_probe_post_audit.py
+  test_rendered_card_audit.py
 
 .github/workflows/
   validate.yml
@@ -219,6 +241,8 @@ tests/
 16. Compute post-transform changes from artifacts instead of trusting a self-reported diff.
 17. Keep evidence-bearing assets immutable; permit layout changes around them, not regeneration of them.
 18. Test the final package through an isolated reader, including correct `NA` responses for unsupported content.
+19. Audit the rendered card as a reader-visible artifact: wording freedom is allowed, but invented source structure, evidence-role upgrades, and misleading visual relations are not.
+20. Keep post-render audit read-only; repair instructions route downstream or upstream without silently mutating TP03 or Probe.
 
 ## Reader-facing delivery format
 
@@ -273,12 +297,21 @@ A passing prose-runtime validator proves that the bundle is correctly bound, its
 
 A passing Probe validator additionally proves that declared source/output files match their digests, computed element changes match the operation manifest, immutable assets remain byte-identical, package coverage is complete, and the isolated-reader record reconstructs the required final-package evidence structure. It does not replace Claude's semantic audit.
 
+Validate the canonical rendered-card audit fixture:
+
+```bash
+python scripts/validate_rendered_card_audit.py \
+  fixtures/valid_rendered_card_audit.json --json
+```
+
+A passing RCA validator proves structural closure: image/source bindings and hashes, deduplication, verdict/repair-ticket closure, substantial-repair replacement requirements, cardset aggregation, correlated-model-error policy, and release-gate consistency. It does not itself decide whether the source interpretation or image semantics are scientifically correct; those judgments must already be recorded by the post-render auditor.
+
 ## Adding a reviewed induction sample
 
 Treat an article, its interpretation record, rule receipts and batch summary as one atomic change. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Scope boundary
 
-EvidenceProse supports a deliverable TA06-backed prose runtime for already-audited evidence packages and a bounded Probe post-audit transform stage. Neither lane claims that the induction catalogue has reached saturation, and neither makes non-stable `R###` or `V###` rules production authority.
+EvidenceProse supports a deliverable TA06-backed prose runtime for already-audited evidence packages, a bounded Probe post-audit transform stage, and a read-only rendered-card audit lane. Neither lane claims that the induction catalogue has reached saturation, and neither makes non-stable `R###` or `V###` rules production authority.
 
-Source discovery and scientific re-audit remain upstream responsibilities. When scientific truth changes, return to TA06; when only reader-facing expression or package composition changes, keep the same truth boundary and rerun the prose and Probe gates.
+Source discovery and scientific re-audit remain upstream responsibilities. When scientific truth changes, return to TA06; when only reader-facing expression or package composition changes, keep the same truth boundary and rerun the relevant prose/Probe/RCA gates.
