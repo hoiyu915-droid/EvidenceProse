@@ -1,0 +1,467 @@
+{
+  "contract_name": "EP_RENDERED_CARD_AUDIT",
+  "contract_version": "1.0.0",
+  "status": "canonical",
+  "scope": "Read-only post-render audit lane for EvidenceProse companion cards",
+  "purpose": "Verify what the rendered card actually communicates against audited truth and the bound primary source, while keeping TP03/Probe artifacts immutable.",
+  "authority_model": {
+    "scientific_truth_authority": "audited_truth_boundary",
+    "source_surface_authority": "bound_primary_source",
+    "editorial_intent_source": "final_card_json_or_queue_projection",
+    "reader_experience_source": "rendered_image",
+    "precedence": [
+      {
+        "condition": "render conflicts with sound truth/spec",
+        "verdict": "FAIL_RENDER"
+      },
+      {
+        "condition": "render faithfully reflects wrong/unsupported upstream spec",
+        "verdict": "FAIL_SPEC"
+      },
+      {
+        "condition": "truth boundary conflicts materially with bound primary source",
+        "verdict": "FAIL_SPEC",
+        "failure_origin": "TRUTH_BOUNDARY"
+      },
+      {
+        "condition": "required source/card/render element cannot be verified",
+        "verdict": "BLOCK_UNVERIFIABLE"
+      }
+    ]
+  },
+  "integration": {
+    "position": "after_render_before_release",
+    "tp03": {
+      "read_queue_if_available": true,
+      "write_queue": false,
+      "reseal_queue": false,
+      "dispatch_generation": false,
+      "code_change_required": false
+    },
+    "probe": {
+      "read_final_card_spec": true,
+      "mutate_probe_output": false
+    },
+    "downstream": [
+      "release",
+      "image_editor",
+      "single_card_regeneration",
+      "upstream_spec_repair"
+    ]
+  },
+  "source_binding": {
+    "library_first": true,
+    "order": [
+      "DOI",
+      "exact_title",
+      "filename"
+    ],
+    "primary_before_supplement": true,
+    "fallback_requires_record": true,
+    "full_release_requires_verified_primary_source": true,
+    "inspect_figure_or_table_when_card_uses": [
+      "figure-derived sequence",
+      "taxonomy",
+      "table number",
+      "figure/table hierarchy"
+    ]
+  },
+  "text_fidelity": {
+    "mode": "semantic_equivalence",
+    "verbatim_required": false,
+    "wording_divergence_blocks": false,
+    "allowed": [
+      "paraphrase",
+      "synonym",
+      "translation",
+      "sentence_split_merge",
+      "reorder",
+      "shorten",
+      "explanatory_heading",
+      "reader_facing_label"
+    ],
+    "must_preserve": [
+      "claim_identity",
+      "negation",
+      "direction",
+      "material_magnitude",
+      "evidence_strength",
+      "causal_ceiling",
+      "uncertainty",
+      "population",
+      "setting",
+      "timeframe",
+      "comparator",
+      "material_qualifier",
+      "limitation",
+      "attribution",
+      "source_layer",
+      "recommendation_ceiling",
+      "source_defined_set_membership",
+      "source_defined_order",
+      "source_defined_category_membership"
+    ],
+    "historical_text_comparison": {
+      "states": [
+        "equivalent",
+        "wording_divergence",
+        "not_compared"
+      ],
+      "blocking": false
+    }
+  },
+  "source_sensitive_ledger": {
+    "classes": {
+      "CONTROLLED_TERM": "translation/paraphrase allowed; semantic identity and epistemic role locked",
+      "CLOSED_SET": "source-defined membership/cardinality; no invented members",
+      "ORDERED_SEQUENCE": "source-defined order; no invented/reversed steps",
+      "CATEGORY_MEMBERSHIP": "source-defined category and epistemic role",
+      "ATTRIBUTION_BINDING": "current study/review synthesis/prior theory/author hypothesis/clinical implication remain distinct",
+      "MATERIAL_VISUAL_RELATION": "source/truth-defined relation carried by arrow, grouping, hierarchy, order, scale or colour"
+    },
+    "derivation_rule": "Protect only structures established by the source or audited truth; never manufacture a taxonomy from scattered mentions."
+  },
+  "workflow": [
+    {
+      "stage": "RCA-00",
+      "name": "ingest_and_deduplicate",
+      "outputs": [
+        "image_sha256",
+        "unique_card_manifest",
+        "duplicate_manifest"
+      ]
+    },
+    {
+      "stage": "RCA-01",
+      "name": "bind_literature",
+      "rule": "primary PDF is source-surface authority; missing required source blocks"
+    },
+    {
+      "stage": "RCA-02",
+      "name": "build_expected_semantic_packet",
+      "contents": [
+        "central claims",
+        "numbers",
+        "evidence strength",
+        "causal ceiling",
+        "qualifiers",
+        "limitations",
+        "applicability",
+        "forbidden takeaways",
+        "source-sensitive ledger"
+      ]
+    },
+    {
+      "stage": "RCA-03",
+      "name": "blind_render_readback",
+      "visibility": {
+        "rendered_image": true,
+        "expected_semantics": false,
+        "truth_boundary": false,
+        "generation_prompt": false,
+        "sibling_spec": false
+      },
+      "freeze_before_comparison": true
+    },
+    {
+      "stage": "RCA-04",
+      "name": "semantic_comparison",
+      "axes": [
+        "CONTENT_MEANING",
+        "SOURCE_SURFACE",
+        "VISUAL_SEMANTICS",
+        "CITATION_TRACEABILITY",
+        "ENGINEERING_CONFORMANCE"
+      ]
+    },
+    {
+      "stage": "RCA-05",
+      "name": "per_card_verdict"
+    },
+    {
+      "stage": "RCA-06",
+      "name": "cross_card_and_package_audit"
+    },
+    {
+      "stage": "RCA-07",
+      "name": "release_gate_and_repair_tickets"
+    }
+  ],
+  "blind_readback": {
+    "must_capture": [
+      "legible text",
+      "numbers",
+      "citations",
+      "lists",
+      "categories",
+      "sequences",
+      "arrows and direction",
+      "solid/dashed relation",
+      "grouping",
+      "hierarchy",
+      "size/scale",
+      "colour roles",
+      "central message",
+      "apparent evidence strength",
+      "apparent causal structure",
+      "visible limitations"
+    ],
+    "insufficient_material_legibility": "BLOCK_UNVERIFIABLE",
+    "input_isolation_note": "Blindness reduces answer leakage/confirmation bias but does not prove model-error independence."
+  },
+  "audit_axes": {
+    "CONTENT_MEANING": {
+      "blocking": true,
+      "checks": [
+        "central claim",
+        "direction",
+        "numbers",
+        "evidence strength",
+        "causal ceiling",
+        "uncertainty",
+        "scope",
+        "limitations",
+        "applicability",
+        "forbidden takeaways",
+        "recommendation ceiling",
+        "source layer"
+      ]
+    },
+    "SOURCE_SURFACE": {
+      "blocking": true,
+      "finding_types": [
+        "LEXICAL_INVENTION",
+        "CONTROLLED_TERM_DRIFT",
+        "LIST_MEMBER_INVENTION",
+        "LIST_MEMBER_OMISSION",
+        "CARDINALITY_DISTORTION",
+        "TAXONOMY_INVENTION",
+        "CATEGORY_MISASSIGNMENT",
+        "ORDER_DISTORTION",
+        "SOURCE_ATTRIBUTION_DRIFT",
+        "EVIDENCE_ROLE_UPGRADE",
+        "NAMED_MECHANISM_INVENTION",
+        "FIGURE_STRUCTURE_INVENTION",
+        "TABLE_STRUCTURE_INVENTION",
+        "PSEUDO_PRECISION"
+      ]
+    },
+    "VISUAL_SEMANTICS": {
+      "blocking": true,
+      "finding_types": [
+        "CAUSAL_ARROW_UPGRADE",
+        "RELATION_TYPE_DISTORTION",
+        "GROUPING_IMPLIES_FALSE_TAXONOMY",
+        "GROUPING_IMPLIES_FALSE_CAUSAL_BUNDLE",
+        "ORDERING_DISTORTION",
+        "SIZE_MAGNITUDE_DISTORTION",
+        "COLOR_ROLE_MISASSIGNMENT",
+        "SCALE_INVENTION",
+        "AXIS_INVENTION",
+        "PSEUDO_QUANTIFICATION",
+        "UNCERTAINTY_ERASURE",
+        "ATTRIBUTION_BY_LAYOUT_DRIFT",
+        "VISUAL_CONTRADICTION"
+      ]
+    },
+    "CITATION_TRACEABILITY": {
+      "blocking": true,
+      "rule": "wrong/unbound identity or source layer blocks; harmless placement/duplicate is warning"
+    },
+    "ENGINEERING_CONFORMANCE": {
+      "blocking": false,
+      "checks": [
+        "canvas",
+        "aspect_ratio",
+        "style",
+        "background",
+        "font",
+        "layout",
+        "extra_visible_text",
+        "wording_divergence",
+        "decoration",
+        "footer"
+      ],
+      "escalation": "escalate only to the substantive axis actually harmed"
+    }
+  },
+  "verdicts": {
+    "PASS": "all axes pass",
+    "PASS_WITH_WARNINGS": "only non-material deviations or methodological warning ceiling remain",
+    "FAIL_RENDER": "render materially changes/invents meaning, source structure, visual semantics or traceability",
+    "FAIL_SPEC": "material upstream spec/truth/source-binding failure; failure_origin required",
+    "BLOCK_UNVERIFIABLE": "required source/identity/render element cannot be verified without guessing"
+  },
+  "fail_spec_failure_origin": [
+    "FINAL_CARD_SPEC",
+    "TRUTH_BOUNDARY",
+    "SOURCE_BINDING",
+    "MIXED"
+  ],
+  "cardset_audit": {
+    "scope": "cross_card_and_package_only",
+    "statuses": [
+      "PASS",
+      "WARNING",
+      "FAIL",
+      "BLOCKED",
+      "NOT_APPLICABLE"
+    ],
+    "does_not_inherit_single_card_failures": true,
+    "checks": [
+      "conflicting numbers/directions",
+      "evidence-role inconsistency",
+      "taxonomy drift",
+      "population/timeframe expansion",
+      "material limitation loss",
+      "citation/source-layer inconsistency",
+      "package coverage"
+    ]
+  },
+  "methodological_risk": {
+    "risk_id": "CORRELATED_MODEL_ERROR",
+    "relationship_derivation": "known equal family -> same_family; known unequal -> different_family; either unknown -> unknown",
+    "material_to_run": {
+      "same_family": true,
+      "unknown": true,
+      "different_family": false
+    },
+    "correlated_error_risk": {
+      "same_family": "present",
+      "unknown": "unknown",
+      "different_family": "low"
+    },
+    "high_stakes_when_any": [
+      "causal_ceiling",
+      "forbidden_takeaway",
+      "clinical_or_safety_boundary",
+      "evidence_strength_decision",
+      "source_surface_structure"
+    ],
+    "when_material_and_high_stakes": {
+      "secondary_review_required": true,
+      "release_effect_until_resolved": "BLOCKED"
+    },
+    "when_material_and_not_high_stakes": {
+      "secondary_review_required": false,
+      "release_ceiling": "PASS_WITH_WARNINGS"
+    },
+    "secondary_resolution": {
+      "agreement": "clear methodological block and preserve ordinary RCA verdicts",
+      "disagreement": "BLOCK_UNVERIFIABLE until adjudicated against source/truth",
+      "independent_reviewer_unavailable": "high-stakes remains BLOCKED"
+    }
+  },
+  "repair_policy": {
+    "required_for": [
+      "FAIL_RENDER",
+      "FAIL_SPEC"
+    ],
+    "auditor_mutation_authority": "none",
+    "actions": [
+      "REMOVE",
+      "REPLACE",
+      "RELABEL",
+      "REWIRE",
+      "RECOMPOSE"
+    ],
+    "ticket_requires": [
+      "problem_summary",
+      "action_plan",
+      "keep",
+      "remove",
+      "add_or_replace",
+      "rewire",
+      "do_not_touch",
+      "acceptance_test",
+      "recheck_axes"
+    ],
+    "preferred_scope": "smallest_failed_region_first",
+    "whole_card_regeneration": "last_resort_only",
+    "substantial_change": {
+      "fraction_threshold": 0.1,
+      "threshold_role": "operational_heuristic",
+      "calibration_status": "PROVISIONAL",
+      "empirically_validated": false,
+      "fraction_gate_minimum_total_semantic_weight": 10,
+      "small_card_rule": "below minimum semantic weight, structural triggers decide",
+      "structural_triggers": [
+        "entire semantic module removed/recomposed",
+        "central claim removed/replaced",
+        "material limitation removed/replaced",
+        "closed-set member added/removed/reassigned",
+        "ordered process substantially rewired",
+        "removal leaves reader-facing information hole"
+      ],
+      "replacement_material_required": true,
+      "support_priority": [
+        "audited truth or Probe content",
+        "bound primary source",
+        "semantic-preserving explainer paraphrase"
+      ],
+      "no_supported_material": "BLOCKED_NO_SUPPORTED_MATERIAL",
+      "user_surface": "substantial replacement prose is shown in editable writing block/textedit"
+    },
+    "calibration_plan": {
+      "required_before_stable_threshold": true,
+      "minimum_real_cases": 30,
+      "evaluate": [
+        "false_substantial_rate",
+        "missed_substantial_rate",
+        "human_repair_scope_agreement",
+        "small_card_denominator_instability"
+      ]
+    }
+  },
+  "release_aggregation": [
+    "methodological blocked effect -> BLOCKED",
+    "any card BLOCK_UNVERIFIABLE or cardset/package BLOCKED -> BLOCKED",
+    "any FAIL_RENDER/FAIL_SPEC or cardset/package FAIL -> FAIL",
+    "methodological warning ceiling or any warning -> PASS_WITH_WARNINGS",
+    "otherwise PASS"
+  ],
+  "recheck": {
+    "reuse_unchanged_hash_passes": true,
+    "after_repair": [
+      "re-audit changed card on implicated axes",
+      "rerun citation traceability",
+      "light cross-card check for touched claims/terms"
+    ],
+    "full_cardset_reaudit_when": [
+      "truth boundary changes",
+      "source binding changes",
+      "shared taxonomy/terminology changes",
+      "shared material number changes",
+      "package merge/removal changes coverage"
+    ]
+  },
+  "validator_scope": {
+    "does": [
+      "schema/closure",
+      "image hashes",
+      "dedup closure",
+      "material finding source support",
+      "fail->repair ticket",
+      "substantial replacement rules",
+      "FAIL_SPEC origin",
+      "cardset aggregation",
+      "methodological-risk derivation",
+      "release-gate derivation"
+    ],
+    "does_not": [
+      "decide scientific correctness",
+      "read image semantics",
+      "redo literature audit",
+      "edit images",
+      "generate cards",
+      "mutate TP03/Probe"
+    ]
+  },
+  "canonical_documents": {
+    "specification": "docs/rendered_card_audit.md",
+    "result_schema": "schemas/runtime/rendered_card_audit.schema.json",
+    "validator": "scripts/validate_rendered_card_audit.py",
+    "fixture": "fixtures/valid_rendered_card_audit.json",
+    "tests": "tests/test_rendered_card_audit.py"
+  }
+}
