@@ -55,7 +55,7 @@ A card fails `render_fidelity_audit` only when the rendering can materially chan
 
 ## Executable post-render audit: EP_RENDERED_CARD_AUDIT
 
-`EP_RENDERED_CARD_AUDIT v1.0` operationalises Layer 2 after the image has been rendered. It is read-only with respect to TP03 and Probe. The auditor first performs a blind readback of the rendered image and freezes that record before seeing the expected semantic packet, truth boundary, generation prompt, or sibling specification.
+`EP_RENDERED_CARD_AUDIT v1.0`, method revision `1.1-topology-gated`, operationalises Layer 2 after the image has been rendered. It is read-only with respect to TP03 and Probe. The auditor first performs a blind readback of the rendered image and freezes that record before seeing the expected semantic packet, truth boundary, generation prompt, or sibling specification.
 
 The post-render audit separates five axes:
 
@@ -67,9 +67,19 @@ The post-render audit separates five axes:
 
 The audit compares meaning, not memorisation. A wording difference cannot by itself create `FAIL_RENDER` or `FAIL_SPEC`. Conversely, individually plausible words may still fail when the image generator invents a list, taxonomy, sequence, category membership, causal bundle, scale or other structure that the source never establishes.
 
+### Mandatory visual-topology gate
+
+A card may not pass because all expected words or concepts are present. For every material visual relation, RCA must reconstruct and reconcile the source node, target node, direction, relation type, branch condition, branch parent, terminal/non-terminal behavior and path-level implication. Every observed material edge receives exactly one disposition and every expected material relation receives exactly one coverage result.
+
+Source-defined branch points and terminal states are checked explicitly. A success/termination node must not silently become the parent of a downstream failure strategy. Text and geometry are also cross-checked: if a card's prose says one branch condition while its arrows communicate another, the visual contradiction is a material failure even when the prose itself is correct.
+
+When the relation comes from a figure, table, taxonomy or ordered source diagram, the source figure/table itself, caption and relevant context must be inspected. Body-text recall or queue wording is insufficient. The forbidden shortcut is: “the concepts are all there, therefore the card passes.”
+
 Per-card verdicts are `PASS`, `PASS_WITH_WARNINGS`, `FAIL_RENDER`, `FAIL_SPEC`, and `BLOCK_UNVERIFIABLE`. `FAIL_RENDER` means the expected science/spec is sound but the rendered artifact materially miscommunicates it. `FAIL_SPEC` means the render faithfully reflects a materially wrong or unsupported upstream specification/truth/source binding and therefore records `failure_origin`. `cardset_audit.status` is reserved for cross-card and package-level consistency and does not inherit a single-card failure.
 
-Every `FAIL_RENDER` or `FAIL_SPEC` must provide an executable repair ticket. A substantial removal or recomposition also requires supported replacement material; if no supported replacement exists, the audit records `BLOCKED_NO_SUPPORTED_MATERIAL` instead of inventing filler. The 10% weighted-semantic fraction is a provisional operator heuristic with a minimum semantic-mass rule and structural overrides, not a validated scientific threshold.
+Every `FAIL_RENDER` or `FAIL_SPEC` must provide an executable repair ticket. Every failed card also receives user-facing repair text regardless of repair size. A substantial removal/recomposition/central-graph rewire additionally requires supported replacement material; if no supported replacement exists, the audit records `BLOCKED_NO_SUPPORTED_MATERIAL` instead of inventing filler. The 10% weighted-semantic fraction remains a provisional operator heuristic with structural overrides, not a validated scientific threshold.
+
+When failures exist, their repair instructions are projected into exactly one ChatGPT writing block. The first line is exactly `imgedit`, followed by `[圖卡名稱]` and the repair content for each failed card in card order. The repair wording needs semantic correctness, not verbatim reproduction. The ordinary chat response may summarize verdicts but must not duplicate the repair body outside the writing block.
 
 Blind input isolation reduces confirmation bias but does not establish model-error independence. Same-family or unknown-family generator/auditor relationships are therefore recorded as correlated-model-error risk. When that risk is material in a high-stakes cardset, release remains blocked until a secondary review resolves the material axes.
 
