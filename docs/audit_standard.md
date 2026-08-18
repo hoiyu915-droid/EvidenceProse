@@ -53,6 +53,28 @@ A card fails `render_fidelity_audit` only when the rendering can materially chan
 5. uses data-bearing geometry—point position, arrow, scale, ordering, size or colour—to contradict or exaggerate the evidence;
 6. breaks source traceability in a way that prevents the claim from being checked.
 
+## Executable post-render audit: EP_RENDERED_CARD_AUDIT
+
+`EP_RENDERED_CARD_AUDIT v1.0` operationalises Layer 2 after the image has been rendered. It is read-only with respect to TP03 and Probe. The auditor first performs a blind readback of the rendered image and freezes that record before seeing the expected semantic packet, truth boundary, generation prompt, or sibling specification.
+
+The post-render audit separates five axes:
+
+- `CONTENT_MEANING` — claims, numbers, direction, evidence strength, causal ceiling, uncertainty, scope, limitations, applicability and forbidden takeaways;
+- `SOURCE_SURFACE` — source-defined terminology, closed lists, cardinality, taxonomies, category membership, ordered sequences, attribution layers, named mechanisms and figure/table-derived structure;
+- `VISUAL_SEMANTICS` — arrows, grouping, hierarchy, order, scale, axes, colour, uncertainty depiction and other reader-visible relations;
+- `CITATION_TRACEABILITY` — source identity, source layer and material claim traceability;
+- `ENGINEERING_CONFORMANCE` — production constraints that are warning-only unless the deviation materially harms one of the substantive axes or prevents verification.
+
+The audit compares meaning, not memorisation. A wording difference cannot by itself create `FAIL_RENDER` or `FAIL_SPEC`. Conversely, individually plausible words may still fail when the image generator invents a list, taxonomy, sequence, category membership, causal bundle, scale or other structure that the source never establishes.
+
+Per-card verdicts are `PASS`, `PASS_WITH_WARNINGS`, `FAIL_RENDER`, `FAIL_SPEC`, and `BLOCK_UNVERIFIABLE`. `FAIL_RENDER` means the expected science/spec is sound but the rendered artifact materially miscommunicates it. `FAIL_SPEC` means the render faithfully reflects a materially wrong or unsupported upstream specification/truth/source binding and therefore records `failure_origin`. `cardset_audit.status` is reserved for cross-card and package-level consistency and does not inherit a single-card failure.
+
+Every `FAIL_RENDER` or `FAIL_SPEC` must provide an executable repair ticket. A substantial removal or recomposition also requires supported replacement material; if no supported replacement exists, the audit records `BLOCKED_NO_SUPPORTED_MATERIAL` instead of inventing filler. The 10% weighted-semantic fraction is a provisional operator heuristic with a minimum semantic-mass rule and structural overrides, not a validated scientific threshold.
+
+Blind input isolation reduces confirmation bias but does not establish model-error independence. Same-family or unknown-family generator/auditor relationships are therefore recorded as correlated-model-error risk. When that risk is material in a high-stakes cardset, release remains blocked until a secondary review resolves the material axes.
+
+The canonical specification is `docs/rendered_card_audit.md`; the machine contract is `contracts/EP_RENDERED_CARD_AUDIT_CONTRACT_v1.0.json`.
+
 ## Engineering conformance
 
 Queue identity, `main_visual.required_objects`, `required_relations`, `citation_binding.render_policy`, layout instructions and similar JSON locks are interpreted through `audit_policy.engineering_conformance_track`, separately from the scientific verdict. A lock becomes a science-communication gate only when both conditions are met:
