@@ -90,6 +90,17 @@ python scripts/validate_explainer_output.py --json YYYYMMDD_<slug>.md
 
 The first two registry commands must exit zero. The registry JSON command must return `"status": "pass"`. The explainer-output validator must also exit zero for every new delivery artifact. Do not weaken a validator to make a new record pass; correct the record or document why the contract itself must change. Green structural validation certifies packaging and registry consistency, not reader comprehension or science-communication quality.
 
+## Change the RCA policy
+
+The current manifest `policies/rca/current.json` is authoritative for the active versioned policy path, policy version and digest. For a policy-only Rendered Card Audit rule change, edit the versioned policy JSON selected by that manifest, update its explicit status/disposition mappings and `tests/test_rca_policy.py` cases, then run:
+
+```bash
+python3 scripts/validate_rca_policy.py --sync-surfaces
+python3 -m unittest tests/test_rca_policy.py -v
+```
+
+`--sync-surfaces` updates the current manifest digest/version, active contract/fixture policy mirrors, active schema policy-version constant and active contract policy path atomically, then validates the policy and surfaces. It refuses `policy_id`, `contract_version`, `result_schema_version` or `method_revision` changes; those are structural, method or contract migrations and must be updated manually with their schema/contract/docs/fixture changes. Raise `policy_version` for a decision-rule change, `result_schema_version` for a result-shape change, and `contract_version` only for an external contract change. Mark older contract snapshots superseded; do not silently edit their historical policy.
+
 ## Pull-request checklist
 
 - [ ] The article bytes are preserved and `article_sha256` matches.

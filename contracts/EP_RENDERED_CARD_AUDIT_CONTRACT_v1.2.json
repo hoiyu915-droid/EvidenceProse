@@ -1,7 +1,11 @@
 {
   "contract_name": "EP_RENDERED_CARD_AUDIT",
   "contract_version": "1.2.0",
+  "policy_id": "EP_RENDERED_CARD_AUDIT",
+  "policy_version": "1.3.0",
+  "result_schema_version": "1.1.0",
   "method_revision": "1.3-materiality-scope-and-role-binding",
+  "policy_digest": "dc8304eae0923a25197a27c2a0695a7859b3de101bd981dad2f82f17cb6639c3",
   "status": "canonical",
   "supersedes": "EP_RENDERED_CARD_AUDIT_CONTRACT_v1.1.json",
   "scope": "Read-only post-render audit lane for EvidenceProse companion cards",
@@ -115,9 +119,9 @@
         "SEMANTICALLY_EQUIVALENT_PARAPHRASE",
         "SOURCE_SUPPORTED_NONEXPANSIVE_ELABORATION",
         "SOURCE_SUPPORTED_BUT_OUT_OF_CARD_SCOPE",
+        "UNAUTHORIZED_AND_UNSUPPORTED",
         "MATERIAL_QUEUE_PROTECTIVE_LOCK_VIOLATION",
         "AUTHORIZED_BUT_SOURCE_UNVERIFIABLE",
-        "UNAUTHORIZED_AND_UNSUPPORTED",
         "NON_MATERIAL_DECORATION"
       ],
       "material_failure_rules": {
@@ -185,10 +189,10 @@
   },
   "verdicts": {
     "PASS": "all substantive axes pass; topology, role-partition, source-surface and evidence-annotation closure are complete",
-    "PASS_WITH_WARNINGS": "only non-material deviations remain, including harmless duplicate labels or engineering-only wording divergence",
-    "FAIL_RENDER": "sound expected science/spec, but render materially changes meaning, topology, role partition, card scope, evidence-role binding, source structure or traceability",
-    "FAIL_SPEC": "render faithfully reflects a materially wrong upstream spec/truth/source binding",
-    "BLOCK_UNVERIFIABLE": "material source/identity/render relation cannot be checked without guessing"
+    "PASS_WITH_WARNINGS": "only non-material deviations remain",
+    "FAIL_RENDER": "the render materially changes meaning, topology, role partition, card scope, evidence-role binding, source structure or traceability",
+    "FAIL_SPEC": "the render faithfully reflects a materially wrong upstream specification, truth boundary or source binding",
+    "BLOCK_UNVERIFIABLE": "a material source, identity or render relation cannot be checked without guessing"
   },
   "regression_cases": {
     "C02_WRONG_BRANCH_SOURCE": "Retained from v1.0: wrong branch parent must FAIL_RENDER even when labels are correct.",
@@ -215,6 +219,9 @@
   "canonical_documents": {
     "specification": "docs/rendered_card_audit_v1.2.md",
     "canonical_alias": "docs/rendered_card_audit.md",
+    "policy": "policies/rca/policy_v1.3.0.json",
+    "policy_manifest": "policies/rca/current.json",
+    "result_schema": "schemas/runtime/rendered_card_audit.schema.json",
     "integrated_validator": "scripts/validate_rendered_card_audit.py",
     "source_closure_validator": "scripts/validate_rendered_card_source_closure.py",
     "source_closure_tests": "tests/test_rendered_card_source_closure.py",

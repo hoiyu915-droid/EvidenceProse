@@ -2,7 +2,8 @@
   "contract_name": "EP_RENDERED_CARD_AUDIT",
   "contract_version": "1.0.0",
   "method_revision": "1.1-topology-gated",
-  "status": "canonical",
+  "status": "superseded",
+  "superseded_by": "EP_RENDERED_CARD_AUDIT_CONTRACT_v1.2.json",
   "scope": "Read-only post-render audit lane for EvidenceProse companion cards",
   "purpose": "Verify what the rendered card actually communicates against audited truth and bound literature, with mandatory visual-topology reconciliation before a card can pass.",
   "authority_model": {
