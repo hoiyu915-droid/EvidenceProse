@@ -39,6 +39,12 @@ Luan YL, Sun L, Kim YJ, Wang J, Xie X. 2026. AI-AI co-creation outperforms human
 
 
 class ExplainerOutputFormatTests(unittest.TestCase):
+    @staticmethod
+    def with_content(content: str) -> str:
+        before, remainder = VALID.split("## 內容\n", 1)
+        _, after = remainder.split("## 引用來源", 1)
+        return f"{before}## 內容\n\n{content}\n\n## 引用來源{after}"
+
     def test_valid_delivery_passes(self) -> None:
         self.assertEqual(
             validate_text(VALID, filename="20260813_ai-ai-cocreation-creativity.md"),
@@ -94,6 +100,41 @@ class ExplainerOutputFormatTests(unittest.TestCase):
             broken, filename="20260813_ai-ai-cocreation-creativity.md"
         )
         self.assertTrue(any("final non-empty line" in error for error in errors))
+
+    def test_content_over_4000_characters_is_rejected_by_default(self) -> None:
+        article = self.with_content("研" * 4001)
+        errors = validate_text(
+            article, filename="20260813_ai-ai-cocreation-creativity.md"
+        )
+        self.assertTrue(any("4000-character ceiling" in error for error in errors))
+
+    def test_large_literature_exception_requires_reason(self) -> None:
+        article = self.with_content("研" * 4001)
+        errors = validate_text(
+            article,
+            filename="20260813_ai-ai-cocreation-creativity.md",
+            allow_large_literature=True,
+        )
+        self.assertTrue(any("requires a non-empty reason" in error for error in errors))
+
+    def test_large_literature_exception_with_reason_passes(self) -> None:
+        article = self.with_content("研" * 4001)
+        errors = validate_text(
+            article,
+            filename="20260813_ai-ai-cocreation-creativity.md",
+            allow_large_literature=True,
+            length_exception_reason="Compression would remove material cross-study limits.",
+        )
+        self.assertEqual(errors, [])
+
+    def test_unnecessary_large_literature_exception_is_rejected(self) -> None:
+        errors = validate_text(
+            VALID,
+            filename="20260813_ai-ai-cocreation-creativity.md",
+            allow_large_literature=True,
+            length_exception_reason="Not actually needed.",
+        )
+        self.assertTrue(any("exception is unnecessary" in error for error in errors))
 
 
 if __name__ == "__main__":

@@ -76,6 +76,8 @@ A summary that contains the headline result but suppresses the limitation that c
 
 `## 內容` is narrative-first rather than checklist-first. It may use H3 subsections when they help a reader follow the evidence, but a fixed internal subsection list is not required.
 
+By default, `## 內容` must not exceed 4,000 non-whitespace Unicode code points. This is a maximum rather than a quota: a smaller evidence base should produce a naturally shorter article, with no padding. A genuinely large literature base may exceed the ceiling only when compression would remove material claims, limitations, applicability boundaries, uncertainty, evidence roles, or causal limits, and the validator is invoked with an explicit large-literature exception and non-empty reason. The reason stays in execution metadata; it is not printed in the reader artifact.
+
 The content should preserve the source hierarchy:
 
 - distinguish pooled findings from single-study signals;
