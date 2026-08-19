@@ -1,7 +1,8 @@
 # Rendered Card Audit v1.1
 
 Contract: `EP_RENDERED_CARD_AUDIT v1.1`  
-Method revision: `1.2-topology-and-source-closure`
+Method revision: `1.2-topology-and-source-closure`  
+Status: superseded by `EP_RENDERED_CARD_AUDIT v1.2`
 
 This revision keeps the v1.1 topology gate and closes a second failure mode: a rendered card may communicate the right overall topic while quietly adding a plausible but unsupported population, category, example, outcome, mechanism or context. That added item can look harmless because it fits the theme. It is still a scientific addition and must be source-traceable.
 

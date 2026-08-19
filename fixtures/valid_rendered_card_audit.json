@@ -1,6 +1,6 @@
 {
   "contract_version": "1.0",
-  "method_revision": "1.1-topology-gated",
+  "method_revision": "1.3-materiality-scope-and-role-binding",
   "run_id": "rca-demo-001",
   "created_at": "2026-08-18T22:50:00+09:00",
   "source_bindings": [
@@ -35,21 +35,55 @@
         "central_message": "X 與 Y 有關，但沒有因果箭頭。",
         "apparent_evidence_strength": "association",
         "apparent_causal_structure": "association only",
-        "limitations_as_read": ["僅支持關聯"]
+        "limitations_as_read": [
+          "僅支持關聯"
+        ],
+        "content_node_inventory": [
+          {
+            "observed_node_id": "CN1",
+            "text": "X",
+            "material": true
+          },
+          {
+            "observed_node_id": "CN2",
+            "text": "Y",
+            "material": true
+          },
+          {
+            "observed_node_id": "CN3",
+            "text": "僅支持關聯",
+            "material": true
+          },
+          {
+            "observed_node_id": "CN4",
+            "text": "Roesler, 2025",
+            "material": true
+          }
+        ]
       },
       "expected_semantic_packet_digest": "f684ea0624dc13372447e0cd1fe957d4627555faba4ae8580ec7fc92d8a0b78e",
       "visual_semantic_reconciliation": {
         "source_structure": {
           "structure_required": true,
           "source_kind": "body_text",
-          "source_locators": ["SRC001:results"],
+          "source_locators": [
+            "SRC001:results"
+          ],
           "figure_or_table_directly_inspected": false,
           "expected_graph_derived": true
         },
         "observed_graph": {
           "nodes": [
-            {"node_id": "N1", "label": "X", "role": "exposure"},
-            {"node_id": "N2", "label": "Y", "role": "outcome"}
+            {
+              "node_id": "N1",
+              "label": "X",
+              "role": "exposure"
+            },
+            {
+              "node_id": "N2",
+              "label": "Y",
+              "role": "outcome"
+            }
           ],
           "edges": [
             {
@@ -66,8 +100,14 @@
         "observed_graph_digest": "f3b76a8a314844e6383641aa39b171d3f65dcbeaf2bdfdf56ec45dd04ecbc548",
         "expected_graph": {
           "nodes": [
-            {"node_id": "N1", "label": "X"},
-            {"node_id": "N2", "label": "Y"}
+            {
+              "node_id": "N1",
+              "label": "X"
+            },
+            {
+              "node_id": "N2",
+              "label": "Y"
+            }
           ],
           "relations": [
             {
@@ -80,9 +120,10 @@
             }
           ],
           "branch_points": [],
-          "terminal_states": []
+          "terminal_states": [],
+          "role_partitions": []
         },
-        "expected_graph_digest": "71f47b87a9646d0a68a41e30b609add4886aa9d9999a39e709a506f3a4fbd652",
+        "expected_graph_digest": "da0896bce17fa0790ff0de0df623dfe360091894d0daea21c065d8a38def9375",
         "edge_checks": [
           {
             "edge_id": "E1",
@@ -97,7 +138,9 @@
           {
             "relation_id": "R1",
             "status": "represented",
-            "observed_edge_ids": ["E1"],
+            "observed_edge_ids": [
+              "E1"
+            ],
             "finding_id": null
           }
         ],
@@ -114,8 +157,10 @@
           "all_material_branch_points_checked": true,
           "all_material_terminal_states_checked": true,
           "text_visual_consistency_checked": true,
-          "concept_presence_shortcut_not_used": true
-        }
+          "concept_presence_shortcut_not_used": true,
+          "all_material_role_partitions_checked": true
+        },
+        "role_partition_checks": []
       },
       "axes": {
         "CONTENT_MEANING": "pass",
@@ -129,18 +174,79 @@
       "verdict": "PASS",
       "release_blocking": false,
       "failure_origin": null,
-      "repair_ticket_id": null
+      "repair_ticket_id": null,
+      "source_surface_reconciliation": {
+        "content_node_checks": [
+          {
+            "observed_node_id": "CN1",
+            "queue_authorization_status": "authorized",
+            "primary_source_support_status": "supported",
+            "source_locators": [
+              "SRC001:results"
+            ],
+            "disposition": "AUTHORIZED_AND_SUPPORTED",
+            "materiality": "material",
+            "finding_id": null
+          },
+          {
+            "observed_node_id": "CN2",
+            "queue_authorization_status": "authorized",
+            "primary_source_support_status": "supported",
+            "source_locators": [
+              "SRC001:results"
+            ],
+            "disposition": "AUTHORIZED_AND_SUPPORTED",
+            "materiality": "material",
+            "finding_id": null
+          },
+          {
+            "observed_node_id": "CN3",
+            "queue_authorization_status": "authorized",
+            "primary_source_support_status": "supported",
+            "source_locators": [
+              "SRC001:limitations"
+            ],
+            "disposition": "AUTHORIZED_AND_SUPPORTED",
+            "materiality": "material",
+            "finding_id": null
+          },
+          {
+            "observed_node_id": "CN4",
+            "queue_authorization_status": "authorized",
+            "primary_source_support_status": "supported",
+            "source_locators": [
+              "SRC001:bibliography"
+            ],
+            "disposition": "AUTHORIZED_AND_SUPPORTED",
+            "materiality": "material",
+            "finding_id": null
+          }
+        ],
+        "expected_content_checks": [],
+        "evidence_annotation_checks": [],
+        "source_surface_completion": {
+          "all_observed_material_nodes_dispositioned": true,
+          "all_material_evidence_annotations_checked": true,
+          "topic_plausibility_shortcut_not_used": true,
+          "literal_queue_whitelist_shortcut_not_used": true,
+          "mixed_support_nodes_split_when_materially_different": true
+        }
+      }
     }
   ],
   "cardset_audit": {
     "status": "NOT_APPLICABLE",
     "scope": "cross_card_and_package_only",
     "cross_card_findings": [],
-    "package_coverage": {"status": "NOT_APPLICABLE"}
+    "package_coverage": {
+      "status": "NOT_APPLICABLE"
+    }
   },
   "methodological_risk": {
     "high_stakes_cardset": true,
-    "high_stakes_reasons": ["causal_ceiling"],
+    "high_stakes_reasons": [
+      "causal_ceiling"
+    ],
     "generator_model_family": "family-a",
     "auditor_model_family": "family-b",
     "relationship": "different_family",

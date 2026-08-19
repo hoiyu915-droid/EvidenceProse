@@ -52,3 +52,7 @@ jobs:
         run: |
           python scripts/validate_rendered_card_audit.py \
             fixtures/valid_rendered_card_audit.json --json
+      - name: Validate RCA source-surface closure fixture
+        run: |
+          python scripts/validate_rendered_card_source_closure.py \
+            fixtures/valid_rendered_card_audit.json --json

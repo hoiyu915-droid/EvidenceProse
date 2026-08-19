@@ -1,0 +1,224 @@
+{
+  "contract_name": "EP_RENDERED_CARD_AUDIT",
+  "contract_version": "1.2.0",
+  "method_revision": "1.3-materiality-scope-and-role-binding",
+  "status": "canonical",
+  "supersedes": "EP_RENDERED_CARD_AUDIT_CONTRACT_v1.1.json",
+  "scope": "Read-only post-render audit lane for EvidenceProse companion cards",
+  "purpose": "Verify rendered-card scientific meaning with topology, materiality-first source-surface closure, card-scope control, role-partition reconciliation, and claim-bound evidence annotations.",
+  "authority_model": {
+    "scientific_truth_authority": "audited_truth_boundary",
+    "source_surface_authority": "bound_primary_source",
+    "editorial_intent_source": "final_card_json_or_queue_projection",
+    "reader_experience_source": "rendered_image",
+    "hard_rules": [
+      "Concept presence and literal queue wording are both insufficient verdict shortcuts.",
+      "Every material visual relation must be reconciled edge by edge.",
+      "Every material reader-visible content node must be dispositioned with queue scope and primary-source support.",
+      "Source-supported non-expansive elaboration may pass even when not verbatim queue text.",
+      "Source support elsewhere in the paper does not authorize sibling-specific or out-of-card claims.",
+      "Evidence annotations are claim-bound: both evidence role and visible attachment target must reconcile."
+    ]
+  },
+  "integration": {
+    "position": "after_render_before_release",
+    "read_only": true,
+    "tp03_write": false,
+    "tp03_reseal": false,
+    "image_edit_or_generation": false,
+    "probe_mutation": false
+  },
+  "mandatory_audit_sop": [
+    {
+      "stage": "RCA-00",
+      "name": "ingest_bind_and_deduplicate",
+      "must": [
+        "bind image to card_id",
+        "hash rendered image",
+        "deduplicate identical images",
+        "block ambiguous identity"
+      ]
+    },
+    {
+      "stage": "RCA-01",
+      "name": "bind_primary_literature",
+      "must": [
+        "bind the primary source when available",
+        "record fallback honestly",
+        "inspect source figure/table directly when a rendered relation or closed set derives from it"
+      ]
+    },
+    {
+      "stage": "RCA-02",
+      "name": "build_expected_semantic_structure_and_surface_packet",
+      "must": [
+        "central claims",
+        "evidence strength and causal ceiling",
+        "limitations/applicability/forbidden takeaways",
+        "protected terms/lists/categories/sequences",
+        "expected visual graph including branch conditions and terminal states",
+        "expected source-surface inventory for every material category/example/list member the source or final queue actually authorizes",
+        "expected semantic role partitions when the card compares positions",
+        "expected evidence-annotation role and attachment bindings"
+      ]
+    },
+    {
+      "stage": "RCA-03",
+      "name": "blind_render_readback",
+      "visibility": [
+        "rendered image only"
+      ],
+      "freeze_before_comparison": true,
+      "must": [
+        "read all visible text, numbers and citations",
+        "extract every material visual node",
+        "extract every material content node including standalone examples/categories/icons whose label carries scientific meaning",
+        "extract every material edge with source/target/direction/type/condition",
+        "extract branch points and terminal/non-terminal behavior",
+        "extract grouping/category/order/scale/colour semantics",
+        "assign stable observed_node_id to each material content node before source comparison",
+        "freeze visible evidence annotations and their apparent claim bindings",
+        "freeze material comparison/grouping role partitions",
+        "split materially mixed-support clauses into separate observed nodes before disposition"
+      ]
+    },
+    {
+      "stage": "RCA-04",
+      "name": "visual_topology_reconciliation",
+      "must": [
+        "disposition every observed material edge",
+        "cover every expected material relation",
+        "check source node, target node, direction, relation type, branch condition, branch parent and terminal-state continuation",
+        "check path-level implication",
+        "check text-versus-visual contradiction",
+        "never pass by concept presence alone",
+        "reconcile every material role partition/grouping",
+        "fail collapsed contrast or wrong attribution even when all words are source-supported"
+      ]
+    },
+    {
+      "stage": "RCA-05",
+      "name": "source_surface_node_closure",
+      "must": [
+        "disposition every observed material content node exactly once",
+        "for each node record queue authorization/scope and primary-source support with locator when supported",
+        "distinguish semantic paraphrase and source-supported non-expansive elaboration from a newly added scientific node",
+        "run explicit expansion test for source-supported non-expansive elaboration",
+        "check source-defined list membership/cardinality and card-scope boundaries",
+        "check attribution, evidence-role, numeric and citation traceability",
+        "reconcile every material evidence annotation by role and visible claim binding",
+        "forbid topic-plausibility and literal queue-whitelist shortcuts",
+        "split mixed-support clauses before disposition and repair the smallest failing segment"
+      ],
+      "allowed_node_dispositions": [
+        "AUTHORIZED_AND_SUPPORTED",
+        "SEMANTICALLY_EQUIVALENT_PARAPHRASE",
+        "SOURCE_SUPPORTED_NONEXPANSIVE_ELABORATION",
+        "SOURCE_SUPPORTED_BUT_OUT_OF_CARD_SCOPE",
+        "MATERIAL_QUEUE_PROTECTIVE_LOCK_VIOLATION",
+        "AUTHORIZED_BUT_SOURCE_UNVERIFIABLE",
+        "UNAUTHORIZED_AND_UNSUPPORTED",
+        "NON_MATERIAL_DECORATION"
+      ],
+      "material_failure_rules": {
+        "UNAUTHORIZED_AND_UNSUPPORTED": "FAIL_RENDER",
+        "SOURCE_SUPPORTED_BUT_OUT_OF_CARD_SCOPE": "FAIL_RENDER",
+        "MATERIAL_QUEUE_PROTECTIVE_LOCK_VIOLATION": "FAIL_RENDER only when the lock has explicit material scientific protective purpose",
+        "AUTHORIZED_BUT_SOURCE_UNVERIFIABLE": "BLOCK_UNVERIFIABLE when material",
+        "closed_set_extra_member": "FAIL_RENDER",
+        "wrong_evidence_role_or_binding": "FAIL_RENDER",
+        "literal_queue_wording_difference_only": "not a scientific failure",
+        "source_supported_nonexpansive_elaboration": "PASS when explicit no-expansion test passes"
+      }
+    },
+    {
+      "stage": "RCA-06",
+      "name": "derive_per_card_verdict",
+      "rule": "PASS is illegal unless both topology closure and source-surface node closure are complete and all substantive axes pass."
+    },
+    {
+      "stage": "RCA-07",
+      "name": "cross_card_and_package_audit",
+      "must": [
+        "cross-card contradictions",
+        "evidence-role drift and annotation binding drift",
+        "taxonomy drift",
+        "scope expansion",
+        "sibling semantic bleed",
+        "package limitation coverage",
+        "cross-card source-surface additions"
+      ]
+    },
+    {
+      "stage": "RCA-08",
+      "name": "repair_and_human_display",
+      "must": [
+        "every FAIL_RENDER/FAIL_SPEC gets executable repair ticket",
+        "repair smallest failed region",
+        "substantial structural/content change gets supported replacement material",
+        "project all failed-card repair instructions into exactly one writing block"
+      ]
+    }
+  ],
+  "source_surface_gate": {
+    "observed_inventory_source": "frozen blind readback",
+    "material_node_definition": "Any reader-visible claim, number, category, example, mechanism, population, context, outcome, citation, evidence annotation or relationship whose presence or placement can change scientific understanding.",
+    "materiality_first_rule": "Literal queue mismatch is not itself a material scientific failure.",
+    "nonexpansive_elaboration_requirements": [
+      "supported by bound primary source",
+      "attaches to an already authorized semantic parent",
+      "adds no new claim/category/closed-set member/number/population/scope/mechanism/causal relation/clinical implication",
+      "changes no attribution/evidence role/uncertainty",
+      "imports no sibling-specific claim",
+      "violates no queue lock with material scientific protective purpose"
+    ],
+    "evidence_annotation_rule": "Every material evidence marker must reconcile both evidence role and visible claim binding.",
+    "mixed_clause_rule": "Split clauses before disposition when materially different support or scope would otherwise be merged.",
+    "closure_rules": [
+      "Every observed material node appears exactly once in content_node_checks.",
+      "Every expected source-defined closed-set member appears exactly once in expected_content_checks.",
+      "Every material evidence annotation is checked for role and binding.",
+      "Scientific plausibility and support from adjacent literature do not satisfy bound-source support.",
+      "Support elsewhere in the same paper does not automatically authorize out-of-card or sibling-specific content.",
+      "Literal visible_text/no_unlisted_visible_text mismatch does not by itself create FAIL_RENDER."
+    ]
+  },
+  "verdicts": {
+    "PASS": "all substantive axes pass; topology, role-partition, source-surface and evidence-annotation closure are complete",
+    "PASS_WITH_WARNINGS": "only non-material deviations remain, including harmless duplicate labels or engineering-only wording divergence",
+    "FAIL_RENDER": "sound expected science/spec, but render materially changes meaning, topology, role partition, card scope, evidence-role binding, source structure or traceability",
+    "FAIL_SPEC": "render faithfully reflects a materially wrong upstream spec/truth/source binding",
+    "BLOCK_UNVERIFIABLE": "material source/identity/render relation cannot be checked without guessing"
+  },
+  "regression_cases": {
+    "C02_WRONG_BRANCH_SOURCE": "Retained from v1.0: wrong branch parent must FAIL_RENDER even when labels are correct.",
+    "C02_PLAUSIBLE_UNSOURCED_CATEGORY": "If a card about narrow attachment-and-sex research adds 'pregnancy/postpartum context' as a research-gap category while the final queue did not authorize it and Dewitte 2020 does not support it, the card must FAIL_RENDER. The fact that pregnancy/postpartum is plausible or relevant in the wider attachment literature is irrelevant to this bound-source audit.",
+    "ROESLER_C04_C05_SUPPORTED_NONEXPANSIVE_GLOSS": "Source-supported explanatory gloss within the same authorized semantic node must not fail solely because it is not verbatim visible_text.",
+    "ROESLER_C06_COLLAPSED_CONTRAST": "Repeating the same two-sided sentence under both comparison boxes is FAIL_RENDER because placement collapses the intended semantic partition.",
+    "ROESLER_C09_SIBLING_SEMANTIC_BLEED": "Source-supported therapeutic-relationship content imported into the SDA card is out-of-card scope and FAIL_RENDER.",
+    "ROESLER_C10_EVIDENCE_ROLE_DRIFT": "A CONFLICT marker on a GAP-only child-motif card is FAIL_RENDER.",
+    "ROESLER_C01_EVIDENCE_BINDING_DRIFT": "A valid CORE marker attached to each theory category fails when the evidence role is not authorized at that claim granularity.",
+    "ROESLER_C03_DIRECTIONAL_SPECULATION": "A directional arrow replacing an unordered speculative bridge remains a topology FAIL_RENDER.",
+    "ROESLER_C05_HARMLESS_DUPLICATE_LABEL": "A redundant duplicate label that changes no evidence binding or weight is warning-only."
+  },
+  "human_repair_display": {
+    "surface": "writing_block",
+    "one_block_per_run": true,
+    "first_line_exact": "imgedit",
+    "section_heading_exact": "[圖卡名稱]",
+    "include_only": [
+      "FAIL_RENDER",
+      "FAIL_SPEC"
+    ],
+    "ordinary_chat_rule": "Outside the writing block, report only verdict/count/card-id summary; do not duplicate the repair body."
+  },
+  "canonical_documents": {
+    "specification": "docs/rendered_card_audit_v1.2.md",
+    "canonical_alias": "docs/rendered_card_audit.md",
+    "integrated_validator": "scripts/validate_rendered_card_audit.py",
+    "source_closure_validator": "scripts/validate_rendered_card_source_closure.py",
+    "source_closure_tests": "tests/test_rendered_card_source_closure.py",
+    "integrated_tests": "tests/test_rendered_card_audit.py",
+    "superseded_contract": "contracts/EP_RENDERED_CARD_AUDIT_CONTRACT_v1.1.json"
+  }
+}

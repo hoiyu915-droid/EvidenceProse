@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
-"""Structural validator for topology-gated EP_RENDERED_CARD_AUDIT v1.0."""
+"""Structural validator for EP_RENDERED_CARD_AUDIT v1.2 / method 1.3."""
 from __future__ import annotations
-import argparse, hashlib, json
+import argparse, hashlib, json, sys
 from pathlib import Path
 from typing import Any
 
-VERSION="1.0"; METHOD="1.1-topology-gated"
+SCRIPT_DIR=Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path: sys.path.insert(0,str(SCRIPT_DIR))
+from validate_rendered_card_source_closure import validate_card as validate_source_surface_card, METHOD as SOURCE_METHOD
+
+VERSION="1.0"; METHOD="1.3-materiality-scope-and-role-binding"
+assert SOURCE_METHOD==METHOD
 SEM=("CONTENT_MEANING","SOURCE_SURFACE","VISUAL_SEMANTICS","CITATION_TRACEABILITY")
 FAIL={"FAIL_RENDER","FAIL_SPEC"}; BLOCK=FAIL|{"BLOCK_UNVERIFIABLE"}
 EDGE_FAIL={"wrong_source_node","wrong_target_node","wrong_direction","wrong_condition","wrong_relation_type","unsupported_relation"}
@@ -61,6 +66,7 @@ def visual_status(rec,findings,prefix,errors):
     rels=[r.get("relation_id") for r in eg.get("relations",[]) if isinstance(r,dict) and r.get("material") is True]
     branches=[b.get("branch_id") for b in eg.get("branch_points",[]) if isinstance(b,dict) and b.get("material") is True]
     terms=[t.get("terminal_id") for t in eg.get("terminal_states",[]) if isinstance(t,dict) and t.get("material") is True]
+    partitions=[r.get("partition_id") for r in eg.get("role_partitions",[]) if isinstance(r,dict) and r.get("material") is True]
     bad=warn=unv=False
     ec=rec.get("edge_checks",[]); eids=[x.get("edge_id") for x in ec if isinstance(x,dict)] if isinstance(ec,list) else []
     if sorted(eids)!=sorted(edges): add(errors,f"{prefix} every observed material edge must be dispositioned exactly once")
@@ -89,13 +95,21 @@ def visual_status(rec,findings,prefix,errors):
             elif st=="fail": bad=True; linked(x.get("finding_id"),findings,f"{prefix} {label} {x.get(key)}",errors)
             elif st=="warning": warn=True
             elif st!="pass": add(errors,f"{prefix} {label} status invalid")
+    pc=rec.get("role_partition_checks",[]); pids=[x.get("partition_id") for x in pc if isinstance(x,dict)] if isinstance(pc,list) else []
+    if sorted(pids)!=sorted(partitions): add(errors,f"{prefix} every material role partition must be checked exactly once")
+    for x in pc if isinstance(pc,list) else []:
+        st=x.get("status")
+        if st=="unverifiable": unv=True; linked(x.get("finding_id"),findings,f"{prefix} role partition {x.get('partition_id')}",errors)
+        elif st in {"collapsed_contrast","wrong_attribution","wrong_grouping"}: bad=True; linked(x.get("finding_id"),findings,f"{prefix} role partition {x.get('partition_id')}",errors)
+        elif st=="warning": warn=True
+        elif st!="pass": add(errors,f"{prefix} role partition status invalid")
     tv=rec.get("text_visual_consistency",{}); st=tv.get("status") if isinstance(tv,dict) else None
     if st=="unverifiable": unv=True; linked(tv.get("finding_id"),findings,f"{prefix} text/visual failure",errors)
     elif st=="fail": bad=True; linked(tv.get("finding_id"),findings,f"{prefix} text/visual failure",errors)
     elif st=="warning": warn=True
     elif st!="pass": add(errors,f"{prefix} text_visual_consistency invalid")
     comp=rec.get("topology_completion",{})
-    required={"all_observed_material_edges_dispositioned":sorted(eids)==sorted(edges),"all_expected_material_relations_covered":sorted(rids)==sorted(rels),"all_material_branch_points_checked":sorted(bids)==sorted(branches),"all_material_terminal_states_checked":sorted(tids)==sorted(terms),"text_visual_consistency_checked":st in {"pass","warning","fail","unverifiable"},"concept_presence_shortcut_not_used":True}
+    required={"all_observed_material_edges_dispositioned":sorted(eids)==sorted(edges),"all_expected_material_relations_covered":sorted(rids)==sorted(rels),"all_material_branch_points_checked":sorted(bids)==sorted(branches),"all_material_terminal_states_checked":sorted(tids)==sorted(terms),"all_material_role_partitions_checked":sorted(pids)==sorted(partitions),"text_visual_consistency_checked":st in {"pass","warning","fail","unverifiable"},"concept_presence_shortcut_not_used":True}
     for k,v in required.items():
         if comp.get(k) is not v: add(errors,f"{prefix} topology_completion.{k} must be {v}")
     if comp.get("concept_presence_shortcut_not_used") is not True: add(errors,f"{prefix} concept-presence shortcut is forbidden")
@@ -193,11 +207,23 @@ def validate_bundle(b:Any,*,base_dir:Path|None=None):
         if br.get("frozen_before_comparison") is not True or not sha(br.get("digest")) or not sha(br.get("visual_graph_digest")): add(e,f"{p} blind readback not frozen/bound")
         if not sha(c.get("expected_semantic_packet_digest")): add(e,f"{p} expected semantic digest invalid")
         fm=finding_map(c.get("findings"),f"{p}.findings",e); expected=visual_status(c.get("visual_semantic_reconciliation"),fm,p,e)
+        source_expected=validate_source_surface_card(c,e)
+        ssr=c.get("source_surface_reconciliation",{})
+        if isinstance(ssr,dict):
+            for group in (ssr.get("content_node_checks",[]),ssr.get("evidence_annotation_checks",[])):
+                for item in group if isinstance(group,list) else []:
+                    if not isinstance(item,dict): continue
+                    fid=item.get("finding_id")
+                    if txt(fid):
+                        if fid not in fm: add(e,f"{p} source-surface finding {fid} must link to card finding")
+                        elif fm[fid].get("axis")!="SOURCE_SURFACE": add(e,f"{p} source-surface finding {fid} must use SOURCE_SURFACE axis")
         rec=c.get("visual_semantic_reconciliation",{})
         if isinstance(rec,dict) and br.get("visual_graph_digest")!=rec.get("observed_graph_digest"): add(e,f"{p} frozen blind graph digest mismatch")
         axes=c.get("axes",{})
         if any(x not in axes for x in SEM+("ENGINEERING_CONFORMANCE",)): add(e,f"{p} axes incomplete")
-        elif axes.get("VISUAL_SEMANTICS")!=expected: add(e,f"{p} VISUAL_SEMANTICS must be {expected} from topology reconciliation")
+        else:
+            if axes.get("VISUAL_SEMANTICS")!=expected: add(e,f"{p} VISUAL_SEMANTICS must be {expected} from topology reconciliation")
+            if source_expected is not None and axes.get("SOURCE_SURFACE")!=source_expected: add(e,f"{p} SOURCE_SURFACE must be {source_expected} from source-surface reconciliation")
         v=c.get("verdict")
         if c.get("release_blocking") is not (v in BLOCK): add(e,f"{p} release_blocking mismatch")
         if v=="FAIL_SPEC" and c.get("failure_origin") not in {"FINAL_CARD_SPEC","TRUTH_BOUNDARY","SOURCE_BINDING","MIXED"}: add(e,f"{p} FAIL_SPEC requires failure_origin")
