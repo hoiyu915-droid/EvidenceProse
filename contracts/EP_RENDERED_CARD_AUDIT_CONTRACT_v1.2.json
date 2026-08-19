@@ -1,0 +1,123 @@
+{
+  "contract_name": "EP_RENDERED_CARD_AUDIT",
+  "contract_version": "1.2.0",
+  "method_revision": "1.3-queue-diff-test-identity",
+  "status": "canonical_candidate",
+  "supersedes": "EP_RENDERED_CARD_AUDIT_CONTRACT_v1.1.json",
+  "scope": "Read-only post-render audit lane for EvidenceProse companion cards",
+  "purpose": "Require topology, queue authorization, primary-source surface, protected-term, and statistical/test-identity closure before a rendered card can pass.",
+  "authority_model": {
+    "scientific_truth_authority": "audited_truth_boundary_and_bound_primary_source",
+    "editorial_authorization_authority": "exact_generating_queue_item",
+    "reader_experience_source": "rendered_image",
+    "hard_rules": [
+      "Source support does not authorize renderer-added content.",
+      "Content authorized on a sibling card is not authorized on the current card unless the current queue item also authorizes it.",
+      "Protected scientific terms and instrument abbreviations must be checked as constructs, not merely by broad semantic similarity.",
+      "Every material visual relation must preserve the identity of the tested relation, including operator and outcome.",
+      "A moderation or interaction test cannot be represented as a direct association between its component variables.",
+      "Renderer-authored framing is material when it changes the apparent research question, evidence role, clinical claim, or practical conclusion."
+    ]
+  },
+  "mandatory_closures": [
+    "visual_topology_closure",
+    "test_identity_closure",
+    "queue_surface_authorization_closure",
+    "primary_source_surface_closure",
+    "protected_term_closure"
+  ],
+  "mandatory_audit_sop": [
+    {
+      "stage": "RCA-00",
+      "name": "bind_exact_render_and_generating_item",
+      "must": ["bind card_id", "hash image", "bind exact generating queue digest and item digest", "block ambiguous identity"]
+    },
+    {
+      "stage": "RCA-01",
+      "name": "bind_primary_source",
+      "must": ["bind primary source by DOI/title/verified filename", "inspect source figure/table directly when structurally relevant"]
+    },
+    {
+      "stage": "RCA-02",
+      "name": "build_expected_packet",
+      "must": ["authorized_surface_inventory", "protected_term_inventory", "expected_visual_graph", "expected_test_identity_inventory", "truth boundary and forbidden takeaways"]
+    },
+    {
+      "stage": "RCA-03",
+      "name": "blind_atomic_readback",
+      "freeze_before_comparison": true,
+      "must": ["inventory every material visible text span", "inventory every material scientific node", "inventory every material edge", "inventory every apparent statistical relation", "record apparent research question and clinical/practical framing"]
+    },
+    {
+      "stage": "RCA-04",
+      "name": "topology_and_test_identity_reconciliation",
+      "must": ["edge-by-edge topology closure", "record operands/operator/outcome/conditioning for every material relation", "fail wrong_test_identity", "fail interaction represented as direct association"]
+    },
+    {
+      "stage": "RCA-05",
+      "name": "queue_surface_diff",
+      "must": ["compare every observed material node against current card authorization", "detect sibling leakage", "detect renderer-authored framing", "source support must not cure missing queue authorization"]
+    },
+    {
+      "stage": "RCA-06",
+      "name": "protected_term_and_primary_source_closure",
+      "must": ["check constructs/instruments/abbreviations/numbers/directions", "require source locator for supported material nodes", "fail invented or corrupted protected terms"]
+    },
+    {
+      "stage": "RCA-07",
+      "name": "derive_verdict",
+      "rule": "PASS is illegal unless every mandatory closure is complete and all substantive axes pass."
+    },
+    {
+      "stage": "RCA-08",
+      "name": "cross_card_package_sweep",
+      "must": ["sibling leakage", "construct/abbreviation drift", "test-identity drift", "outcome drift", "citation/source-layer drift"]
+    },
+    {
+      "stage": "RCA-09",
+      "name": "repair_projection",
+      "must": ["every FAIL_RENDER/FAIL_SPEC gets executable repair", "all failed repairs appear in one imgedit writing block"]
+    }
+  ],
+  "queue_surface_gate": {
+    "authorization_source": "exact_generating_queue_item_only",
+    "allowed_authorization_status": ["exact_authorized", "authorized_semantic_paraphrase", "not_authorized", "authorization_unverifiable"],
+    "material_failure_rules": {
+      "SOURCE_SUPPORTED_BUT_NOT_QUEUE_AUTHORIZED": "FAIL_RENDER unless current card explicitly permits renderer-authored material",
+      "UNAUTHORIZED_AND_UNSUPPORTED": "FAIL_RENDER",
+      "SIBLING_CARD_ONLY_AUTHORIZATION": "FAIL_RENDER",
+      "MATERIAL_RENDERER_AUTHORED_FRAMING": "FAIL_RENDER",
+      "AUTHORIZATION_UNVERIFIABLE": "BLOCK_UNVERIFIABLE when material"
+    }
+  },
+  "test_identity_gate": {
+    "required_fields_per_relation": ["relation_id", "operands", "operator", "outcome", "conditioning_context", "evidence_state"],
+    "operators": ["direct_association", "moderation_interaction", "three_way_interaction", "mediation", "causal_effect", "group_comparison", "sequence", "membership", "hypothesis_only", "author_speculation"],
+    "material_failure_rules": {
+      "wrong_operator": "FAIL_RENDER",
+      "wrong_operands": "FAIL_RENDER",
+      "wrong_outcome": "FAIL_RENDER",
+      "wrong_conditioning_context": "FAIL_RENDER",
+      "null_interaction_rendered_as_null_direct_associations": "FAIL_RENDER"
+    }
+  },
+  "protected_term_gate": {
+    "protected_types": ["construct_name", "instrument_name", "instrument_abbreviation", "outcome_label", "statistical_operator", "source_defined_category", "number_unit_denominator_direction"],
+    "rule": "A corruption, substitution or invented abbreviation that changes a protected scientific term is material even when the intended sentence remains guessable."
+  },
+  "pass_gate": {
+    "required_true": ["topology_complete", "test_identity_complete", "queue_surface_complete", "source_surface_complete", "protected_terms_complete", "sibling_leakage_absent", "material_framing_additions_absent"]
+  },
+  "regression_cases": {
+    "C03_PROTECTED_TERM_CORRUPTION": "Corrupting 表現失敗相關性抑制 must FAIL_RENDER.",
+    "C05_WRONG_TEST_IDENTITY": "Rendering null attachment × SES/SIS1 moderation as null direct attachment -> SES/SIS1 relations must FAIL_RENDER.",
+    "C06_SIBLING_LEAKAGE": "A source-supported FSFI/IIEF note not authorized on C06 must FAIL_RENDER.",
+    "C07_INVENTED_ABBREVIATION": "AAS must FAIL_RENDER when ECR is the authorized/source instrument and AAS is unsupported.",
+    "C08_ADDED_CORE_QUESTION": "Renderer-added diagnostic/treatment-effectiveness core-question framing must FAIL_RENDER when the study did not test those endpoints."
+  },
+  "canonical_documents": {
+    "specification": "docs/rendered_card_audit_v1.2.md",
+    "validator": "scripts/validate_rendered_card_audit_v1_2.py",
+    "tests": "tests/test_rendered_card_audit_v1_2.py"
+  }
+}
