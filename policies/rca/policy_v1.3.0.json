@@ -1,0 +1,237 @@
+{
+  "policy_id": "EP_RENDERED_CARD_AUDIT",
+  "status": "canonical",
+  "contract_version": "1.2.0",
+  "result_schema_version": "1.1.0",
+  "policy_version": "1.3.0",
+  "method_revision": "1.3-materiality-scope-and-role-binding",
+  "source_surface": {
+    "dispositions": {
+      "pass": [
+        "AUTHORIZED_AND_SUPPORTED",
+        "SEMANTICALLY_EQUIVALENT_PARAPHRASE",
+        "SOURCE_SUPPORTED_NONEXPANSIVE_ELABORATION"
+      ],
+      "warning": [],
+      "fail": [
+        "SOURCE_SUPPORTED_BUT_OUT_OF_CARD_SCOPE",
+        "UNAUTHORIZED_AND_UNSUPPORTED",
+        "MATERIAL_QUEUE_PROTECTIVE_LOCK_VIOLATION"
+      ],
+      "block": [
+        "AUTHORIZED_BUT_SOURCE_UNVERIFIABLE"
+      ],
+      "non_material": [
+        "NON_MATERIAL_DECORATION"
+      ],
+      "deprecated": [
+        "SOURCE_SUPPORTED_BUT_NOT_QUEUE_AUTHORIZED"
+      ]
+    },
+    "queue_authorization_statuses": [
+      "authorized",
+      "not_authorized",
+      "unverifiable"
+    ],
+    "primary_source_support_statuses": [
+      "supported",
+      "not_supported",
+      "unverifiable"
+    ],
+    "card_scope_statuses": [
+      "sibling_specific",
+      "outside_current_card_function"
+    ],
+    "expansion_keys": [
+      "adds_new_claim",
+      "adds_new_category_or_closed_set_member",
+      "adds_new_number",
+      "adds_new_population_or_scope",
+      "adds_new_mechanism",
+      "adds_new_causal_or_directional_relation",
+      "changes_attribution",
+      "changes_evidence_role",
+      "imports_sibling_specific_claim"
+    ],
+    "annotation": {
+      "roles": [
+        "CORE",
+        "INFERENCE",
+        "GAP",
+        "CONFLICT"
+      ],
+      "statuses": {
+        "pass": [
+          "equivalent"
+        ],
+        "warning": [
+          "duplicate_nonmaterial"
+        ],
+        "fail": [
+          "wrong_role",
+          "wrong_binding",
+          "unsupported_annotation"
+        ],
+        "block": [
+          "unverifiable"
+        ]
+      }
+    }
+  },
+  "topology": {
+    "edge_statuses": {
+      "pass": [
+        "equivalent",
+        "non_material_variation"
+      ],
+      "warning": [
+        "warning"
+      ],
+      "fail": [
+        "wrong_source_node",
+        "wrong_target_node",
+        "wrong_direction",
+        "wrong_condition",
+        "wrong_relation_type",
+        "unsupported_relation"
+      ],
+      "block": [
+        "unverifiable"
+      ]
+    },
+    "relation_statuses": {
+      "pass": [
+        "represented",
+        "semantically_equivalent"
+      ],
+      "warning": [
+        "omitted_non_material"
+      ],
+      "fail": [
+        "omitted_material",
+        "distorted"
+      ],
+      "block": [
+        "unverifiable"
+      ]
+    },
+    "branch_statuses": {
+      "pass": [
+        "pass"
+      ],
+      "warning": [
+        "warning"
+      ],
+      "fail": [
+        "fail"
+      ],
+      "block": [
+        "unverifiable"
+      ]
+    },
+    "terminal_statuses": {
+      "pass": [
+        "pass"
+      ],
+      "warning": [
+        "warning"
+      ],
+      "fail": [
+        "fail"
+      ],
+      "block": [
+        "unverifiable"
+      ]
+    },
+    "role_partition_statuses": {
+      "pass": [
+        "pass"
+      ],
+      "warning": [
+        "warning"
+      ],
+      "fail": [
+        "collapsed_contrast",
+        "wrong_attribution",
+        "wrong_grouping"
+      ],
+      "block": [
+        "unverifiable"
+      ]
+    },
+    "text_visual_consistency_statuses": {
+      "pass": [
+        "pass"
+      ],
+      "warning": [
+        "warning"
+      ],
+      "fail": [
+        "fail"
+      ],
+      "block": [
+        "unverifiable"
+      ]
+    }
+  },
+  "verdict_mapping": {
+    "disposition_to_axis_status": {
+      "AUTHORIZED_AND_SUPPORTED": "pass",
+      "SEMANTICALLY_EQUIVALENT_PARAPHRASE": "pass",
+      "SOURCE_SUPPORTED_NONEXPANSIVE_ELABORATION": "pass",
+      "NON_MATERIAL_DECORATION": "warning",
+      "SOURCE_SUPPORTED_BUT_OUT_OF_CARD_SCOPE": "fail",
+      "UNAUTHORIZED_AND_UNSUPPORTED": "fail",
+      "MATERIAL_QUEUE_PROTECTIVE_LOCK_VIOLATION": "fail",
+      "AUTHORIZED_BUT_SOURCE_UNVERIFIABLE": "unverifiable",
+      "SOURCE_SUPPORTED_BUT_NOT_QUEUE_AUTHORIZED": "deprecated"
+    },
+    "annotation_status_to_axis_status": {
+      "equivalent": "pass",
+      "duplicate_nonmaterial": "warning",
+      "wrong_role": "fail",
+      "wrong_binding": "fail",
+      "unsupported_annotation": "fail",
+      "unverifiable": "unverifiable"
+    },
+    "topology_status_to_axis_status": {
+      "pass": "pass",
+      "equivalent": "pass",
+      "non_material_variation": "pass",
+      "represented": "pass",
+      "semantically_equivalent": "pass",
+      "warning": "warning",
+      "omitted_non_material": "warning",
+      "wrong_source_node": "fail",
+      "wrong_target_node": "fail",
+      "wrong_direction": "fail",
+      "wrong_condition": "fail",
+      "wrong_relation_type": "fail",
+      "unsupported_relation": "fail",
+      "omitted_material": "fail",
+      "distorted": "fail",
+      "collapsed_contrast": "fail",
+      "wrong_attribution": "fail",
+      "wrong_grouping": "fail",
+      "fail": "fail",
+      "unverifiable": "unverifiable"
+    },
+    "axis_status_to_verdict": {
+      "pass": "PASS",
+      "warning": "PASS_WITH_WARNINGS",
+      "fail": "FAIL_RENDER",
+      "unverifiable": "BLOCK_UNVERIFIABLE"
+    },
+    "material_failure_verdicts": [
+      "FAIL_RENDER",
+      "FAIL_SPEC"
+    ],
+    "verdicts": {
+      "PASS": "all substantive axes pass; topology, role-partition, source-surface and evidence-annotation closure are complete",
+      "PASS_WITH_WARNINGS": "only non-material deviations remain",
+      "FAIL_RENDER": "the render materially changes meaning, topology, role partition, card scope, evidence-role binding, source structure or traceability",
+      "FAIL_SPEC": "the render faithfully reflects a materially wrong upstream specification, truth boundary or source binding",
+      "BLOCK_UNVERIFIABLE": "a material source, identity or render relation cannot be checked without guessing"
+    }
+  }
+}

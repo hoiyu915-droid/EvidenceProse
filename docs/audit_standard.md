@@ -55,7 +55,7 @@ A card fails `render_fidelity_audit` only when the rendering can materially chan
 
 ## Executable post-render audit: EP_RENDERED_CARD_AUDIT
 
-`EP_RENDERED_CARD_AUDIT v1.0`, method revision `1.1-topology-gated`, operationalises Layer 2 after the image has been rendered. It is read-only with respect to TP03 and Probe. The auditor first performs a blind readback of the rendered image and freezes that record before seeing the expected semantic packet, truth boundary, generation prompt, or sibling specification.
+`EP_RENDERED_CARD_AUDIT v1.2.0`, result schema `1.1.0`, the policy selected by `policies/rca/current.json`, and method revision `1.3-materiality-scope-and-role-binding` operationalise Layer 2 after the image has been rendered. It is read-only with respect to TP03 and Probe. The auditor first performs a blind readback of the rendered image and freezes that record before seeing the expected semantic packet, truth boundary, generation prompt, or sibling specification. The current manifest is authoritative for the active versioned policy path, policy version and digest.
 
 The post-render audit separates five axes:
 
@@ -83,7 +83,7 @@ When failures exist, their repair instructions are projected into exactly one Ch
 
 Blind input isolation reduces confirmation bias but does not establish model-error independence. Same-family or unknown-family generator/auditor relationships are therefore recorded as correlated-model-error risk. When that risk is material in a high-stakes cardset, release remains blocked until a secondary review resolves the material axes.
 
-The canonical specification is `docs/rendered_card_audit.md`; the machine contract is `contracts/EP_RENDERED_CARD_AUDIT_CONTRACT_v1.0.json`.
+The canonical specification is `docs/rendered_card_audit.md` (byte-identical to `docs/rendered_card_audit_v1.2.md`); the active machine contract is `contracts/EP_RENDERED_CARD_AUDIT_CONTRACT_v1.2.json`; the result schema is `schemas/runtime/rendered_card_audit.schema.json`. For a policy-only change, edit the active versioned policy selected by `policies/rca/current.json`, update its mapping and regression cases, run `python3 scripts/validate_rca_policy.py --sync-surfaces`, and run the focused tests. Structural, method, contract or result-schema changes require a manual migration; `--sync-surfaces` refuses those version-field changes. Older v1.0 and v1.1 contract snapshots are historical and superseded.
 
 ## Engineering conformance
 

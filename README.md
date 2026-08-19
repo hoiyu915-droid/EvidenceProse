@@ -22,7 +22,9 @@ The highest success criterion is reader understanding: after reading, a non-spec
 - Stable induction generation rules: 0
 - Live runtime contract: `EP_TA06_PROSE_RUNTIME v1.0`
 - Probe transform contract: `EP_PROBE_POST_AUDIT_TRANSFORM v1.1`
-- Rendered-card audit contract: `EP_RENDERED_CARD_AUDIT v1.0`
+- Rendered-card audit contract: `EP_RENDERED_CARD_AUDIT v1.2.0`
+- Rendered-card audit result schema: `1.1.0`
+- Rendered-card audit policy: selected by `policies/rca/current.json`
 - Delivery-shell contract: `EP-SCIENCE-EXPLAINER-OUTPUT v0.1`
 - Primary output language: Traditional Chinese
 
@@ -106,7 +108,7 @@ The specification is [docs/probe_post_audit_transform.md](docs/probe_post_audit_
 
 ## Rendered Card Audit
 
-`EP_RENDERED_CARD_AUDIT v1.0` is the executable form of the post-upload substantive-render-fidelity layer. It runs after image generation and before release, and is deliberately read-only: it may read rendered images, final card specs/queues, audited truth, and bound primary sources, but it does not modify or reseal TP03 queues, edit images, dispatch generation, or rewrite Probe output.
+`EP_RENDERED_CARD_AUDIT v1.2.0` is the executable form of the post-upload substantive-render-fidelity layer. It runs after image generation and before release, and is deliberately read-only: it may read rendered images, final card specs/queues, audited truth, and bound primary sources, but it does not modify or reseal TP03 queues, edit images, dispatch generation, or rewrite Probe output. Its active versioned policy is selected by `policies/rca/current.json`; that current manifest is authoritative for the policy path, policy version and canonical digest. Its result schema is `1.1.0`.
 
 RCA judges semantic equivalence rather than memorisation. Meaning-preserving paraphrase, translation, shortening, sentence restructuring, headings, and harmless labels are allowed. It separately audits `CONTENT_MEANING`, `SOURCE_SURFACE`, `VISUAL_SEMANTICS`, `CITATION_TRACEABILITY`, and warning-default `ENGINEERING_CONFORMANCE`. Source-defined terms, closed lists, taxonomies, category membership, ordered sequences, attribution layers, and material visual relations are protected against image-generation invention even when each individual word looks plausible.
 
@@ -114,7 +116,7 @@ Before comparison, RCA freezes a blind readback of the rendered image without sh
 
 Blocking cards use `FAIL_RENDER`, `FAIL_SPEC`, or `BLOCK_UNVERIFIABLE`. Every `FAIL_RENDER` / `FAIL_SPEC` carries an executable repair ticket. Substantial removal or recomposition also requires supported replacement material; the provisional 10% weighted-semantic threshold is an operator heuristic, not a validated scientific cutoff, and source/meaning structural triggers override it.
 
-The specification is [docs/rendered_card_audit.md](docs/rendered_card_audit.md). The canonical contract is [contracts/EP_RENDERED_CARD_AUDIT_CONTRACT_v1.0.json](contracts/EP_RENDERED_CARD_AUDIT_CONTRACT_v1.0.json).
+The specification is [docs/rendered_card_audit.md](docs/rendered_card_audit.md), byte-identical to [docs/rendered_card_audit_v1.2.md](docs/rendered_card_audit_v1.2.md). The active contract is [contracts/EP_RENDERED_CARD_AUDIT_CONTRACT_v1.2.json](contracts/EP_RENDERED_CARD_AUDIT_CONTRACT_v1.2.json). The current manifest is the authority for which versioned policy pack is active. For a policy-only rule change, edit that active policy JSON and its explicit mapping/regression cases, run `python3 scripts/validate_rca_policy.py --sync-surfaces`, then run the focused tests. The sync command updates the digest/version mirrors and rejects policy-id, contract, result-schema or method changes that require a full migration. Older v1.0/v1.1 contract snapshots are historical and superseded.
 
 ## Induction lane
 
@@ -144,6 +146,12 @@ contracts/
   EP_PROBE_POST_AUDIT_TRANSFORM_CONTRACT_v1.0.json
   EP_PROBE_POST_AUDIT_TRANSFORM_CONTRACT_v1.1.json
   EP_RENDERED_CARD_AUDIT_CONTRACT_v1.0.json
+  EP_RENDERED_CARD_AUDIT_CONTRACT_v1.1.json
+  EP_RENDERED_CARD_AUDIT_CONTRACT_v1.2.json
+
+policies/rca/
+  current.json
+  policy_v1.3.0.json
 
 data/
   registry.json
@@ -157,6 +165,7 @@ docs/
   induction_protocol.md
   probe_post_audit_transform.md
   rendered_card_audit.md
+  rendered_card_audit_v1.2.md
   science_explainer_output_format.md
   ta06_prose_runtime.md
   terminology.md
@@ -197,6 +206,7 @@ schemas/
   card_storyboard.schema.json
 
 scripts/
+  validate_rca_policy.py
   validate_registry.py
   validate_explainer_output.py
   validate_prose_runtime.py
@@ -216,6 +226,7 @@ tests/
   test_prose_runtime.py
   test_probe_post_audit.py
   test_rendered_card_audit.py
+  test_rca_policy.py
 
 .github/workflows/
   validate.yml
@@ -302,6 +313,19 @@ Validate the canonical rendered-card audit fixture:
 ```bash
 python scripts/validate_rendered_card_audit.py \
   fixtures/valid_rendered_card_audit.json --json
+```
+
+Validate the active RCA policy pack and all synchronized contract, schema, fixture and documentation surfaces:
+
+```bash
+python3 scripts/validate_rca_policy.py --json
+```
+
+For a policy-only change, synchronize the current-manifest digest/version mirrors before running the tests:
+
+```bash
+python3 scripts/validate_rca_policy.py --sync-surfaces
+python3 -m unittest tests/test_rca_policy.py -v
 ```
 
 A passing RCA validator proves structural closure: image/source bindings and hashes, deduplication, verdict/repair-ticket closure, substantial-repair replacement requirements, cardset aggregation, correlated-model-error policy, and release-gate consistency. It does not itself decide whether the source interpretation or image semantics are scientifically correct; those judgments must already be recorded by the post-render auditor.

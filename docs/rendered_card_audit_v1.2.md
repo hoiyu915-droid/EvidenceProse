@@ -1,7 +1,11 @@
-# Rendered Card Audit v1.2
+# Rendered Card Audit v1.2.0
 
-Contract: `EP_RENDERED_CARD_AUDIT v1.2`  
+Contract: `EP_RENDERED_CARD_AUDIT v1.2.0`
 Method revision: `1.3-materiality-scope-and-role-binding`
+
+Active policy pack, version and digest: resolved through `policies/rca/current.json`
+Result schema: `1.1.0`
+Surface checker: `python3 scripts/validate_rca_policy.py --json`
 
 This revision keeps the v1.1 topology gate and v1.2 source-surface closure, then fixes a false-positive/false-negative pair exposed by the Roesler 2025 cardset:
 
@@ -126,3 +130,9 @@ imgedit
 ```
 
 Repair the smallest failed region. Outside the block, report only verdict/count/card IDs.
+
+## Frequent policy changes
+
+Frequent RCA rule changes belong in the active policy pack, not in duplicated validator constants. The current manifest `policies/rca/current.json` is authoritative for the active versioned policy path, policy version and digest. Edit that policy JSON, update the disposition/status-to-verdict mapping and focused regression cases, run `python3 scripts/validate_rca_policy.py --sync-surfaces`, then run the focused tests. The sync command updates the policy-only mirrors atomically and rejects policy-id, contract, result-schema or method changes that require a full migration. The checker verifies the current pointer, canonical policy digest, active contract/schema/fixture version fields, and byte-identical parity between this active alias and `docs/rendered_card_audit_v1.2.md`.
+
+Raise `policy_version` for a policy-only decision change. Raise `result_schema_version` when the result JSON shape changes, and raise `contract_version` only when the external RCA contract changes. Historical contract snapshots remain immutable records and must be marked superseded when a newer active contract exists.
