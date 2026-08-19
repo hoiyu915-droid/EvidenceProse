@@ -128,6 +128,16 @@
     "fixed_thresholds_are_standards_requirements": false,
     "may_reduce_precision": false
   },
+  "article_length_policy": {
+    "counted_scope": "reader artifact ## 內容 section only",
+    "counting_rule": "non-whitespace Unicode code points",
+    "default_max_characters": 4000,
+    "shorter_when_evidence_is_small": true,
+    "padding_to_target_is_forbidden": true,
+    "exception_type": "large_literature_only",
+    "exception_requires_nonempty_reason": true,
+    "semantic_precedence": "The ceiling must not erase material claims, limitations, applicability boundaries, uncertainty, evidence roles, or causal limits."
+  },
   "repair_policy": {
     "hard_failure": "Target the smallest sentence or paragraph that repairs the failed semantic invariant.",
     "global_rewrite": "Not required unless the user explicitly requests it or local repair cannot restore a coherent article.",

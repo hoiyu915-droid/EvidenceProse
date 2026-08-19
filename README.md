@@ -270,6 +270,8 @@ The formal packaging contract is [docs/science_explainer_output_format.md](docs/
 
 Narrative detail inside `## 內容` remains evidence-driven and may use optional H3 subsections. Historical `data/samples/S###/article.md` files are immutable observations and are not retroactively rewritten.
 
+For new explainers, `## 內容` has a default ceiling of 4,000 non-whitespace Unicode code points. Short evidence bases should be shorter; padding is forbidden. Only a genuinely large literature base may use the explicit validator exception, with a non-empty reason, when compression would otherwise remove material scientific content or boundaries.
+
 Reader-facing output must not expose `filecite`, `turnNfileM`, Library/file IDs, sandbox/container paths, local PDF filenames, handoff digests, claim IDs, or other internal verification machinery.
 
 ## Validation

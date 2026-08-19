@@ -23,6 +23,12 @@ def load_json(name: str):
 
 
 class ProseRuntimeTests(unittest.TestCase):
+    @staticmethod
+    def with_content(article: str, content: str) -> str:
+        before, remainder = article.split("## 內容\n", 1)
+        _, after = remainder.split("## 引用來源", 1)
+        return f"{before}## 內容\n\n{content}\n\n## 引用來源{after}"
+
     def test_valid_fixture_passes(self):
         report = runtime.validate_bundle(
             handoff_path=FIXTURES / "valid_ta06_prose_handoff.json",
@@ -117,6 +123,37 @@ class ProseRuntimeTests(unittest.TestCase):
             )
         self.assertEqual(report["status"], "fail")
         self.assertTrue(any("article delivery" in error for error in report["errors"]))
+
+    def test_runtime_enforces_4000_character_content_ceiling(self):
+        article = (FIXTURES / "20260815_demo-explainer.md").read_text(encoding="utf-8")
+        article = self.with_content(article, "研" * 4001)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "20260815_demo-explainer.md"
+            path.write_text(article, encoding="utf-8")
+            report = runtime.validate_bundle(
+                handoff_path=FIXTURES / "valid_ta06_prose_handoff.json",
+                reader_path=FIXTURES / "valid_prose_reader_contract.json",
+                sidecar_path=FIXTURES / "valid_prose_audit_sidecar.json",
+                article_path=path,
+            )
+        self.assertEqual(report["status"], "fail")
+        self.assertTrue(any("4000-character ceiling" in error for error in report["errors"]))
+
+    def test_runtime_allows_reasoned_large_literature_exception(self):
+        article = (FIXTURES / "20260815_demo-explainer.md").read_text(encoding="utf-8")
+        article = self.with_content(article, "研" * 4001)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "20260815_demo-explainer.md"
+            path.write_text(article, encoding="utf-8")
+            report = runtime.validate_bundle(
+                handoff_path=FIXTURES / "valid_ta06_prose_handoff.json",
+                reader_path=FIXTURES / "valid_prose_reader_contract.json",
+                sidecar_path=FIXTURES / "valid_prose_audit_sidecar.json",
+                article_path=path,
+                allow_large_literature=True,
+                length_exception_reason="Compression would remove material cross-study limits.",
+            )
+        self.assertEqual(report["status"], "pass", report["errors"])
 
 
 if __name__ == "__main__":

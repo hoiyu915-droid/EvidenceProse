@@ -22,6 +22,7 @@ GRADE_EMOJI = {"高": "🟢", "中等": "🟡", "低": "🔴"}
 LOCAL_PDF_RE = re.compile(r"\b[A-Za-z0-9_.()\-]+\.pdf\b", re.IGNORECASE)
 
 REQUIRED_H2 = ("## 一句話總結", "## 內容", "## 引用來源")
+DEFAULT_CONTENT_MAX_CHARACTERS = 4000
 INTERNAL_REFERENCE_PATTERNS = (
     ("filecite marker", re.compile(r"filecite", re.IGNORECASE)),
     ("turn/file reference", re.compile(r"\bturn\d+file\d+\b", re.IGNORECASE)),
@@ -48,7 +49,17 @@ def _looks_like_public_url_token(text: str, start: int, end: int) -> bool:
     return token.startswith("https://") or token.startswith("http://")
 
 
-def validate_text(text: str, *, filename: str) -> list[str]:
+def _non_whitespace_character_count(text: str) -> int:
+    return sum(1 for character in text if not character.isspace())
+
+
+def validate_text(
+    text: str,
+    *,
+    filename: str,
+    allow_large_literature: bool = False,
+    length_exception_reason: str | None = None,
+) -> list[str]:
     errors: list[str] = []
 
     if not FILENAME_RE.fullmatch(filename):
@@ -101,6 +112,23 @@ def validate_text(text: str, *, filename: str) -> list[str]:
         content_text = "\n".join(lines[content_start + 1 : refs_start]).strip()
         if not content_text:
             errors.append("內容 must not be empty")
+        else:
+            content_character_count = _non_whitespace_character_count(content_text)
+            if content_character_count > DEFAULT_CONTENT_MAX_CHARACTERS:
+                if not allow_large_literature:
+                    errors.append(
+                        "內容 exceeds the default 4000-character ceiling: "
+                        f"{content_character_count} non-whitespace Unicode code points"
+                    )
+                elif not isinstance(length_exception_reason, str) or not length_exception_reason.strip():
+                    errors.append(
+                        "large-literature length exception requires a non-empty reason"
+                    )
+            elif allow_large_literature:
+                errors.append(
+                    "large-literature length exception is unnecessary when 內容 is at or below "
+                    "4000 characters"
+                )
 
     grade_matches: list[tuple[int, re.Match[str]]] = []
     for index, line in enumerate(lines):
@@ -166,12 +194,22 @@ def validate_text(text: str, *, filename: str) -> list[str]:
     return errors
 
 
-def validate_file(path: Path) -> list[str]:
+def validate_file(
+    path: Path,
+    *,
+    allow_large_literature: bool = False,
+    length_exception_reason: str | None = None,
+) -> list[str]:
     try:
         text = path.read_text(encoding="utf-8")
     except OSError as exc:
         return [f"cannot read file: {exc}"]
-    return validate_text(text, filename=path.name)
+    return validate_text(
+        text,
+        filename=path.name,
+        allow_large_literature=allow_large_literature,
+        length_exception_reason=length_exception_reason,
+    )
 
 
 def _iter_paths(values: Iterable[str]) -> list[Path]:
@@ -184,11 +222,27 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("paths", nargs="+", help="Markdown delivery artifact(s) to validate")
     parser.add_argument("--json", action="store_true", help="emit machine-readable result")
+    parser.add_argument(
+        "--allow-large-literature",
+        action="store_true",
+        help="allow ## 內容 to exceed 4000 characters for a genuinely large literature base",
+    )
+    parser.add_argument(
+        "--length-exception-reason",
+        help="non-empty justification required with --allow-large-literature",
+    )
     args = parser.parse_args(argv)
+
+    if args.length_exception_reason and not args.allow_large_literature:
+        parser.error("--length-exception-reason requires --allow-large-literature")
 
     reports = []
     for path in _iter_paths(args.paths):
-        errors = validate_file(path)
+        errors = validate_file(
+            path,
+            allow_large_literature=args.allow_large_literature,
+            length_exception_reason=args.length_exception_reason,
+        )
         reports.append(
             {
                 "path": str(path),

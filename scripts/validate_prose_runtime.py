@@ -368,6 +368,8 @@ def validate_bundle(
     reader_path: Path,
     sidecar_path: Path,
     article_path: Path,
+    allow_large_literature: bool = False,
+    length_exception_reason: str | None = None,
 ) -> dict[str, Any]:
     errors: list[str] = []
     handoff = _load_json(handoff_path, "handoff", errors)
@@ -405,7 +407,12 @@ def validate_bundle(
         )
 
     if article_text:
-        for error in validate_delivery_text(article_text, filename=article_path.name):
+        for error in validate_delivery_text(
+            article_text,
+            filename=article_path.name,
+            allow_large_literature=allow_large_literature,
+            length_exception_reason=length_exception_reason,
+        ):
             errors.append(f"article delivery: {error}")
 
     return {
@@ -426,13 +433,20 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--audit-sidecar", required=True)
     parser.add_argument("--article", required=True)
     parser.add_argument("--json", action="store_true")
+    parser.add_argument("--allow-large-literature", action="store_true")
+    parser.add_argument("--length-exception-reason")
     args = parser.parse_args(argv)
+
+    if args.length_exception_reason and not args.allow_large_literature:
+        parser.error("--length-exception-reason requires --allow-large-literature")
 
     report = validate_bundle(
         handoff_path=Path(args.handoff),
         reader_path=Path(args.reader_contract),
         sidecar_path=Path(args.audit_sidecar),
         article_path=Path(args.article),
+        allow_large_literature=args.allow_large_literature,
+        length_exception_reason=args.length_exception_reason,
     )
     if args.json:
         json.dump(report, sys.stdout, ensure_ascii=False, indent=2)

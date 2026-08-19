@@ -167,6 +167,12 @@ The sidecar may record warnings for:
 
 These are local review signals, not ISO requirements. They never block delivery by themselves and never justify a precision-reducing rewrite.
 
+## Article length
+
+The reader-facing `## 內容` section defaults to no more than 4,000 non-whitespace Unicode code points. This is a ceiling, not a target: when the evidence base is small, the article should end naturally rather than being padded to approach 4,000 characters.
+
+Exceed the ceiling only for a genuinely large literature base when compression would remove material claims, limitations, applicability boundaries, uncertainty, evidence roles, or causal limits. The validator requires the explicit `--allow-large-literature` flag and a non-empty `--length-exception-reason`; the exception remains execution metadata and is not added to the reader article or task JSON.
+
 ## Repair policy
 
 Repair the smallest sentence or paragraph that fixes a hard failure. Do not automatically rewrite the whole article and risk destroying a good narrative structure.
@@ -203,6 +209,18 @@ python scripts/validate_prose_runtime.py \
 ```
 
 Machine-readable output adds `--json`.
+
+For a justified large-literature exception:
+
+```bash
+python scripts/validate_prose_runtime.py \
+  --handoff path/to/ta06_prose_handoff.json \
+  --reader-contract path/to/prose_reader_contract.json \
+  --audit-sidecar path/to/prose_audit_sidecar.json \
+  --article 20260815_topic.md \
+  --allow-large-literature \
+  --length-exception-reason "Compression would remove material cross-study limitations."
+```
 
 The validator checks transport graph integrity, digests, permission projection, semantic-gate consistency, repair state, reader-outcome state and the existing delivery shell. It does not replace the semantic auditor.
 
