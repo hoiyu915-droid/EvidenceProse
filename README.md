@@ -2,26 +2,30 @@
 
 [![Validate](https://github.com/hoiyu915-droid/EvidenceProse/actions/workflows/validate.yml/badge.svg)](https://github.com/hoiyu915-droid/EvidenceProse/actions/workflows/validate.yml)
 
-EvidenceProse is an evidence-to-prose system for calibrated Traditional Chinese science explainers. It has two deliberately separate evidence lanes, one post-audit transform stage, and one read-only post-render audit lane:
+EvidenceProse is an evidence-to-prose system for calibrated Traditional Chinese science explainers. It has two deliberately separate evidence lanes, one post-audit transform stage, one final-delivery stage, and one read-only post-render audit lane:
 
 - an **induction lane** that learns repeatable writing logic from reviewed examples without treating any polished article as a universal template;
 - a **TA06-backed live prose lane** that accepts already-audited scientific truth, locks the reader target, drafts prose, audits semantic fidelity and reader outcomes, and emits the reader-facing delivery shell;
 - a **Probe post-audit stage** that may merge or repair card JSON and strengthen the audited prose, then verifies real before/after diffs, immutable evidence assets, package coverage, and isolated-reader reconstruction;
+- a **TE final-delivery stage** that deterministically reseals Probe-edited card queues, restores direct dispatch, emits the final `TE_*.json` namespace, and keeps unsealed implementation states out of user-facing delivery;
 - a **Rendered Card Audit (RCA) lane** that reads the final rendered image after generation, blind-reads what the reader actually receives, checks source-surface hallucinations and visual semantics against audited truth and the bound primary source, and emits a release verdict plus executable repair ticket without mutating TP03 or Probe.
 
 The highest success criterion is reader understanding: after reading, a non-specialist should be able to tell what the evidence supports, how much confidence that support deserves, whom and which settings it applies to, and what causal or practical conclusion it cannot justify.
 
 ## Current status
 
+<!-- BEGIN sync_readme:registry-status -->
 - Induction samples: 7 (`S001`–`S007`)
 - Processing-rule catalogue: 24 (`R001`–`R024`): 9 candidates, 1 conditional rule, 14 hypotheses
 - Article-register catalogue: 5 (`V001`–`V005`), all hypotheses
 - Batch result index: 7 (`B001`–`B007`)
 - Recorded observations: 99; contamination notes: 20
 - Audited companion cards: 36 (36/36 content-truth passes; 28/36 substantive render-fidelity passes)
-- Stable induction generation rules: 0
-- Live runtime contract: `EP_TA06_PROSE_RUNTIME v1.0`
+- Stable induction generation rules: 0; stable voice rules: 0
+<!-- END sync_readme:registry-status -->
+- Live runtime contract: `EP_TA06_PROSE_RUNTIME v1.1`
 - Probe transform contract: `EP_PROBE_POST_AUDIT_TRANSFORM v1.1`
+- Probe TE delivery contract: `EP_PROBE_TE_DELIVERY v1.0`
 - Rendered-card audit contract: `EP_RENDERED_CARD_AUDIT v1.2.0`
 - Rendered-card audit result schema: `1.1.0`
 - Rendered-card audit policy: selected by `policies/rca/current.json`
@@ -37,7 +41,7 @@ TA06 ta06_audit_packet
   -> ta06_prose_handoff
   -> standalone prose_reader_contract
   -> prose draft
-  -> EP_PROSE_AUDIT_SIDECAR v1.0
+  -> EP_PROSE_AUDIT_SIDECAR v1.1
        - semantic preservation / NO_ADD
        - numeric / denominator / comparator / timeframe fidelity
        - population / causal / uncertainty / evidence-role fidelity
@@ -53,11 +57,16 @@ TA06 ta06_audit_packet
        - isolated-reader EvidenceQuiz
   -> EP-SCIENCE-EXPLAINER-OUTPUT v0.1
   -> runtime + delivery validation
+  -> Probe TE deterministic finalization
+       - preserve final prompt bytes
+       - recompute queue and dependent-card bindings
+       - restore generate_authorized / direct dispatch
+       - emit TE_*.json after the explainer textedit surface
 ```
 
 A valid TA06 handoff is the scientific truth boundary. EvidenceProse does not silently redo source discovery in this lane. If the handoff is missing, blocked, internally inconsistent, or superseded by new evidence, route back to TA06 rather than guessing.
 
-The canonical runtime specification is [docs/ta06_prose_runtime.md](docs/ta06_prose_runtime.md). The machine contract is [contracts/EP_TA06_PROSE_RUNTIME_CONTRACT_v1.0.json](contracts/EP_TA06_PROSE_RUNTIME_CONTRACT_v1.0.json).
+The canonical runtime specification is [docs/ta06_prose_runtime.md](docs/ta06_prose_runtime.md). The current machine contract is [contracts/EP_TA06_PROSE_RUNTIME_CONTRACT_v1.1.json](contracts/EP_TA06_PROSE_RUNTIME_CONTRACT_v1.1.json); v1.0 remains a superseded historical contract.
 
 ### Standalone reader contract
 
@@ -106,6 +115,12 @@ Version 1.1 adds three executable gates:
 
 The specification is [docs/probe_post_audit_transform.md](docs/probe_post_audit_transform.md). The canonical contract is [contracts/EP_PROBE_POST_AUDIT_TRANSFORM_CONTRACT_v1.1.json](contracts/EP_PROBE_POST_AUDIT_TRANSFORM_CONTRACT_v1.1.json). Version 1.0 remains validator-compatible but is superseded for new bundles.
 
+## Probe TE final delivery
+
+Probe may use an unsealed queue while it applies audited edits. That state is internal and may not escape as the final attachment. `scripts/finalize_probe_te_queue.py` performs the deterministic finalization pass: it preserves the final prompt bytes, recomputes prompt and renderer bindings, rebinds dependent cards to the resealed C01 identity, recomputes the queue digest, restores direct execution, and emits a `TE_`-prefixed JSON filename.
+
+The normal user-facing order is fixed: science-explainer textedit surface, immediately followed by the `TE_*.json` attachment. `--check` validates finalization without writing a file. The specification is [docs/probe_te_delivery.md](docs/probe_te_delivery.md); the machine contract is [contracts/EP_PROBE_TE_DELIVERY_CONTRACT_v1.0.json](contracts/EP_PROBE_TE_DELIVERY_CONTRACT_v1.0.json).
+
 ## Rendered Card Audit
 
 `EP_RENDERED_CARD_AUDIT v1.2.0` is the executable form of the post-upload substantive-render-fidelity layer. It runs after image generation and before release, and is deliberately read-only: it may read rendered images, final card specs/queues, audited truth, and bound primary sources, but it does not modify or reseal TP03 queues, edit images, dispatch generation, or rewrite Probe output. Its active versioned policy is selected by `policies/rca/current.json`; that current manifest is authoritative for the policy path, policy version and canonical digest. Its result schema is `1.1.0`.
@@ -117,6 +132,8 @@ Before comparison, RCA freezes a blind readback of the rendered image without sh
 Blocking cards use `FAIL_RENDER`, `FAIL_SPEC`, or `BLOCK_UNVERIFIABLE`. Every `FAIL_RENDER` / `FAIL_SPEC` carries an executable repair ticket. Substantial removal or recomposition also requires supported replacement material; the provisional 10% weighted-semantic threshold is an operator heuristic, not a validated scientific cutoff, and source/meaning structural triggers override it.
 
 The specification is [docs/rendered_card_audit.md](docs/rendered_card_audit.md), byte-identical to [docs/rendered_card_audit_v1.2.md](docs/rendered_card_audit_v1.2.md). The active contract is [contracts/EP_RENDERED_CARD_AUDIT_CONTRACT_v1.2.json](contracts/EP_RENDERED_CARD_AUDIT_CONTRACT_v1.2.json). The current manifest is the authority for which versioned policy pack is active. For a policy-only rule change, edit that active policy JSON and its explicit mapping/regression cases, run `python3 scripts/validate_rca_policy.py --sync-surfaces`, then run the focused tests. The sync command updates the digest/version mirrors and rejects policy-id, contract, result-schema or method changes that require a full migration. Older v1.0/v1.1 contract snapshots are historical and superseded.
+
+RCA contract, result-schema, policy, method-revision and manifest versions are separate axes. Their synchronization and migration rules are documented in [docs/versioning.md](docs/versioning.md).
 
 ## Induction lane
 
@@ -140,97 +157,121 @@ A polished article is an observation sample, not a template to copy. The full pr
 
 ## Repository layout
 
+<!-- BEGIN sync_readme:repository-layout -->
 ```text
+.github/
+  workflows/
+    validate.yml
+  CODEOWNERS
+  PULL_REQUEST_TEMPLATE.md
 contracts/
-  EP_TA06_PROSE_RUNTIME_CONTRACT_v1.0.json
   EP_PROBE_POST_AUDIT_TRANSFORM_CONTRACT_v1.0.json
   EP_PROBE_POST_AUDIT_TRANSFORM_CONTRACT_v1.1.json
+  EP_PROBE_TE_DELIVERY_CONTRACT_v1.0.json
   EP_RENDERED_CARD_AUDIT_CONTRACT_v1.0.json
   EP_RENDERED_CARD_AUDIT_CONTRACT_v1.1.json
   EP_RENDERED_CARD_AUDIT_CONTRACT_v1.2.json
-
-policies/rca/
-  current.json
-  policy_v1.3.0.json
-
+  EP_TA06_PROSE_RUNTIME_CONTRACT_v1.0.json
+  EP_TA06_PROSE_RUNTIME_CONTRACT_v1.1.json
 data/
-  registry.json
-  rules/rules.json
-  voice/voice_rules.json
+  rules/
+    rules.json
+  samples/
+    S*/
+  voice/
+    voice_rules.json
   batch_results.json
-  samples/S###/
-
+  registry.json
 docs/
   audit_standard.md
+  batch_results.md
   induction_protocol.md
   probe_post_audit_transform.md
+  probe_te_delivery.md
   rendered_card_audit.md
+  rendered_card_audit_v1.1.md
   rendered_card_audit_v1.2.md
   science_explainer_output_format.md
   ta06_prose_runtime.md
   terminology.md
-
+  versioning.md
 fixtures/
-  valid_ta06_prose_handoff.json
-  valid_prose_reader_contract.json
-  valid_prose_audit_sidecar.json
-  20260815_demo-explainer.md
-  valid_probe_post_audit_bundle.json
-  legacy_valid_probe_post_audit_bundle_v1.0.json
-  valid_rendered_card_audit.json
-  rendered_card_audit/
-    C01.png
   probe/
-    source_cards.json
+    assets_after/
+      evidence_plot.svg
+    assets_before/
+      evidence_plot.svg
+    output_article.md
     output_cards.json
     source_article.md
-    output_article.md
-    assets_before/
-    assets_after/
-
+    source_cards.json
+  rendered_card_audit/
+    C01.png
+    example_source_excerpt.txt
+  20260815_demo-explainer.md
+  legacy_valid_probe_post_audit_bundle_v1.0.json
+  probe_te_unsealed_queue.json
+  valid_probe_post_audit_bundle.json
+  valid_prose_audit_sidecar.json
+  valid_prose_reader_contract.json
+  valid_rendered_card_audit.json
+  valid_ta06_prose_handoff.json
+policies/
+  rca/
+    current.json
+    policy_v1.3.0.json
 schemas/
   runtime/
-    ta06_prose_handoff.schema.json
-    prose_reader_contract.schema.json
-    prose_audit_sidecar.schema.json
     probe_post_audit_bundle.schema.json
     probe_post_audit_bundle_v1.0.schema.json
+    prose_audit_sidecar.schema.json
+    prose_audit_sidecar_v1.0.schema.json
+    prose_reader_contract.schema.json
     rendered_card_audit.schema.json
-  registry.schema.json
-  rule_catalog.schema.json
-  rule.schema.json
-  voice_rule_catalog.schema.json
-  voice_rule.schema.json
+    ta06_prose_handoff.schema.json
   batch_results.schema.json
-  sample.schema.json
   card_storyboard.schema.json
-
+  registry.schema.json
+  rule.schema.json
+  rule_catalog.schema.json
+  sample.schema.json
+  voice_rule.schema.json
+  voice_rule_catalog.schema.json
 scripts/
-  validate_rca_policy.py
-  validate_registry.py
-  validate_explainer_output.py
-  validate_prose_runtime.py
-  validate_probe_post_audit.py
-  validate_rendered_card_audit.py
+  finalize_probe_te_queue.py
+  probe_post_audit_artifacts.py
   probe_post_audit_common.py
   probe_post_audit_core.py
-  probe_post_audit_artifacts.py
   probe_post_audit_quiz.py
-
+  sync_readme.py
+  validate_explainer_output.py
+  validate_probe_post_audit.py
+  validate_prose_runtime.py
+  validate_rca_policy.py
+  validate_registry.py
+  validate_rendered_card_audit.py
+  validate_rendered_card_source_closure.py
 templates/
+  rendered_card_audit_repair_block.txt
   science_explainer.md
-
 tests/
-  test_registry.py
   test_explainer_output.py
-  test_prose_runtime.py
   test_probe_post_audit.py
-  test_rendered_card_audit.py
+  test_probe_te_delivery.py
+  test_prose_runtime.py
   test_rca_policy.py
-
-.github/workflows/
-  validate.yml
+  test_registry.py
+  test_rendered_card_audit.py
+  test_rendered_card_source_closure.py
+  test_sync_readme.py
+.editorconfig
+.gitignore
+CONTRIBUTING.md
+LICENSE
+README.md
+SECURITY.md
 ```
+<!-- END sync_readme:repository-layout -->
 
 ## Design principles
 
@@ -279,20 +320,20 @@ Reader-facing output must not expose `filecite`, `turnNfileM`, Library/file IDs,
 Run the full repository suite:
 
 ```bash
-python -m unittest discover -s tests -v
-python scripts/validate_registry.py --json
+python3 -m unittest discover -s tests -v
+python3 scripts/validate_registry.py --json
 ```
 
 Validate a reader-facing shell:
 
 ```bash
-python scripts/validate_explainer_output.py 20260815_example-topic.md
+python3 scripts/validate_explainer_output.py 20260815_example-topic.md
 ```
 
 Validate a complete TA06-backed prose bundle:
 
 ```bash
-python scripts/validate_prose_runtime.py \
+python3 scripts/validate_prose_runtime.py \
   --handoff path/to/ta06_prose_handoff.json \
   --reader-contract path/to/prose_reader_contract.json \
   --audit-sidecar path/to/prose_audit_sidecar.json \
@@ -302,7 +343,7 @@ python scripts/validate_prose_runtime.py \
 Validate a Probe v1.1 transform bundle and its bound artifacts:
 
 ```bash
-python scripts/validate_probe_post_audit.py \
+python3 scripts/validate_probe_post_audit.py \
   fixtures/valid_probe_post_audit_bundle.json --json
 ```
 
@@ -310,10 +351,22 @@ A passing prose-runtime validator proves that the bundle is correctly bound, its
 
 A passing Probe validator additionally proves that declared source/output files match their digests, computed element changes match the operation manifest, immutable assets remain byte-identical, package coverage is complete, and the isolated-reader record reconstructs the required final-package evidence structure. It does not replace Claude's semantic audit.
 
+Finalize a Probe-edited queue as the directly executable `TE_` delivery, or verify it without writing:
+
+```bash
+python3 scripts/finalize_probe_te_queue.py \
+  path/to/content_truth_edit_unsealed.json \
+  --output-dir path/to/output
+python3 scripts/finalize_probe_te_queue.py \
+  fixtures/probe_te_unsealed_queue.json --check
+```
+
+Finalization is a deterministic delivery operation, not a new scientific audit. A passing `--check` proves that the resulting queue can be resealed with consistent prompt, renderer, dependency and queue digests and restored direct-dispatch state.
+
 Validate the canonical rendered-card audit fixture:
 
 ```bash
-python scripts/validate_rendered_card_audit.py \
+python3 scripts/validate_rendered_card_audit.py \
   fixtures/valid_rendered_card_audit.json --json
 ```
 

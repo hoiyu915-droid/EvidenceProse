@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -49,6 +50,66 @@ LINT_CATEGORIES = {
     "hedge_stack",
     "jargon_density",
 }
+SIDECAR_V1_BASE_FIELDS = {
+    "contract_version",
+    "article_id",
+    "handoff_digest",
+    "reader_contract_digest",
+    "semantic_guard",
+    "reader_outcomes",
+    "missing_action_info",
+    "lint_warnings",
+    "violations",
+    "targeted_repairs",
+    "final_gate",
+}
+SIDECAR_V1_1_FIELDS = SIDECAR_V1_BASE_FIELDS | {
+    "article_sha256",
+    "delivery_length_exception",
+}
+MECHANICAL_LINT_CATEGORIES = frozenset(
+    {
+        "long_sentence",
+        "long_paragraph",
+        "de_chain",
+        "passive_voice",
+        "hedge_stack",
+    }
+)
+DELIVERY_CONTENT_CEILING = 4000
+LONG_SENTENCE_MIN_CHARACTERS = 40
+LONG_PARAGRAPH_MIN_CHARACTERS = 180
+
+_SENTENCE_BOUNDARY_RE = re.compile(r"(?<=[。！？!?；;])")
+_DE_CLAUSE_BOUNDARY_RE = re.compile(r"[，,、：:。！？!?；;\n]")
+_PASSIVE_VERB_PATTERN = (
+    r"(?:認為|視為|發現|觀察|證實|限制|排除|納入|分配|評估|測量|"
+    r"報告|解讀|歸類|稱為|使用|選入|追蹤|診斷|治療|比較|分析|"
+    r"低估|高估|混淆|控制|調整|記錄|呈現|指出)"
+)
+_PASSIVE_VOICE_RE = re.compile(
+    rf"(?:被{_PASSIVE_VERB_PATTERN}|遭到|遭受|受到|"
+    rf"為[^。！？!?；;\n]{{1,12}}所{_PASSIVE_VERB_PATTERN})"
+)
+_HEDGE_RE = re.compile(
+    "|".join(
+        re.escape(term)
+        for term in (
+            "不能排除",
+            "尚不確定",
+            "傾向於",
+            "不排除",
+            "可能",
+            "或許",
+            "也許",
+            "似乎",
+            "大概",
+            "未必",
+            "看來",
+            "尚難",
+        )
+    )
+)
 
 
 def canonical_digest(value: Any) -> str:
@@ -77,6 +138,252 @@ def _require_object(value: Any, label: str, errors: list[str]) -> dict[str, Any]
 
 def _nonempty_string(value: Any) -> bool:
     return isinstance(value, str) and bool(value.strip())
+
+
+def content_character_count(text: str) -> int | None:
+    """Recompute the delivery count for the exact ``## 內容`` section."""
+    lines = text.splitlines()
+    content_positions = [
+        index for index, line in enumerate(lines) if line.strip() == "## 內容"
+    ]
+    reference_positions = [
+        index for index, line in enumerate(lines) if line.strip() == "## 引用來源"
+    ]
+    if len(content_positions) != 1 or len(reference_positions) != 1:
+        return None
+    content_start = content_positions[0]
+    references_start = reference_positions[0]
+    if references_start <= content_start:
+        return None
+    content = "\n".join(lines[content_start + 1 : references_start]).strip()
+    return sum(1 for character in content if not character.isspace())
+
+
+def _reader_prose_blocks(text: str) -> list[str]:
+    """Return prose blocks before references, excluding Markdown headings.
+
+    The lint is intentionally scoped to reader prose. Bibliographic entries,
+    evidence labels, and the update footnote are excluded so they cannot create
+    mechanical warnings that have nothing to do with article readability.
+    """
+    before_references = text.split("## 引用來源", 1)[0]
+    blocks: list[str] = []
+    current: list[str] = []
+    for raw_line in before_references.splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            if current:
+                blocks.append(" ".join(current))
+                current = []
+            continue
+        current.append(line)
+    if current:
+        blocks.append(" ".join(current))
+    return blocks
+
+
+def _lint_character_count(text: str) -> int:
+    trimmed = text.strip("。！？!?；;")
+    return sum(1 for character in trimmed if not character.isspace())
+
+
+def _sentences(blocks: list[str]) -> list[str]:
+    sentences: list[str] = []
+    for block in blocks:
+        sentences.extend(
+            sentence.strip()
+            for sentence in _SENTENCE_BOUNDARY_RE.split(block)
+            if sentence.strip()
+        )
+    return sentences
+
+
+def _contains_de_chain(text: str) -> bool:
+    """Detect three nearby ``的`` modifiers inside one punctuation-bounded clause."""
+    for clause in _DE_CLAUSE_BOUNDARY_RE.split(text):
+        compact = "".join(character for character in clause if not character.isspace())
+        positions = [index for index, character in enumerate(compact) if character == "的"]
+        if any(end - start <= 24 for start, end in zip(positions, positions[2:])):
+            return True
+    return False
+
+
+def computed_zh_hant_lint_categories(article_text: str) -> set[str]:
+    """Recompute the five deterministic zh-Hant warning categories.
+
+    Thresholds are local review heuristics, not language standards. The result
+    verifies audit provenance; warnings remain non-blocking and never authorize
+    a precision-reducing rewrite.
+    """
+    blocks = _reader_prose_blocks(article_text)
+    sentences = _sentences(blocks)
+    categories: set[str] = set()
+
+    if any(
+        _lint_character_count(sentence) >= LONG_SENTENCE_MIN_CHARACTERS
+        for sentence in sentences
+    ):
+        categories.add("long_sentence")
+    if any(
+        _lint_character_count(block) >= LONG_PARAGRAPH_MIN_CHARACTERS
+        for block in blocks
+    ):
+        categories.add("long_paragraph")
+    if any(_contains_de_chain(sentence) for sentence in sentences):
+        categories.add("de_chain")
+    if any(_PASSIVE_VOICE_RE.search(sentence) for sentence in sentences):
+        categories.add("passive_voice")
+    if any(len(_HEDGE_RE.findall(sentence)) >= 2 for sentence in sentences):
+        categories.add("hedge_stack")
+
+    return categories
+
+
+def _validate_computed_lints(
+    lints: list[Any],
+    *,
+    article_text: str,
+) -> list[str]:
+    declared = {
+        item.get("category")
+        for item in lints
+        if isinstance(item, dict)
+        and item.get("category") in MECHANICAL_LINT_CATEGORIES
+    }
+    computed = computed_zh_hant_lint_categories(article_text)
+    warnings: list[str] = []
+    missing = computed - declared
+    unsupported = declared - computed
+    if missing:
+        warnings.append(
+            "audit_sidecar.lint_warnings is missing recomputed categories: "
+            f"{sorted(missing)}"
+        )
+    if unsupported:
+        warnings.append(
+            "audit_sidecar.lint_warnings declares uncomputed categories: "
+            f"{sorted(unsupported)}"
+        )
+    return warnings
+
+
+def _validate_length_exception(
+    sidecar: dict[str, Any],
+    *,
+    measured_content_characters: int | None,
+) -> list[str]:
+    errors: list[str] = []
+    version = sidecar.get("contract_version")
+    exception = sidecar.get("delivery_length_exception")
+
+    if version == "1.0":
+        if "delivery_length_exception" in sidecar:
+            errors.append(
+                "audit_sidecar v1.0 must not contain delivery_length_exception"
+            )
+        if (
+            measured_content_characters is not None
+            and measured_content_characters > DELIVERY_CONTENT_CEILING
+        ):
+            errors.append(
+                "audit_sidecar v1.0 cannot authorize a delivery length exception; "
+                "use a bound v1.1 sidecar"
+            )
+        return errors
+
+    if version != "1.1":
+        return errors
+    if not isinstance(exception, dict):
+        return ["audit_sidecar.delivery_length_exception must be an object"]
+
+    expected_keys = {"granted", "measured_characters", "ceiling", "reason"}
+    actual_keys = set(exception)
+    missing = expected_keys - actual_keys
+    unexpected = actual_keys - expected_keys
+    if missing:
+        errors.append(
+            "audit_sidecar.delivery_length_exception missing fields: "
+            f"{sorted(missing)}"
+        )
+    if unexpected:
+        errors.append(
+            "audit_sidecar.delivery_length_exception has unexpected fields: "
+            f"{sorted(unexpected)}"
+        )
+
+    granted = exception.get("granted")
+    declared_count = exception.get("measured_characters")
+    ceiling = exception.get("ceiling")
+    reason = exception.get("reason")
+    if not isinstance(granted, bool):
+        errors.append("audit_sidecar.delivery_length_exception.granted must be boolean")
+    if (
+        not isinstance(declared_count, int)
+        or isinstance(declared_count, bool)
+        or declared_count < 0
+    ):
+        errors.append(
+            "audit_sidecar.delivery_length_exception.measured_characters "
+            "must be a non-negative integer"
+        )
+    if ceiling != DELIVERY_CONTENT_CEILING:
+        errors.append(
+            "audit_sidecar.delivery_length_exception.ceiling must be 4000"
+        )
+    if reason is not None and not isinstance(reason, str):
+        errors.append(
+            "audit_sidecar.delivery_length_exception.reason must be string or null"
+        )
+
+    if measured_content_characters is None:
+        errors.append(
+            "audit_sidecar.delivery_length_exception cannot be verified because "
+            "the article content count is unavailable"
+        )
+    elif isinstance(declared_count, int) and not isinstance(declared_count, bool):
+        if declared_count != measured_content_characters:
+            errors.append(
+                "audit_sidecar.delivery_length_exception.measured_characters "
+                f"must equal recomputed article count {measured_content_characters}"
+            )
+
+    if granted is True:
+        if not _nonempty_string(reason):
+            errors.append(
+                "granted delivery length exception requires a non-empty reason"
+            )
+        if (
+            measured_content_characters is not None
+            and measured_content_characters <= DELIVERY_CONTENT_CEILING
+        ):
+            errors.append(
+                "delivery length exception is unnecessary at or below 4000 characters"
+            )
+    elif granted is False:
+        if reason is not None:
+            errors.append(
+                "non-granted delivery length exception reason must be null"
+            )
+        if (
+            measured_content_characters is not None
+            and measured_content_characters > DELIVERY_CONTENT_CEILING
+        ):
+            errors.append(
+                "article exceeds 4000 characters without a granted sidecar exception"
+            )
+
+    return errors
+
+
+def _length_exception_authorization(sidecar: Any) -> tuple[bool, str | None]:
+    if not isinstance(sidecar, dict) or sidecar.get("contract_version") != "1.1":
+        return False, None
+    exception = sidecar.get("delivery_length_exception")
+    if not isinstance(exception, dict):
+        return False, None
+    granted = exception.get("granted") is True
+    reason = exception.get("reason")
+    return granted, reason if isinstance(reason, str) else None
 
 
 def validate_handoff(handoff: Any) -> list[str]:
@@ -273,14 +580,32 @@ def validate_sidecar(
     handoff_digest: str,
     reader_digest: str,
     article_id: str,
+    measured_content_characters: int | None = None,
+    article_sha256: str | None = None,
 ) -> list[str]:
     errors: list[str] = []
     s = _require_object(sidecar, "audit_sidecar", errors)
     if not s:
         return errors
 
-    if s.get("contract_version") != "1.0":
-        errors.append("audit_sidecar.contract_version must be 1.0")
+    if s.get("contract_version") not in {"1.0", "1.1"}:
+        errors.append("audit_sidecar.contract_version must be 1.0 or 1.1")
+    else:
+        expected_fields = (
+            SIDECAR_V1_BASE_FIELDS
+            if s.get("contract_version") == "1.0"
+            else SIDECAR_V1_1_FIELDS
+        )
+        missing_fields = expected_fields - set(s)
+        unexpected_fields = set(s) - expected_fields
+        if missing_fields:
+            errors.append(
+                f"audit_sidecar missing required fields: {sorted(missing_fields)}"
+            )
+        if unexpected_fields:
+            errors.append(
+                f"audit_sidecar has unexpected fields: {sorted(unexpected_fields)}"
+            )
     if s.get("article_id") != article_id:
         errors.append("audit_sidecar.article_id must match reader_contract.article_id")
     if s.get("handoff_digest") != handoff_digest:
@@ -289,6 +614,37 @@ def validate_sidecar(
         errors.append(
             "audit_sidecar.reader_contract_digest does not match canonical reader-contract digest"
         )
+    declared_article_sha256 = s.get("article_sha256")
+    if s.get("contract_version") == "1.0":
+        if "article_sha256" in s:
+            errors.append("audit_sidecar v1.0 must not contain article_sha256")
+    elif s.get("contract_version") == "1.1":
+        if (
+            not isinstance(declared_article_sha256, str)
+            or len(declared_article_sha256) != 64
+            or any(
+                character not in "0123456789abcdef"
+                for character in declared_article_sha256
+            )
+        ):
+            errors.append(
+                "audit_sidecar.article_sha256 must be a lowercase SHA-256"
+            )
+        elif article_sha256 is None:
+            errors.append(
+                "audit_sidecar.article_sha256 cannot be verified because "
+                "the article bytes are unavailable"
+            )
+        elif declared_article_sha256 != article_sha256:
+            errors.append(
+                "audit_sidecar.article_sha256 does not match exact article bytes"
+            )
+    errors.extend(
+        _validate_length_exception(
+            s,
+            measured_content_characters=measured_content_characters,
+        )
+    )
 
     guard = s.get("semantic_guard")
     if not isinstance(guard, dict):
@@ -310,10 +666,20 @@ def validate_sidecar(
         if not isinstance(item, dict):
             errors.append(f"audit_sidecar.reader_outcomes.{axis} must be an object")
             continue
+        if set(item) != {"status", "note"}:
+            errors.append(
+                f"audit_sidecar.reader_outcomes.{axis} must contain only status/note"
+            )
         if item.get("status") not in {"pass", "warning", "fail"}:
             errors.append(f"audit_sidecar.reader_outcomes.{axis}.status is invalid")
         if not isinstance(item.get("note"), str):
             errors.append(f"audit_sidecar.reader_outcomes.{axis}.note must be a string")
+    unexpected_axes = set(outcomes) - set(READER_AXES)
+    if unexpected_axes:
+        errors.append(
+            "audit_sidecar.reader_outcomes has unexpected axes: "
+            f"{sorted(unexpected_axes)}"
+        )
 
     lints = s.get("lint_warnings")
     if not isinstance(lints, list):
@@ -323,18 +689,99 @@ def validate_sidecar(
             if not isinstance(item, dict):
                 errors.append(f"audit_sidecar.lint_warnings[{index}] must be an object")
                 continue
+            if set(item) != {"category", "location", "message"}:
+                errors.append(
+                    f"audit_sidecar.lint_warnings[{index}] must contain only "
+                    "category/location/message"
+                )
             if item.get("category") not in LINT_CATEGORIES:
                 errors.append(f"audit_sidecar.lint_warnings[{index}].category is invalid")
+            if not _nonempty_string(item.get("location")):
+                errors.append(
+                    f"audit_sidecar.lint_warnings[{index}].location must be non-empty"
+                )
+            if not _nonempty_string(item.get("message")):
+                errors.append(
+                    f"audit_sidecar.lint_warnings[{index}].message must be non-empty"
+                )
 
     repairs = s.get("targeted_repairs")
     if not isinstance(repairs, list):
         errors.append("audit_sidecar.targeted_repairs must be an array")
         repairs = []
+    else:
+        repair_fields = {"repair_id", "location", "status", "description"}
+        for index, item in enumerate(repairs):
+            if not isinstance(item, dict):
+                errors.append(
+                    f"audit_sidecar.targeted_repairs[{index}] must be an object"
+                )
+                continue
+            if set(item) != repair_fields:
+                errors.append(
+                    f"audit_sidecar.targeted_repairs[{index}] has invalid fields"
+                )
+            for field in ("repair_id", "location", "description"):
+                if not _nonempty_string(item.get(field)):
+                    errors.append(
+                        f"audit_sidecar.targeted_repairs[{index}].{field} "
+                        "must be non-empty"
+                    )
+            if item.get("status") not in {"proposed", "applied", "verified"}:
+                errors.append(
+                    f"audit_sidecar.targeted_repairs[{index}].status is invalid"
+                )
+
+    violations = s.get("violations")
+    if not isinstance(violations, list):
+        errors.append("audit_sidecar.violations must be an array")
+        violations = []
+    else:
+        violation_allowed_fields = {
+            "code",
+            "severity",
+            "location",
+            "claim_id",
+            "description",
+            "required_repair",
+        }
+        violation_required_fields = violation_allowed_fields - {"claim_id"}
+        for index, item in enumerate(violations):
+            if not isinstance(item, dict):
+                errors.append(f"audit_sidecar.violations[{index}] must be an object")
+                continue
+            missing = violation_required_fields - set(item)
+            unexpected = set(item) - violation_allowed_fields
+            if missing:
+                errors.append(
+                    f"audit_sidecar.violations[{index}] missing fields: {sorted(missing)}"
+                )
+            if unexpected:
+                errors.append(
+                    f"audit_sidecar.violations[{index}] has unexpected fields: "
+                    f"{sorted(unexpected)}"
+                )
+            for field in ("code", "location", "description", "required_repair"):
+                if not _nonempty_string(item.get(field)):
+                    errors.append(
+                        f"audit_sidecar.violations[{index}].{field} must be non-empty"
+                    )
+            if "claim_id" in item and item["claim_id"] is not None:
+                if not isinstance(item["claim_id"], str):
+                    errors.append(
+                        f"audit_sidecar.violations[{index}].claim_id must be string/null"
+                    )
+            if item.get("severity") not in {"hard", "warning"}:
+                errors.append(
+                    f"audit_sidecar.violations[{index}].severity must be hard/warning"
+                )
 
     final_gate = s.get("final_gate")
     if not isinstance(final_gate, dict):
         errors.append("audit_sidecar.final_gate must be an object")
         return errors
+    if set(final_gate) != {"status", "rationale"}:
+        errors.append("audit_sidecar.final_gate must contain only status/rationale")
 
     semantic_pass = all(guard.get(check) == "pass" for check in HARD_CHECKS)
     reader_pass = all(
@@ -346,18 +793,33 @@ def validate_sidecar(
         isinstance(item, dict) and item.get("status") == "verified"
         for item in repairs
     )
-    expected = "pass" if semantic_pass and reader_pass and repairs_verified else "fail"
+    hard_violations_absent = not any(
+        isinstance(item, dict) and item.get("severity") == "hard"
+        for item in violations
+    )
+    expected = (
+        "pass"
+        if semantic_pass
+        and reader_pass
+        and repairs_verified
+        and hard_violations_absent
+        else "fail"
+    )
     if final_gate.get("status") != expected:
         errors.append(
-            f"audit_sidecar.final_gate.status must be {expected} from semantic/readability/repair state"
+            f"audit_sidecar.final_gate.status must be {expected} from "
+            "semantic/readability/repair/violation state"
         )
     if not _nonempty_string(final_gate.get("rationale")):
         errors.append("audit_sidecar.final_gate.rationale must be non-empty")
 
-    if not isinstance(s.get("missing_action_info"), list):
+    missing_action_info = s.get("missing_action_info")
+    if not isinstance(missing_action_info, list):
         errors.append("audit_sidecar.missing_action_info must be an array")
-    if not isinstance(s.get("violations"), list):
-        errors.append("audit_sidecar.violations must be an array")
+    elif not all(_nonempty_string(item) for item in missing_action_info):
+        errors.append(
+            "audit_sidecar.missing_action_info items must be non-empty strings"
+        )
 
     return errors
 
@@ -372,15 +834,34 @@ def validate_bundle(
     length_exception_reason: str | None = None,
 ) -> dict[str, Any]:
     errors: list[str] = []
+    warnings: list[str] = []
     handoff = _load_json(handoff_path, "handoff", errors)
     reader = _load_json(reader_path, "reader_contract", errors)
     sidecar = _load_json(sidecar_path, "audit_sidecar", errors)
 
     try:
-        article_text = article_path.read_text(encoding="utf-8")
+        article_bytes = article_path.read_bytes()
     except OSError as exc:
         errors.append(f"article: cannot read {article_path}: {exc}")
+        article_bytes = b""
         article_text = ""
+        article_sha256 = None
+    else:
+        article_sha256 = hashlib.sha256(article_bytes).hexdigest()
+        try:
+            article_text = article_bytes.decode("utf-8")
+        except UnicodeDecodeError as exc:
+            errors.append(f"article: invalid UTF-8 at byte {exc.start}")
+            article_text = ""
+    measured_content_characters = (
+        content_character_count(article_text) if article_text else None
+    )
+
+    if allow_large_literature or length_exception_reason is not None:
+        errors.append(
+            "runtime length exception must come from the bound audit sidecar, "
+            "not function or command-line arguments"
+        )
 
     if handoff is not None:
         errors.extend(validate_handoff(handoff))
@@ -403,15 +884,24 @@ def validate_bundle(
                 handoff_digest=handoff_digest,
                 reader_digest=reader_digest,
                 article_id=article_id,
+                measured_content_characters=measured_content_characters,
+                article_sha256=article_sha256,
             )
         )
+        if article_text and isinstance(sidecar, dict):
+            lints = sidecar.get("lint_warnings")
+            if isinstance(lints, list):
+                warnings.extend(
+                    _validate_computed_lints(lints, article_text=article_text)
+                )
 
     if article_text:
+        authorized, exception_reason = _length_exception_authorization(sidecar)
         for error in validate_delivery_text(
             article_text,
             filename=article_path.name,
-            allow_large_literature=allow_large_literature,
-            length_exception_reason=length_exception_reason,
+            allow_large_literature=authorized,
+            length_exception_reason=exception_reason,
         ):
             errors.append(f"article delivery: {error}")
 
@@ -419,8 +909,11 @@ def validate_bundle(
         "status": "pass" if not errors else "fail",
         "handoff_digest": handoff_digest or None,
         "reader_contract_digest": reader_digest or None,
+        "article_sha256": article_sha256,
+        "measured_content_characters": measured_content_characters,
         "article": str(article_path),
         "errors": errors,
+        "warnings": warnings,
     }
 
 
@@ -433,20 +926,20 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--audit-sidecar", required=True)
     parser.add_argument("--article", required=True)
     parser.add_argument("--json", action="store_true")
-    parser.add_argument("--allow-large-literature", action="store_true")
-    parser.add_argument("--length-exception-reason")
+    parser.add_argument(
+        "--allow-large-literature", action="store_true", help=argparse.SUPPRESS
+    )
+    parser.add_argument("--length-exception-reason", help=argparse.SUPPRESS)
     args = parser.parse_args(argv)
 
-    if args.length_exception_reason and not args.allow_large_literature:
-        parser.error("--length-exception-reason requires --allow-large-literature")
+    if args.allow_large_literature or args.length_exception_reason is not None:
+        parser.error("runtime length exception must come from the audit sidecar")
 
     report = validate_bundle(
         handoff_path=Path(args.handoff),
         reader_path=Path(args.reader_contract),
         sidecar_path=Path(args.audit_sidecar),
         article_path=Path(args.article),
-        allow_large_literature=args.allow_large_literature,
-        length_exception_reason=args.length_exception_reason,
     )
     if args.json:
         json.dump(report, sys.stdout, ensure_ascii=False, indent=2)
@@ -459,6 +952,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"  reader_contract_digest: {report['reader_contract_digest']}")
         for error in report["errors"]:
             print(f"  - {error}")
+        for warning in report["warnings"]:
+            print(f"  - WARNING: {warning}")
     return 0 if report["status"] == "pass" else 1
 
 

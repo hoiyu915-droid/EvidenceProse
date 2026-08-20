@@ -19,42 +19,48 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.11", "3.13"]
+        python-version: ["3.11", "3.12", "3.13"]
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Compile validator and tests
-        run: python -m compileall -q scripts tests
+        run: python3 -m compileall -q scripts tests
       - name: Run unit tests
-        run: python -m unittest discover -s tests -v
+        run: python3 -m unittest discover -s tests -v
       - name: Validate induction registry
-        run: python scripts/validate_registry.py --json
+        run: python3 scripts/validate_registry.py --json
+      - name: Check machine-derived README status
+        run: python3 scripts/sync_readme.py --check
+      - name: Validate shipped reader-facing fixture
+        run: >-
+          python3 scripts/validate_explainer_output.py
+          fixtures/20260815_demo-explainer.md --json
       - name: Validate canonical TA06 prose runtime fixture
         run: |
-          python scripts/validate_prose_runtime.py --json \
+          python3 scripts/validate_prose_runtime.py --json \
             --handoff fixtures/valid_ta06_prose_handoff.json \
             --reader-contract fixtures/valid_prose_reader_contract.json \
             --audit-sidecar fixtures/valid_prose_audit_sidecar.json \
             --article fixtures/20260815_demo-explainer.md
       - name: Validate canonical Probe post-audit transform fixture
         run: |
-          python scripts/validate_probe_post_audit.py \
+          python3 scripts/validate_probe_post_audit.py \
             fixtures/valid_probe_post_audit_bundle.json --json
       - name: Validate Probe TE auto-reseal delivery fixture
         run: |
-          python scripts/finalize_probe_te_queue.py \
+          python3 scripts/finalize_probe_te_queue.py \
             fixtures/probe_te_unsealed_queue.json --check
       - name: Validate RCA policy and synchronized surfaces
-        run: python scripts/validate_rca_policy.py --json
+        run: python3 scripts/validate_rca_policy.py --json
       - name: Validate canonical Rendered Card Audit fixture
         run: |
-          python scripts/validate_rendered_card_audit.py \
+          python3 scripts/validate_rendered_card_audit.py \
             fixtures/valid_rendered_card_audit.json --json
       - name: Validate RCA source-surface closure fixture
         run: |
-          python scripts/validate_rendered_card_source_closure.py \
+          python3 scripts/validate_rendered_card_source_closure.py \
             fixtures/valid_rendered_card_audit.json --json

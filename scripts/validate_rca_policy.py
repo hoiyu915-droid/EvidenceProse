@@ -145,6 +145,17 @@ def _is_relative_safe(value: Any) -> bool:
     return not path.is_absolute() and ".." not in path.parts
 
 
+def _major_minor(value: Any) -> str | None:
+    """Return the numeric ``major.minor`` prefix of a version string."""
+
+    if not isinstance(value, str):
+        return None
+    parts = value.split(".")
+    if len(parts) < 2 or not all(part.isdigit() for part in parts[:2]):
+        return None
+    return ".".join(parts[:2])
+
+
 def _path_get(value: Mapping[str, Any], dotted_path: str) -> Any:
     current: Any = value
     for part in dotted_path.split("."):
@@ -387,6 +398,18 @@ def validate_policy(policy: Any, manifest: Mapping[str, Any] | None = None) -> l
     if all(isinstance(value, str) and value.strip() for value in version_values):
         if len(set(version_values)) != len(version_values):
             _add(errors, "contract_version, result_schema_version and policy_version must remain separate")
+    policy_major_minor = _major_minor(policy.get("policy_version"))
+    method_revision = policy.get("method_revision")
+    if policy_major_minor is None:
+        _add(errors, "policy_version must begin with numeric major.minor components")
+    elif isinstance(method_revision, str) and method_revision.strip():
+        expected_prefix = f"{policy_major_minor}-"
+        if not method_revision.startswith(expected_prefix):
+            _add(
+                errors,
+                "method_revision must begin with policy_version major.minor "
+                f"prefix {expected_prefix!r}",
+            )
     if policy.get("status") != "canonical":
         _add(errors, "status must be canonical")
 
@@ -856,6 +879,18 @@ def validate_current_surfaces(base_dir: Path | str | None = None) -> list[str]:
     policy = bundle["policy"]
     digest = bundle["policy_sha256"]
     expected = _surface_expected_fields(policy, digest)
+
+    contract_major_minor = _major_minor(policy.get("contract_version"))
+    if contract_major_minor is None:
+        _add(errors, "contract_version must begin with numeric major.minor components")
+    else:
+        expected_doc_name = f"rendered_card_audit_v{contract_major_minor}.md"
+        if VERSIONED_DOC_REL.name != expected_doc_name:
+            _add(
+                errors,
+                "versioned RCA document filename must match contract_version "
+                f"major.minor: expected {expected_doc_name!r}, got {VERSIONED_DOC_REL.name!r}",
+            )
 
     contract = _load_surface_json(base, ACTIVE_CONTRACT_REL, "active contract", errors)
     _compare_surface_fields(contract, "active contract", expected, errors)

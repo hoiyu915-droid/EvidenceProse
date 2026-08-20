@@ -10,12 +10,15 @@ annotation, while preventing two opposite shortcuts:
    non-expansive explanation preserves the same semantic node.
 """
 from __future__ import annotations
-import argparse, json, sys
+import argparse
+import json
+import sys
 from pathlib import Path
 from typing import Any
 
 SCRIPT_DIR=Path(__file__).resolve().parent
-if str(SCRIPT_DIR) not in sys.path: sys.path.insert(0,str(SCRIPT_DIR))
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0,str(SCRIPT_DIR))
 from validate_rca_policy import get_current_policy
 
 RCA_POLICY,POLICY_DIGEST=get_current_policy()
@@ -159,11 +162,16 @@ def _nonexpansive_check(x:dict[str,Any],q:str,errors:list[str])->None:
         add(errors,f"{q} non-expansive elaboration requires queue_protective_lock_material=false")
 
 def validate_card(card:Any,errors:list[str]):
-    if not isinstance(card,dict): add(errors,"card audit must be object"); return
-    cid=card.get("card_id","?"); p=f"card {cid}"
+    if not isinstance(card,dict):
+        add(errors,"card audit must be object")
+        return
+    cid=card.get("card_id","?")
+    p=f"card {cid}"
     br=card.get("blind_readback",{})
     inventory=br.get("content_node_inventory") if isinstance(br,dict) else None
-    if not isinstance(inventory,list): add(errors,f"{p} blind_readback.content_node_inventory must be array"); return
+    if not isinstance(inventory,list):
+        add(errors,f"{p} blind_readback.content_node_inventory must be array")
+        return
     for i,node in enumerate(inventory):
         q=f"{p}.blind_readback.content_node_inventory[{i}]"
         if not isinstance(node,dict):
@@ -176,8 +184,10 @@ def validate_card(card:Any,errors:list[str]):
     material=_material_nodes(card)
     raw_ids=[n.get("observed_node_id") for n in material]
     ids=[x for x in raw_ids if txt(x)]
-    if len(ids)!=len(raw_ids): add(errors,f"{p} every material observed content node requires observed_node_id")
-    if len(ids)!=len(set(ids)): add(errors,f"{p} material observed content node ids must be unique")
+    if len(ids)!=len(raw_ids):
+        add(errors,f"{p} every material observed content node requires observed_node_id")
+    if len(ids)!=len(set(ids)):
+        add(errors,f"{p} material observed content node ids must be unique")
     ann_inventory=[]
     if "evidence_annotation_inventory" not in br:
         add(errors,f"{p}.blind_readback.evidence_annotation_inventory required")
@@ -187,91 +197,150 @@ def validate_card(card:Any,errors:list[str]):
         raw_ann_inv=[]
     for i,a in enumerate(raw_ann_inv):
         if not isinstance(a,dict):
-            add(errors,f"{p}.evidence_annotation_inventory[{i}] must be object"); continue
+            add(errors,f"{p}.evidence_annotation_inventory[{i}] must be object")
+            continue
         aid=a.get("annotation_id")
         if not txt(aid):
             add(errors,f"{p}.evidence_annotation_inventory[{i}].annotation_id required")
         ann_inventory.append(aid)
 
     rec=card.get("source_surface_reconciliation")
-    if not isinstance(rec,dict): add(errors,f"{p} source_surface_reconciliation required"); return
+    if not isinstance(rec,dict):
+        add(errors,f"{p} source_surface_reconciliation required")
+        return
     checks=rec.get("content_node_checks")
-    if not isinstance(checks,list): add(errors,f"{p} content_node_checks must be array"); return
+    if not isinstance(checks,list):
+        add(errors,f"{p} content_node_checks must be array")
+        return
     check_values=[x.get("observed_node_id") for x in checks if isinstance(x,dict)]
     check_ids=[x for x in check_values if txt(x)]
-    if len(check_ids)!=len(check_values): add(errors,f"{p} every content node check requires observed_node_id")
-    if sorted(check_ids)!=sorted(ids): add(errors,f"{p} every observed material content node must be dispositioned exactly once")
+    if len(check_ids)!=len(check_values):
+        add(errors,f"{p} every content node check requires observed_node_id")
+    if sorted(check_ids)!=sorted(ids):
+        add(errors,f"{p} every observed material content node must be dispositioned exactly once")
 
     bad=unv=warn=False
     observed_closed_set_ids=_closed_set_ids(material)
     for i,x in enumerate(checks):
         q=f"{p}.content_node_checks[{i}]"
-        if not isinstance(x,dict): add(errors,f"{q} must be object"); continue
+        if not isinstance(x,dict):
+            add(errors,f"{q} must be object")
+            continue
         disp=x.get("disposition")
-        if not isinstance(disp,str) or disp not in ALLOWED: add(errors,f"{q} disposition invalid"); continue
-        if x.get("materiality")!="material": add(errors,f"{q} material node check must declare materiality=material")
+        if not isinstance(disp,str) or disp not in ALLOWED:
+            add(errors,f"{q} disposition invalid")
+            continue
+        if x.get("materiality")!="material":
+            add(errors,f"{q} material node check must declare materiality=material")
         qa=x.get("queue_authorization_status")
         ss=x.get("primary_source_support_status")
-        if not isinstance(qa,str) or qa not in QUEUE_AUTHORIZATION_STATUSES: add(errors,f"{q} queue_authorization_status invalid")
-        if not isinstance(ss,str) or ss not in SOURCE_SUPPORT_STATUSES: add(errors,f"{q} primary_source_support_status invalid")
+        if not isinstance(qa,str) or qa not in QUEUE_AUTHORIZATION_STATUSES:
+            add(errors,f"{q} queue_authorization_status invalid")
+        if not isinstance(ss,str) or ss not in SOURCE_SUPPORT_STATUSES:
+            add(errors,f"{q} primary_source_support_status invalid")
         loc=x.get("source_locators",[])
         _validate_source_locators(loc,f"{q}.source_locators",errors)
-        if not isinstance(loc,list): loc=[]
-        if ss=="supported" and not any(txt(v) for v in loc if isinstance(v,str)): add(errors,f"{q} supported node requires source locator")
+        if not isinstance(loc,list):
+            loc=[]
+        if ss=="supported" and not any(txt(v) for v in loc if isinstance(v,str)):
+            add(errors,f"{q} supported node requires source locator")
 
         if disp in FAIL_DISPOSITIONS:
             bad=True
-            if not txt(x.get("finding_id")): add(errors,f"{q} failing disposition requires finding_id")
+            if not txt(x.get("finding_id")):
+                add(errors,f"{q} failing disposition requires finding_id")
         elif disp in BLOCK_DISPOSITIONS:
             unv=True
-            if not txt(x.get("finding_id")): add(errors,f"{q} unverifiable disposition requires finding_id")
+            if not txt(x.get("finding_id")):
+                add(errors,f"{q} unverifiable disposition requires finding_id")
         elif disp=="SOURCE_SUPPORTED_BUT_NOT_QUEUE_AUTHORIZED":
             # v1.2 audits must decide whether this is a real semantic expansion or merely
             # a faithful elaboration. The old undifferentiated disposition is no longer
             # sufficient to derive a verdict.
-            add(errors,f"{q} legacy SOURCE_SUPPORTED_BUT_NOT_QUEUE_AUTHORIZED is ambiguous; use SOURCE_SUPPORTED_NONEXPANSIVE_ELABORATION, SOURCE_SUPPORTED_BUT_OUT_OF_CARD_SCOPE, or MATERIAL_QUEUE_PROTECTIVE_LOCK_VIOLATION")
+            add(
+                errors,
+                f"{q} legacy SOURCE_SUPPORTED_BUT_NOT_QUEUE_AUTHORIZED is ambiguous; "
+                "use SOURCE_SUPPORTED_NONEXPANSIVE_ELABORATION, "
+                "SOURCE_SUPPORTED_BUT_OUT_OF_CARD_SCOPE, or "
+                "MATERIAL_QUEUE_PROTECTIVE_LOCK_VIOLATION",
+            )
         elif disp in NON_MATERIAL_DISPOSITIONS:
             add(errors,f"{q} material node cannot be NON_MATERIAL_DECORATION")
         elif disp=="AUTHORIZED_AND_SUPPORTED" and not (qa=="authorized" and ss=="supported"):
             add(errors,f"{q} AUTHORIZED_AND_SUPPORTED requires authorized + supported")
         elif disp=="SEMANTICALLY_EQUIVALENT_PARAPHRASE":
-            if ss!="supported": add(errors,f"{q} paraphrase requires primary-source support")
-            if x.get("semantic_equivalence_to_queue") is not True: add(errors,f"{q} paraphrase requires semantic_equivalence_to_queue=true")
+            if ss!="supported":
+                add(errors,f"{q} paraphrase requires primary-source support")
+            if x.get("semantic_equivalence_to_queue") is not True:
+                add(errors,f"{q} paraphrase requires semantic_equivalence_to_queue=true")
         elif disp=="SOURCE_SUPPORTED_NONEXPANSIVE_ELABORATION":
-            if ss!="supported": add(errors,f"{q} non-expansive elaboration requires primary-source support")
+            if ss!="supported":
+                add(errors,f"{q} non-expansive elaboration requires primary-source support")
             _nonexpansive_check(x,q,errors)
         if disp=="SOURCE_SUPPORTED_BUT_OUT_OF_CARD_SCOPE":
-            if ss!="supported" or qa!="not_authorized": add(errors,f"{q} out-of-card-scope requires supported + not_authorized")
-            if not isinstance(x.get("card_scope_status"),str) or x.get("card_scope_status") not in CARD_SCOPE_STATUSES: add(errors,f"{q} out-of-card-scope requires explicit card_scope_status")
+            if ss!="supported" or qa!="not_authorized":
+                add(errors,f"{q} out-of-card-scope requires supported + not_authorized")
+            if (
+                not isinstance(x.get("card_scope_status"),str)
+                or x.get("card_scope_status") not in CARD_SCOPE_STATUSES
+            ):
+                add(errors,f"{q} out-of-card-scope requires explicit card_scope_status")
         if disp=="MATERIAL_QUEUE_PROTECTIVE_LOCK_VIOLATION":
             if x.get("queue_protective_lock_material") is not True or not txt(x.get("protective_purpose")):
                 add(errors,f"{q} protective-lock failure requires material protective purpose")
 
     exp=rec.get("expected_content_checks",[])
-    if not isinstance(exp,list): add(errors,f"{p} expected_content_checks must be array"); exp=[]
+    if not isinstance(exp,list):
+        add(errors,f"{p} expected_content_checks must be array")
+        exp=[]
     expected_closed_set_ids=_expected_closed_set_ids(card,p,errors)
     if len(observed_closed_set_ids)!=len(expected_closed_set_ids):
         add(errors,f"{p} rendered closed-set members must match expected inventory cardinality")
         bad=True
     for i,x in enumerate(exp):
-        if not isinstance(x,dict): add(errors,f"{p}.expected_content_checks[{i}] must be object"); continue
+        if not isinstance(x,dict):
+            add(errors,f"{p}.expected_content_checks[{i}] must be object")
+            continue
         if "source_locators" in x:
-            _validate_source_locators(x.get("source_locators"),f"{p}.expected_content_checks[{i}].source_locators",errors)
-        if x.get("closed_set_member") is True and (not isinstance(x.get("status"),str) or x.get("status") not in {"represented","semantically_equivalent"}):
+            _validate_source_locators(
+                x.get("source_locators"),
+                f"{p}.expected_content_checks[{i}].source_locators",
+                errors,
+            )
+        if x.get("closed_set_member") is True and (
+            not isinstance(x.get("status"),str)
+            or x.get("status") not in {"represented","semantically_equivalent"}
+        ):
             bad=True
-            if not txt(x.get("finding_id")): add(errors,f"{p}.expected_content_checks[{i}] failed closed-set member requires finding_id")
+            if not txt(x.get("finding_id")):
+                add(errors,f"{p}.expected_content_checks[{i}] failed closed-set member requires finding_id")
         if x.get("closed_set_member") is True:
             xid=x.get("expected_node_id")
-            if not txt(xid): add(errors,f"{p}.expected_content_checks[{i}] closed_set item requires expected_node_id")
+            if not txt(xid):
+                add(errors,f"{p}.expected_content_checks[{i}] closed_set item requires expected_node_id")
             elif x.get("status") in {"represented","semantically_equivalent"}:
                 observed_id=x.get("observed_node_id")
                 if not txt(observed_id) or observed_id not in ids:
-                    add(errors,f"{p}.expected_content_checks[{i}] represented closed-set member requires known observed_node_id")
+                    add(
+                        errors,
+                        f"{p}.expected_content_checks[{i}] represented closed-set member "
+                        "requires known observed_node_id",
+                    )
                     bad=True
                 elif observed_id not in observed_closed_set_ids:
-                    add(errors,f"{p}.expected_content_checks[{i}] observed_node_id must be a rendered closed-set member")
+                    add(
+                        errors,
+                        f"{p}.expected_content_checks[{i}] observed_node_id must be a "
+                        "rendered closed-set member",
+                    )
                     bad=True
-    declared=[x.get("expected_node_id") for x in exp if isinstance(x,dict) and x.get("closed_set_member") is True and txt(x.get("expected_node_id"))]
+    declared=[
+        x.get("expected_node_id")
+        for x in exp
+        if isinstance(x,dict)
+        and x.get("closed_set_member") is True
+        and txt(x.get("expected_node_id"))
+    ]
     if sorted(declared)!=sorted(expected_closed_set_ids):
         add(errors,f"{p} expected_content_checks must cover all expected closed-set members")
         bad=True
@@ -294,21 +363,32 @@ def validate_card(card:Any,errors:list[str]):
         bad=True
 
     annotations=rec.get("evidence_annotation_checks",[])
-    if not isinstance(annotations,list): add(errors,f"{p} evidence_annotation_checks must be array"); annotations=[]
+    if not isinstance(annotations,list):
+        add(errors,f"{p} evidence_annotation_checks must be array")
+        annotations=[]
     expected_annotation_specs=_expected_annotation_specs(card,p,errors)
     packet=card.get("expected_semantic_packet")
-    expected_annotation_inventory_declared=isinstance(packet,dict) and "expected_evidence_annotation_inventory" in packet
+    expected_annotation_inventory_declared=(
+        isinstance(packet,dict)
+        and "expected_evidence_annotation_inventory" in packet
+    )
     annotation_ids=[]
     checked_expected_annotation_ids=[]
     for i,x in enumerate(annotations):
         q=f"{p}.evidence_annotation_checks[{i}]"
-        if not isinstance(x,dict): add(errors,f"{q} must be object"); continue
-        aid=x.get("annotation_id"); annotation_ids.append(aid)
-        if not txt(aid): add(errors,f"{q} annotation_id required")
+        if not isinstance(x,dict):
+            add(errors,f"{q} must be object")
+            continue
+        aid=x.get("annotation_id")
+        annotation_ids.append(aid)
+        if not txt(aid):
+            add(errors,f"{q} annotation_id required")
         st=x.get("status")
         if "source_locators" in x:
             _validate_source_locators(x.get("source_locators"),f"{q}.source_locators",errors)
-        if not isinstance(st,str) or st not in ANNOTATION_ALLOWED: add(errors,f"{q} status invalid"); continue
+        if not isinstance(st,str) or st not in ANNOTATION_ALLOWED:
+            add(errors,f"{q} status invalid")
+            continue
         if expected_annotation_inventory_declared:
             expected_id=x.get("expected_annotation_id")
             if not txt(expected_id):
@@ -321,17 +401,28 @@ def validate_card(card:Any,errors:list[str]):
                     add(errors,f"{q} expected_role does not match expected annotation inventory")
         if st in ANNOTATION_FAIL:
             bad=True
-            if not txt(x.get("finding_id")): add(errors,f"{q} failing annotation requires finding_id")
+            if not txt(x.get("finding_id")):
+                add(errors,f"{q} failing annotation requires finding_id")
         elif st in ANNOTATION_BLOCK:
             unv=True
-            if not txt(x.get("finding_id")): add(errors,f"{q} unverifiable annotation requires finding_id")
+            if not txt(x.get("finding_id")):
+                add(errors,f"{q} unverifiable annotation requires finding_id")
         elif st in ANNOTATION_WARN:
             warn=True
         if st in {"equivalent","wrong_role","wrong_binding"}:
-            if not isinstance(x.get("observed_role"),str) or x.get("observed_role") not in ANNOTATION_ROLES: add(errors,f"{q} observed_role invalid")
-            if not isinstance(x.get("expected_role"),str) or x.get("expected_role") not in ANNOTATION_ROLES: add(errors,f"{q} expected_role invalid")
+            if (
+                not isinstance(x.get("observed_role"),str)
+                or x.get("observed_role") not in ANNOTATION_ROLES
+            ):
+                add(errors,f"{q} observed_role invalid")
+            if (
+                not isinstance(x.get("expected_role"),str)
+                or x.get("expected_role") not in ANNOTATION_ROLES
+            ):
+                add(errors,f"{q} expected_role invalid")
             bound=x.get("bound_observed_node_ids")
-            if not isinstance(bound,list) or not bound or any(not txt(v) for v in bound): add(errors,f"{q} {st} requires bound observed node list")
+            if not isinstance(bound,list) or not bound or any(not txt(v) for v in bound):
+                add(errors,f"{q} {st} requires bound observed node list")
             elif any(oid not in ids for oid in bound):
                 for oid in bound:
                     if oid not in ids:
@@ -341,10 +432,14 @@ def validate_card(card:Any,errors:list[str]):
     if sorted(valid_annotation_ids)!=sorted(valid_inventory_ids):
         add(errors,f"{p} every material evidence annotation must be checked")
         bad=True
-    if expected_annotation_inventory_declared and sorted(checked_expected_annotation_ids)!=sorted(expected_annotation_specs):
+    if (
+        expected_annotation_inventory_declared
+        and sorted(checked_expected_annotation_ids)!=sorted(expected_annotation_specs)
+    ):
         add(errors,f"{p} expected evidence annotation inventory must be closed against checks")
         bad=True
-    if len(valid_annotation_ids)!=len(set(valid_annotation_ids)): add(errors,f"{p} evidence annotation ids must be unique")
+    if len(valid_annotation_ids)!=len(set(valid_annotation_ids)):
+        add(errors,f"{p} evidence annotation ids must be unique")
 
     comp=rec.get("source_surface_completion",{})
     if not isinstance(comp,dict):
@@ -352,7 +447,10 @@ def validate_card(card:Any,errors:list[str]):
         comp={}
     if comp.get("all_observed_material_nodes_dispositioned") is not (sorted(check_ids)==sorted(ids)):
         add(errors,f"{p} source_surface_completion.all_observed_material_nodes_dispositioned mismatch")
-    annotations_complete=sorted([x for x in annotation_ids if txt(x)])==sorted([x for x in ann_inventory if txt(x)])
+    annotations_complete=(
+        sorted([x for x in annotation_ids if txt(x)])
+        == sorted([x for x in ann_inventory if txt(x)])
+    )
     if comp.get("all_material_evidence_annotations_checked") is not annotations_complete:
         add(errors,f"{p} source_surface_completion.all_material_evidence_annotations_checked mismatch")
     if comp.get("topic_plausibility_shortcut_not_used") is not True:
@@ -362,23 +460,44 @@ def validate_card(card:Any,errors:list[str]):
     if comp.get("mixed_support_nodes_split_when_materially_different") is not True:
         add(errors,f"{p} materially mixed-support clauses must be split before disposition")
 
-    axis=card.get("axes",{}).get("SOURCE_SURFACE") if isinstance(card.get("axes"),dict) else None
+    axis=(
+        card.get("axes",{}).get("SOURCE_SURFACE")
+        if isinstance(card.get("axes"),dict)
+        else None
+    )
     expected="unverifiable" if unv else "fail" if bad else "warning" if warn else "pass"
     if not isinstance(axis,str) or axis not in AXIS_STATUSES:
         add(errors,f"{p} SOURCE_SURFACE status invalid")
-    if axis!=expected: add(errors,f"{p} SOURCE_SURFACE must be {expected} from source-surface reconciliation")
+    if axis!=expected:
+        add(errors,f"{p} SOURCE_SURFACE must be {expected} from source-surface reconciliation")
     verdict=card.get("verdict")
     if not isinstance(verdict,str) or verdict not in VERDICTS:
         add(errors,f"{p} verdict invalid")
-    if verdict=="PASS" and expected!="pass": add(errors,f"{p} PASS illegal with source-surface status {expected}")
-    if expected=="warning" and (not isinstance(verdict,str) or verdict not in {"PASS_WITH_WARNINGS","FAIL_RENDER","FAIL_SPEC","BLOCK_UNVERIFIABLE"}): add(errors,f"{p} source-surface warning cannot yield clean PASS")
-    if expected=="fail" and (not isinstance(verdict,str) or verdict not in {"FAIL_RENDER","FAIL_SPEC"}): add(errors,f"{p} material source-surface failure requires FAIL_RENDER or FAIL_SPEC")
-    if expected=="unverifiable" and verdict!="BLOCK_UNVERIFIABLE": add(errors,f"{p} material source-surface uncertainty requires BLOCK_UNVERIFIABLE")
+    if verdict=="PASS" and expected!="pass":
+        add(errors,f"{p} PASS illegal with source-surface status {expected}")
+    if expected=="warning" and (
+        not isinstance(verdict,str)
+        or verdict not in {
+            "PASS_WITH_WARNINGS",
+            "FAIL_RENDER",
+            "FAIL_SPEC",
+            "BLOCK_UNVERIFIABLE",
+        }
+    ):
+        add(errors,f"{p} source-surface warning cannot yield clean PASS")
+    if expected=="fail" and (
+        not isinstance(verdict,str)
+        or verdict not in {"FAIL_RENDER","FAIL_SPEC"}
+    ):
+        add(errors,f"{p} material source-surface failure requires FAIL_RENDER or FAIL_SPEC")
+    if expected=="unverifiable" and verdict!="BLOCK_UNVERIFIABLE":
+        add(errors,f"{p} material source-surface uncertainty requires BLOCK_UNVERIFIABLE")
     return expected
 
 def validate_bundle(bundle:Any):
     errors=[]
-    if not isinstance(bundle,dict): return ["bundle must be object"]
+    if not isinstance(bundle,dict):
+        return ["bundle must be object"]
     expected_versions={
         "contract_version":RESULT_CONTRACT_VERSION,
         "result_schema_version":RESULT_SCHEMA_VERSION,
@@ -391,15 +510,29 @@ def validate_bundle(bundle:Any):
         if bundle.get(field)!=expected:
             errors.append(f"{field} must be {expected}")
     cards=bundle.get("card_audits")
-    if not isinstance(cards,list) or not cards: add(errors,"card_audits must be non-empty"); return errors
-    for card in cards: validate_card(card,errors)
+    if not isinstance(cards,list) or not cards:
+        add(errors,"card_audits must be non-empty")
+        return errors
+    for card in cards:
+        validate_card(card,errors)
     return errors
 
 def main():
-    ap=argparse.ArgumentParser(); ap.add_argument("bundle",type=Path); ap.add_argument("--json",action="store_true"); a=ap.parse_args()
-    try: bundle=json.loads(a.bundle.read_text(encoding="utf-8")); errors=validate_bundle(bundle)
-    except (OSError,json.JSONDecodeError) as ex: errors=[str(ex)]
+    ap=argparse.ArgumentParser()
+    ap.add_argument("bundle",type=Path)
+    ap.add_argument("--json",action="store_true")
+    a=ap.parse_args()
+    try:
+        bundle=json.loads(a.bundle.read_text(encoding="utf-8"))
+        errors=validate_bundle(bundle)
+    except (OSError,json.JSONDecodeError) as ex:
+        errors=[str(ex)]
     out={"status":"pass" if not errors else "fail","method_revision":METHOD,"errors":errors}
-    print(json.dumps(out,ensure_ascii=False,sort_keys=True) if a.json else ("PASS" if not errors else "\n".join(errors)))
+    print(
+        json.dumps(out,ensure_ascii=False,sort_keys=True)
+        if a.json
+        else ("PASS" if not errors else "\n".join(errors))
+    )
     return 0 if not errors else 1
-if __name__=="__main__": raise SystemExit(main())
+if __name__=="__main__":
+    raise SystemExit(main())

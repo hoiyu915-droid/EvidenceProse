@@ -53,6 +53,18 @@ def _non_whitespace_character_count(text: str) -> int:
     return sum(1 for character in text if not character.isspace())
 
 
+def internal_marker_errors(text: str) -> list[str]:
+    """Return reader-facing internal-reference leaks found in ``text``."""
+    errors: list[str] = []
+    for label, pattern in INTERNAL_REFERENCE_PATTERNS:
+        match = pattern.search(text)
+        if match:
+            errors.append(
+                f"reader artifact exposes {label} at line {_line_number(text, match.start())}"
+            )
+    return errors
+
+
 def validate_text(
     text: str,
     *,
@@ -175,12 +187,7 @@ def validate_text(
     if grade_index is not None and update_index is not None and update_index <= grade_index:
         errors.append("最後更新 footnote must appear after the evidence-grade label")
 
-    for label, pattern in INTERNAL_REFERENCE_PATTERNS:
-        match = pattern.search(text)
-        if match:
-            errors.append(
-                f"reader artifact exposes {label} at line {_line_number(text, match.start())}"
-            )
+    errors.extend(internal_marker_errors(text))
 
     for match in LOCAL_PDF_RE.finditer(text):
         if not _looks_like_public_url_token(text, match.start(), match.end()):
@@ -233,6 +240,8 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
+    if args.allow_large_literature and len(args.paths) > 1:
+        parser.error("--allow-large-literature accepts exactly one path per invocation")
     if args.length_exception_reason and not args.allow_large_literature:
         parser.error("--length-exception-reason requires --allow-large-literature")
 

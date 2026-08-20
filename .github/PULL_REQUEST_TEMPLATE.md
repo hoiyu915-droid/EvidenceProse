@@ -9,5 +9,5 @@
 - [ ] Registry, rule, voice, batch, and contamination ledgers agree.
 - [ ] Semantic and strict-render failures remain explicit.
 - [ ] Rule-state changes satisfy `docs/induction_protocol.md`.
-- [ ] `python -m unittest discover -s tests -v` passes.
-- [ ] `python scripts/validate_registry.py --json` returns `status: pass`.
+- [ ] `python3 -m unittest discover -s tests -v` passes.
+- [ ] `python3 scripts/validate_registry.py --json` returns `status: pass`.

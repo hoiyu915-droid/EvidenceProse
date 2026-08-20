@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+from contextlib import redirect_stderr
 import importlib.util
+import io
 from pathlib import Path
 import unittest
 
@@ -12,6 +14,7 @@ SPEC = importlib.util.spec_from_file_location(
 assert SPEC is not None and SPEC.loader is not None
 MODULE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MODULE)
+internal_marker_errors = MODULE.internal_marker_errors
 validate_text = MODULE.validate_text
 
 
@@ -135,6 +138,37 @@ class ExplainerOutputFormatTests(unittest.TestCase):
             length_exception_reason="Not actually needed.",
         )
         self.assertTrue(any("exception is unnecessary" in error for error in errors))
+
+    def test_shipped_template_has_no_internal_markers(self) -> None:
+        text = (ROOT / "templates" / "science_explainer.md").read_text(encoding="utf-8")
+        errors = validate_text(text, filename="20260101_placeholder.md")
+        self.assertEqual(
+            errors,
+            ["document must contain exactly one > 最後更新：YYYYMMDD footnote"],
+        )
+
+    def test_reader_facing_fixtures_have_no_internal_markers(self) -> None:
+        fixture_paths = sorted((ROOT / "fixtures").glob("*.md"))
+        self.assertTrue(fixture_paths)
+        for path in fixture_paths:
+            with self.subTest(path=path.name):
+                text = path.read_text(encoding="utf-8")
+                self.assertEqual(internal_marker_errors(text), [])
+
+    def test_large_literature_exception_rejects_multiple_paths(self) -> None:
+        stderr = io.StringIO()
+        with redirect_stderr(stderr), self.assertRaises(SystemExit) as raised:
+            MODULE.main(
+                [
+                    "--allow-large-literature",
+                    "--length-exception-reason",
+                    "Genuinely large literature base.",
+                    "first.md",
+                    "second.md",
+                ]
+            )
+        self.assertEqual(raised.exception.code, 2)
+        self.assertIn("accepts exactly one path", stderr.getvalue())
 
 
 if __name__ == "__main__":

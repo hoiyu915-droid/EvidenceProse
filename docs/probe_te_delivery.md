@@ -72,7 +72,7 @@ TP_20260815_2602_01637__combined_content_truth_edit_unsealed(2).json
 ## Validation
 
 ```bash
-python scripts/finalize_probe_te_queue.py \
+python3 scripts/finalize_probe_te_queue.py \
   path/to/content_truth_edit_unsealed.json \
   --output-dir path/to/output
 ```
@@ -80,7 +80,7 @@ python scripts/finalize_probe_te_queue.py \
 Check without writing:
 
 ```bash
-python scripts/finalize_probe_te_queue.py \
+python3 scripts/finalize_probe_te_queue.py \
   path/to/content_truth_edit_unsealed.json --check
 ```
 

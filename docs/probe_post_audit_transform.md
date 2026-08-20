@@ -169,14 +169,14 @@ Hard Claude findings must be `resolved`. Warning findings may be `accepted_warni
 ## Validation
 
 ```bash
-python scripts/validate_probe_post_audit.py \
+python3 scripts/validate_probe_post_audit.py \
   fixtures/valid_probe_post_audit_bundle.json
 ```
 
 Machine-readable output:
 
 ```bash
-python scripts/validate_probe_post_audit.py \
+python3 scripts/validate_probe_post_audit.py \
   fixtures/valid_probe_post_audit_bundle.json --json
 ```
 

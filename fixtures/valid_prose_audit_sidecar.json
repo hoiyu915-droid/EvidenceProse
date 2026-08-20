@@ -1,8 +1,15 @@
 {
-  "contract_version": "1.0",
+  "contract_version": "1.1",
   "article_id": "demo-explainer",
   "handoff_digest": "de01a4047d6208a0a9a81307f1b56ab794ccbec5d077872b9bb446f5ec17a03a",
   "reader_contract_digest": "6ba71acb80ee3ca3009e852dfb34585e11fe0b59ce42305f88bb7844a1504a29",
+  "article_sha256": "bcd995a00379e7b10e6f8b6c236794852084e439d3328eb6208dca04cf031788",
+  "delivery_length_exception": {
+    "granted": false,
+    "measured_characters": 141,
+    "ceiling": 4000,
+    "reason": null
+  },
   "semantic_guard": {
     "no_loss": "pass",
     "no_add": "pass",
