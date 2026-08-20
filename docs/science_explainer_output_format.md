@@ -1,6 +1,6 @@
 # Science explainer output format
 
-Contract: `EP-SCIENCE-EXPLAINER-OUTPUT v0.1`
+Contract: `EP-SCIENCE-EXPLAINER-OUTPUT v0.2`
 
 Status: delivery-shell contract. This defines how a reader-facing Traditional Chinese science explainer is packaged after its evidence content has been reviewed. It is not a generation rule and does not promote any `R###` or `V###` rule to stable status.
 
@@ -87,6 +87,23 @@ The content should preserve the source hierarchy:
 - do not convert non-significance into equality;
 - do not convert association into causation;
 - do not convert a comparison between complete workflows into a mechanism claim about one component unless that component was isolated.
+
+## English terms need immediate Chinese explanations
+
+The primary reader language is Traditional Chinese. English may be retained when it preserves a source-defined term, established construct, scale name, model name or useful search term, but it may not be left unexplained. Every English lexical span in the title, one-sentence summary, content or evidence-grade rationale is followed immediately by a Chinese explanation:
+
+```text
+self-report(自陳)
+cross-sectional(橫斷面)
+SEM(結構方程模型)
+trust(信任)
+```
+
+Full-width parentheses are also accepted, for example `trust（信任）`. A space between the English span and its Chinese gloss is not accepted, and an English-only parenthesis is not a Chinese explanation. The rule applies on every occurrence so a reader does not need to search backward for the first definition.
+
+Bibliographic entries, URLs, inline or fenced code, public identifier labels (`DOI`, `PMID`, `PMCID`, `ORCID`, `arXiv`), author-year attribution names, statistical symbols such as `n=384`, and number-bound measurement units are exempt because translating them would corrupt identity or notation. These exemptions do not cover scientific constructs or method labels: `SEM`, `self-report`, `cross-sectional`, scale dimensions and similar terms still need a Chinese explanation.
+
+This is a deterministic reader-accessibility gate. It is separate from warning-only `unnecessary_code_switching` lint: unexplained English blocks delivery, while a correctly glossed but stylistically unnecessary English term may still receive a non-blocking lint warning.
 
 When the primary source contains a real reporting inconsistency that matters for trust or interpretation but does not invalidate the whole result, it may be recorded under an optional H3 such as `### 內容完整性註記`. The note must describe the inconsistency and its consequence without inflating it into a broader failure.
 

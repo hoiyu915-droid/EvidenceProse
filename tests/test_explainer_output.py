@@ -15,13 +15,14 @@ assert SPEC is not None and SPEC.loader is not None
 MODULE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MODULE)
 internal_marker_errors = MODULE.internal_marker_errors
+english_gloss_errors = MODULE.english_gloss_errors
 validate_text = MODULE.validate_text
 
 
-VALID = """# 兩個 AI 真的比兩個人更有創意嗎？
+VALID = """# 兩個 AI(人工智慧)真的比兩個人更有創意嗎？
 
 ## 一句話總結
-在三項開放式任務中，雙 AI 迭代流程的新穎性與部分創造力結果較強，但研究沒有把代理數與迭代、回饋和停止規則拆開，因此不能把優勢單獨歸因於多代理本身。
+在三項開放式任務中，雙 AI(人工智慧)迭代流程的新穎性與部分創造力結果較強，但研究沒有把代理數與迭代、回饋和停止規則拆開，因此不能把優勢單獨歸因於多代理本身。
 
 ## 內容
 
@@ -33,7 +34,8 @@ VALID = """# 兩個 AI 真的比兩個人更有創意嗎？
 
 ## 引用來源
 
-Luan YL, Sun L, Kim YJ, Wang J, Xie X. 2026. AI-AI co-creation outperforms human pairs in creative tasks. arXiv:2608.09023. 預印本。
+Luan YL, Sun L, Kim YJ, Wang J, Xie X. 2026. AI-AI co-creation outperforms
+human pairs in creative tasks. arXiv:2608.09023. 預印本。
 
 🟡 證據分級：中等。具直接比較與量化評分，但目前是預印本，任務範圍有限，而且多個流程因素同時改變。
 
@@ -89,6 +91,73 @@ class ExplainerOutputFormatTests(unittest.TestCase):
             broken, filename="20260813_ai-ai-cocreation-creativity.md"
         )
         self.assertTrue(any("bare/local PDF filename" in error for error in errors))
+
+    def test_reader_facing_english_requires_immediate_chinese_gloss(self) -> None:
+        broken = VALID.replace("研究比較四套完整創作流程", "研究採用 self-report 設計")
+        errors = validate_text(
+            broken, filename="20260813_ai-ai-cocreation-creativity.md"
+        )
+        self.assertTrue(
+            any("'self-report'; use English(中文)" in error for error in errors),
+            errors,
+        )
+
+    def test_title_and_every_repeated_occurrence_require_glosses(self) -> None:
+        title_broken = VALID.replace(
+            "# 兩個 AI(人工智慧)真的比兩個人更有創意嗎？",
+            "# self-report 研究能告訴我們甚麼？",
+        )
+        repeated_broken = VALID.replace(
+            "研究比較四套完整創作流程",
+            "self-report(自陳)研究比較四套流程，第二次 self-report 仍須解釋",
+        )
+        self.assertTrue(any("self-report" in item for item in english_gloss_errors(title_broken)))
+        self.assertEqual(
+            sum("self-report" in item for item in english_gloss_errors(repeated_broken)),
+            1,
+        )
+
+    def test_reader_facing_english_with_chinese_gloss_passes(self) -> None:
+        article = VALID.replace(
+            "研究比較四套完整創作流程",
+            "研究採用 self-report(自陳)與 cross-sectional SEM(橫斷面結構方程模型)",
+        )
+        self.assertEqual(
+            validate_text(
+                article, filename="20260813_ai-ai-cocreation-creativity.md"
+            ),
+            [],
+        )
+
+    def test_full_width_chinese_gloss_is_accepted(self) -> None:
+        article = VALID.replace("研究比較四套完整創作流程", "研究採用 trust（信任）量表")
+        self.assertEqual(english_gloss_errors(article), [])
+
+    def test_gloss_must_be_immediate_and_contain_chinese(self) -> None:
+        spaced = VALID.replace("研究比較四套完整創作流程", "研究採用 trust (信任)量表")
+        english_only = VALID.replace(
+            "研究比較四套完整創作流程", "研究採用 trust(confidence)量表"
+        )
+        self.assertTrue(english_gloss_errors(spaced))
+        self.assertTrue(english_gloss_errors(english_only))
+
+    def test_bibliography_code_url_and_public_identifiers_are_exempt(self) -> None:
+        article = VALID.replace(
+            "研究比較四套完整創作流程",
+            "Rösler 等人在 `model_name` 中記錄 n=384、70 kg 與 30 mL/min，詳見 DOI 與 https://example.org/path",
+        )
+        self.assertEqual(english_gloss_errors(article), [])
+
+    def test_scientific_acronym_is_not_mistaken_for_an_exempt_identifier(self) -> None:
+        broken = VALID.replace("研究比較四套完整創作流程", "研究使用 SEM 分析")
+        self.assertTrue(any("'SEM'" in item for item in english_gloss_errors(broken)))
+
+    def test_english_in_evidence_grade_rationale_requires_gloss(self) -> None:
+        broken = VALID.replace("具直接比較與量化評分", "self-report 設計具直接比較與量化評分")
+        errors = validate_text(
+            broken, filename="20260813_ai-ai-cocreation-creativity.md"
+        )
+        self.assertTrue(any("self-report" in error for error in errors), errors)
 
     def test_grade_emoji_must_match_grade(self) -> None:
         broken = VALID.replace("🟡 證據分級：中等。", "🟢 證據分級：中等。")

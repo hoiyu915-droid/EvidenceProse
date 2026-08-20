@@ -1,6 +1,6 @@
 # TA06-backed prose runtime
 
-Contract: `EP_TA06_PROSE_RUNTIME v1.1`
+Contract: `EP_TA06_PROSE_RUNTIME v1.1.1`
 
 Status: canonical production lane for evidence packages that have already passed TA06. This runtime does not promote any `R###` processing rule or `V###` article-register rule to stable status.
 
@@ -20,7 +20,7 @@ TA06 ta06_audit_packet
   -> prose draft
   -> semantic audit sidecar
   -> reader-outcome audit
-  -> EP-SCIENCE-EXPLAINER-OUTPUT v0.1
+  -> EP-SCIENCE-EXPLAINER-OUTPUT v0.2
   -> delivery validation
 ```
 
@@ -171,6 +171,8 @@ These are local review signals, not ISO requirements. They never block delivery 
 
 The runtime recomputes five deterministic categories from reader prose: `long_sentence` (at least 40 non-whitespace characters in one sentence), `long_paragraph` (at least 180 in one paragraph), `de_chain`, explicit `passive_voice`, and `hedge_stack`. If the sidecar's declared set for those five categories differs from the recomputed set, the validator emits a warning without changing the bundle status. `vague_pronoun`, `unnecessary_code_switching`, and `jargon_density` remain semantic review judgments. These thresholds are local heuristics, not language standards, and lint warnings do not block delivery by themselves.
 
+Unexplained English is handled separately from lint. When English is retained in the reader-facing title, summary, content or evidence-grade rationale, every occurrence must be followed immediately by a Chinese explanation, for example `self-report(自陳)`. Bibliographic entries, URLs, code, public identifier labels, author-year attribution names, statistical symbols and number-bound units are exempt. An unglossed scientific term is a delivery-shell failure, not a warning.
+
 ## Article length
 
 The reader-facing `## 內容` section defaults to no more than 4,000 non-whitespace Unicode code points. This is a ceiling, not a target: when the evidence base is small, the article should end naturally rather than being padded to approach 4,000 characters.
@@ -201,7 +203,7 @@ After repair, rerun the semantic audit. A release with targeted repairs requires
 
 ## Reader-facing projection
 
-The public artifact follows `EP-SCIENCE-EXPLAINER-OUTPUT v0.1`:
+The public artifact follows `EP-SCIENCE-EXPLAINER-OUTPUT v0.2`:
 
 ```text
 # title
