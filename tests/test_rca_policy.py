@@ -60,6 +60,27 @@ class RcaPolicyTests(unittest.TestCase):
         )
         self.assertNotEqual(policy["contract_version"], policy["policy_version"])
 
+    def test_method_revision_prefix_drift_is_fail_closed(self):
+        policy = copy.deepcopy(MODULE.load_current_policy(ROOT))
+        policy["method_revision"] = "1.2-wrong-policy-axis"
+        errors = MODULE.validate_policy(policy)
+        self.assertTrue(
+            any("method_revision must begin with policy_version" in error for error in errors),
+            errors,
+        )
+
+    def test_versioned_document_filename_drift_is_fail_closed(self):
+        original = MODULE.VERSIONED_DOC_REL
+        try:
+            MODULE.VERSIONED_DOC_REL = Path("docs/rendered_card_audit_v9.9.md")
+            errors = MODULE.validate_current_surfaces(ROOT)
+        finally:
+            MODULE.VERSIONED_DOC_REL = original
+        self.assertTrue(
+            any("document filename must match contract_version" in error for error in errors),
+            errors,
+        )
+
     def test_runtime_helpers_expose_canonical_json_and_digest(self):
         policy, digest = MODULE.get_current_policy(ROOT)
         canonical = MODULE.canonical_policy_json(policy)

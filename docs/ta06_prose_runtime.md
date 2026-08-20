@@ -1,6 +1,6 @@
 # TA06-backed prose runtime
 
-Contract: `EP_TA06_PROSE_RUNTIME v1.0`
+Contract: `EP_TA06_PROSE_RUNTIME v1.1`
 
 Status: canonical production lane for evidence packages that have already passed TA06. This runtime does not promote any `R###` processing rule or `V###` article-register rule to stable status.
 
@@ -115,7 +115,7 @@ When readability and precision conflict, precision wins.
 
 ## Draft audit
 
-The semantic auditor reads the completed draft against the TA06 handoff and the reader contract and writes `EP_PROSE_AUDIT_SIDECAR v1.0`. Its schema is `schemas/runtime/prose_audit_sidecar.schema.json`.
+The semantic auditor reads the completed draft against the TA06 handoff and the reader contract and writes `EP_PROSE_AUDIT_SIDECAR v1.1`. Its current schema is `schemas/runtime/prose_audit_sidecar.schema.json`; the preserved v1.0 schema is `schemas/runtime/prose_audit_sidecar_v1.0.schema.json`.
 
 The sidecar has two tracks.
 
@@ -134,6 +134,8 @@ All of these must pass:
 - headline no stronger than body;
 - analogy not presented as mechanism;
 - practical meaning not upgraded to recommendation.
+
+Any item recorded in `violations` with `severity: hard` also forces `final_gate.status: fail`; a bundle cannot declare a hard violation and release itself as passing.
 
 These judgments are semantic. The dependency-free validator checks that the audit artifact is complete, internally consistent and correctly bound to the handoff and reader contract; it does **not** pretend that string matching can prove scientific equivalence.
 
@@ -167,11 +169,27 @@ The sidecar may record warnings for:
 
 These are local review signals, not ISO requirements. They never block delivery by themselves and never justify a precision-reducing rewrite.
 
+The runtime recomputes five deterministic categories from reader prose: `long_sentence` (at least 40 non-whitespace characters in one sentence), `long_paragraph` (at least 180 in one paragraph), `de_chain`, explicit `passive_voice`, and `hedge_stack`. If the sidecar's declared set for those five categories differs from the recomputed set, the validator emits a warning without changing the bundle status. `vague_pronoun`, `unnecessary_code_switching`, and `jargon_density` remain semantic review judgments. These thresholds are local heuristics, not language standards, and lint warnings do not block delivery by themselves.
+
 ## Article length
 
 The reader-facing `## 內容` section defaults to no more than 4,000 non-whitespace Unicode code points. This is a ceiling, not a target: when the evidence base is small, the article should end naturally rather than being padded to approach 4,000 characters.
 
-Exceed the ceiling only for a genuinely large literature base when compression would remove material claims, limitations, applicability boundaries, uncertainty, evidence roles, or causal limits. The validator requires the explicit `--allow-large-literature` flag and a non-empty `--length-exception-reason`; the exception remains execution metadata and is not added to the reader article or task JSON.
+Exceed the ceiling only for a genuinely large literature base when compression would remove material claims, limitations, applicability boundaries, uncertainty, evidence roles, or causal limits. The exception is a bound audit fact, not a command-line permission. A v1.1 sidecar must include:
+
+```json
+{
+  "article_sha256": "<lowercase SHA-256 of exact delivered UTF-8 bytes>",
+  "delivery_length_exception": {
+    "granted": true,
+    "measured_characters": 4127,
+    "ceiling": 4000,
+    "reason": "Compression would remove material cross-study limitations."
+  }
+}
+```
+
+The v1.1 sidecar also binds `article_sha256`, computed over the exact delivered UTF-8 bytes. The validator rejects an article swap even when the replacement has the same length and lint categories. It recomputes `measured_characters` from that bound article and requires an exact match. `granted: true` requires both a count above 4,000 and a non-empty reason. At or below the ceiling, `granted` must be `false` and `reason` must be `null`. Runtime CLI overrides are rejected because they would not be visible in the bound bundle. This internal provenance remains outside the reader article and task JSON.
 
 ## Repair policy
 
@@ -201,7 +219,7 @@ The audit sidecar, claim IDs, source locators, handoff digests, Library receipts
 For a complete runtime bundle:
 
 ```bash
-python scripts/validate_prose_runtime.py \
+python3 scripts/validate_prose_runtime.py \
   --handoff path/to/ta06_prose_handoff.json \
   --reader-contract path/to/prose_reader_contract.json \
   --audit-sidecar path/to/prose_audit_sidecar.json \
@@ -210,19 +228,9 @@ python scripts/validate_prose_runtime.py \
 
 Machine-readable output adds `--json`.
 
-For a justified large-literature exception:
+For a justified large-literature exception, record the authorization in the bound v1.1 audit sidecar and run the same command. The validator checks transport graph integrity, digests, permission projection, semantic-gate consistency, repair state, reader-outcome state, recomputed length-exception provenance and the existing delivery shell. It does not replace the semantic auditor.
 
-```bash
-python scripts/validate_prose_runtime.py \
-  --handoff path/to/ta06_prose_handoff.json \
-  --reader-contract path/to/prose_reader_contract.json \
-  --audit-sidecar path/to/prose_audit_sidecar.json \
-  --article 20260815_topic.md \
-  --allow-large-literature \
-  --length-exception-reason "Compression would remove material cross-study limitations."
-```
-
-The validator checks transport graph integrity, digests, permission projection, semantic-gate consistency, repair state, reader-outcome state and the existing delivery shell. It does not replace the semantic auditor.
+The validator continues to accept a v1.0 sidecar for an article at or below the ceiling. A v1.0 sidecar cannot authorize an over-limit release.
 
 ## R/V rule boundary
 

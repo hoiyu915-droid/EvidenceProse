@@ -1,5 +1,9 @@
 # Terminology
 
+Version labels are defined separately in [versioning.md](versioning.md); similar
+numbers across contracts, policies, result schemas and artifact schemas do not
+mean that those axes are interchangeable.
+
 ## Evidence layers
 
 | Term | Meaning |

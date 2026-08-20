@@ -13,7 +13,7 @@
 
 ## 引用來源
 
-<作者。年份。文章標題。期刊／會議／公開 repository。DOI／PMID／PMCID／arXiv 等讀者可追溯的公開識別碼。不要放 filecite、Library 檔名、file ID、sandbox/container path 或本機 PDF 檔名。>
+<作者。年份。文章標題。期刊／會議／公開 repository。DOI／PMID／PMCID／arXiv 等讀者可追溯的公開識別碼。禁止暴露的內部標記清單見 docs/science_explainer_output_format.md。>
 
 🟡 證據分級：中等。<用一句到數句說明為什麼是這個證據權重；依實際情況改成 🟢 高或 🔴 低。>
 

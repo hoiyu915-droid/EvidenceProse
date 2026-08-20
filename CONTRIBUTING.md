@@ -76,16 +76,16 @@ The source PDF remains the authority for content-truth review even though its in
 Run the registry checks from the repository root:
 
 ```bash
-python -m unittest discover -s tests -v
-python scripts/validate_registry.py
-python scripts/validate_registry.py --json
+python3 -m unittest discover -s tests -v
+python3 scripts/validate_registry.py
+python3 scripts/validate_registry.py --json
 ```
 
 When a reader-facing delivery artifact is part of the change, also run:
 
 ```bash
-python scripts/validate_explainer_output.py YYYYMMDD_<slug>.md
-python scripts/validate_explainer_output.py --json YYYYMMDD_<slug>.md
+python3 scripts/validate_explainer_output.py YYYYMMDD_<slug>.md
+python3 scripts/validate_explainer_output.py --json YYYYMMDD_<slug>.md
 ```
 
 The first two registry commands must exit zero. The registry JSON command must return `"status": "pass"`. The explainer-output validator must also exit zero for every new delivery artifact. Do not weaken a validator to make a new record pass; correct the record or document why the contract itself must change. Green structural validation certifies packaging and registry consistency, not reader comprehension or science-communication quality.
