@@ -1,6 +1,6 @@
 {
   "contract_name": "EP_TA06_PROSE_RUNTIME",
-  "contract_version": "1.1.0",
+  "contract_version": "1.1.1",
   "status": "canonical",
   "supersedes": "EP_TA06_PROSE_RUNTIME_CONTRACT_v1.0.json",
   "scope": "TA06-backed Traditional-Chinese science-explainer production lane",
@@ -143,6 +143,30 @@
     "fixed_thresholds_are_standards_requirements": false,
     "may_reduce_precision": false
   },
+  "reader_language_accessibility": {
+    "rule": "Every English lexical span retained in reader-facing prose must be followed immediately by a Chinese explanation, for example self-report(自陳).",
+    "scope": [
+      "title",
+      "one-sentence summary",
+      "content",
+      "evidence-grade rationale"
+    ],
+    "every_occurrence_required": true,
+    "accepted_parentheses": [
+      "English(中文)",
+      "English（中文）"
+    ],
+    "exemptions": [
+      "bibliographic reference entries",
+      "URLs and code literals",
+      "DOI/PMID/PMCID/ORCID/arXiv labels",
+      "author-year attribution names",
+      "statistical symbols",
+      "number-bound measurement units"
+    ],
+    "untranslated_english_blocks_delivery": true,
+    "relationship_to_lint": "This deterministic accessibility gate is separate from warning-only unnecessary_code_switching lint."
+  },
   "article_length_policy": {
     "counted_scope": "reader artifact ## 內容 section only",
     "counting_rule": "non-whitespace Unicode code points",
@@ -181,11 +205,11 @@
       "analogy_not_presented_as_mechanism",
       "practical_meaning_not_upgraded_to_recommendation"
     ],
-    "pass_rule": "All hard semantic checks must pass, no reader-outcome axis may be fail, all repairs must be verified, and no recorded violation may have severity hard.",
+    "pass_rule": "All hard semantic checks must pass, no reader-outcome axis may be fail, all repairs must be verified, no recorded violation may have severity hard, and reader-facing English must carry an immediate Chinese explanation.",
     "lint_warnings_block_delivery": false
   },
   "delivery": {
-    "reader_shell": "EP-SCIENCE-EXPLAINER-OUTPUT v0.1",
+    "reader_shell": "EP-SCIENCE-EXPLAINER-OUTPUT v0.2",
     "public_copy": "Markdown reader artifact only",
     "internal_sidecar": "EP_PROSE_AUDIT_SIDECAR v1.1",
     "sidecar_article_binding": "article_sha256 over exact delivered UTF-8 bytes",

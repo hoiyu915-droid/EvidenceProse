@@ -23,13 +23,13 @@ The highest success criterion is reader understanding: after reading, a non-spec
 - Audited companion cards: 36 (36/36 content-truth passes; 28/36 substantive render-fidelity passes)
 - Stable induction generation rules: 0; stable voice rules: 0
 <!-- END sync_readme:registry-status -->
-- Live runtime contract: `EP_TA06_PROSE_RUNTIME v1.1`
+- Live runtime contract: `EP_TA06_PROSE_RUNTIME v1.1.1`
 - Probe transform contract: `EP_PROBE_POST_AUDIT_TRANSFORM v1.1`
 - Probe TE delivery contract: `EP_PROBE_TE_DELIVERY v1.0`
 - Rendered-card audit contract: `EP_RENDERED_CARD_AUDIT v1.2.0`
 - Rendered-card audit result schema: `1.1.0`
 - Rendered-card audit policy: selected by `policies/rca/current.json`
-- Delivery-shell contract: `EP-SCIENCE-EXPLAINER-OUTPUT v0.1`
+- Delivery-shell contract: `EP-SCIENCE-EXPLAINER-OUTPUT v0.2`
 - Primary output language: Traditional Chinese
 
 `R###` and `V###` rules are still induction evidence. None is production-authoritative merely because the live lane exists. The live lane is governed by TA06 scientific truth, the standalone reader contract, semantic preservation/no-add invariants, reader-outcome auditing, and the delivery shell. Probe is governed separately by the Claude audit, the same truth boundary, file-bound transform verification, and the isolated-reader gate.
@@ -55,7 +55,7 @@ TA06 ta06_audit_packet
        - immutable evidence-asset hashing
        - package-level coverage
        - isolated-reader EvidenceQuiz
-  -> EP-SCIENCE-EXPLAINER-OUTPUT v0.1
+  -> EP-SCIENCE-EXPLAINER-OUTPUT v0.2
   -> runtime + delivery validation
   -> Probe TE deterministic finalization
        - preserve final prompt bytes
@@ -100,6 +100,8 @@ Hard failures include association→causation, subgroup→whole population, pool
 The completed draft is audited once on `relevant`, `findable`, `understandable`, and `usable`. These are audit axes, not four mandatory whole-article rewrite passes.
 
 Traditional-Chinese lint for long sentences/paragraphs, `的` chains, vague pronouns, unnecessary code switching, passive voice, hedge stacks, and jargon density is warning-only. It cannot override scientific precision.
+
+English is permitted only when it helps preserve a term or search identity, and every reader-facing occurrence must carry an immediate Chinese explanation such as `self-report(自陳)`. Untranslated method labels, construct names or prose fragments fail the delivery shell; bibliographic entries, URLs, code, public identifier labels, author-year names, statistical symbols and number-bound units are exempt. This hard accessibility gate is separate from warning-only code-switching lint.
 
 ## Probe post-audit transform
 

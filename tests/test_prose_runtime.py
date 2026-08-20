@@ -212,6 +212,64 @@ class ProseRuntimeTests(unittest.TestCase):
         self.assertEqual(report["status"], "fail")
         self.assertTrue(any("article delivery" in error for error in report["errors"]))
 
+    def test_runtime_blocks_unglossed_reader_facing_english(self):
+        article = (FIXTURES / "20260815_demo-explainer.md").read_text(encoding="utf-8")
+        article = article.replace("主要結果呈現有利方向", "self-report 結果呈現有利方向")
+        sidecar = load_json("valid_prose_audit_sidecar.json")
+        sidecar["article_sha256"] = hashlib.sha256(article.encode("utf-8")).hexdigest()
+        sidecar["delivery_length_exception"]["measured_characters"] = (
+            runtime.content_character_count(article)
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            article_path = tmp / "20260815_demo-explainer.md"
+            sidecar_path = tmp / "prose_audit_sidecar.json"
+            article_path.write_text(article, encoding="utf-8")
+            sidecar_path.write_text(
+                json.dumps(sidecar, ensure_ascii=False), encoding="utf-8"
+            )
+            report = runtime.validate_bundle(
+                handoff_path=FIXTURES / "valid_ta06_prose_handoff.json",
+                reader_path=FIXTURES / "valid_prose_reader_contract.json",
+                sidecar_path=sidecar_path,
+                article_path=article_path,
+            )
+        self.assertEqual(report["status"], "fail")
+        self.assertTrue(
+            any(
+                "reader-facing English requires an immediate Chinese gloss" in error
+                for error in report["errors"]
+            ),
+            report["errors"],
+        )
+
+    def test_runtime_accepts_reader_facing_english_with_chinese_gloss(self):
+        article = (FIXTURES / "20260815_demo-explainer.md").read_text(encoding="utf-8")
+        article = article.replace(
+            "主要結果呈現有利方向",
+            "self-report(自陳)結果呈現有利方向",
+        )
+        sidecar = load_json("valid_prose_audit_sidecar.json")
+        sidecar["article_sha256"] = hashlib.sha256(article.encode("utf-8")).hexdigest()
+        sidecar["delivery_length_exception"]["measured_characters"] = (
+            runtime.content_character_count(article)
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            article_path = tmp / "20260815_demo-explainer.md"
+            sidecar_path = tmp / "prose_audit_sidecar.json"
+            article_path.write_text(article, encoding="utf-8")
+            sidecar_path.write_text(
+                json.dumps(sidecar, ensure_ascii=False), encoding="utf-8"
+            )
+            report = runtime.validate_bundle(
+                handoff_path=FIXTURES / "valid_ta06_prose_handoff.json",
+                reader_path=FIXTURES / "valid_prose_reader_contract.json",
+                sidecar_path=sidecar_path,
+                article_path=article_path,
+            )
+        self.assertEqual(report["status"], "pass", report["errors"])
+
     def test_runtime_enforces_4000_character_content_ceiling(self):
         article = (FIXTURES / "20260815_demo-explainer.md").read_text(encoding="utf-8")
         article = self.with_content(article, "研" * 4001)

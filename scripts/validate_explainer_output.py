@@ -20,6 +20,24 @@ UPDATE_RE = re.compile(r"^> 最後更新：(\d{8})$")
 GRADE_RE = re.compile(r"^(🟢|🟡|🔴) 證據分級：(高|中等|低)。(.+)$")
 GRADE_EMOJI = {"高": "🟢", "中等": "🟡", "低": "🔴"}
 LOCAL_PDF_RE = re.compile(r"\b[A-Za-z0-9_.()\-]+\.pdf\b", re.IGNORECASE)
+LATIN_SPAN_RE = re.compile(
+    r"(?<![A-Za-zÀ-ÖØ-öø-ÿ0-9])"
+    r"(?P<term>[A-Za-zÀ-ÖØ-öø-ÿ][A-Za-zÀ-ÖØ-öø-ÿ0-9]*"
+    r"(?:[-'][A-Za-zÀ-ÖØ-öø-ÿ0-9]+)*"
+    r"(?:[ \t]+[A-Za-zÀ-ÖØ-öø-ÿ][A-Za-zÀ-ÖØ-öø-ÿ0-9]*"
+    r"(?:[-'][A-Za-zÀ-ÖØ-öø-ÿ0-9]+)*)*)"
+    r"(?![A-Za-zÀ-ÖØ-öø-ÿ0-9])"
+)
+HAN_RE = re.compile(r"[\u3400-\u4dbf\u4e00-\u9fff]")
+PUBLIC_IDENTIFIER_TERMS = frozenset(
+    {"DOI", "PMID", "PMCID", "ORCID", "arXiv"}
+)
+MEASUREMENT_UNITS = frozenset(
+    {
+        "g", "kg", "mg", "mL", "L", "mm", "cm", "m", "km",
+        "ms", "s", "min", "h", "Hz", "J", "kJ", "kcal",
+    }
+)
 
 REQUIRED_H2 = ("## 一句話總結", "## 內容", "## 引用來源")
 DEFAULT_CONTENT_MAX_CHARACTERS = 4000
@@ -65,12 +83,113 @@ def internal_marker_errors(text: str) -> list[str]:
     return errors
 
 
+def _mask_preserving_newlines(value: str) -> str:
+    return "".join("\n" if character == "\n" else " " for character in value)
+
+
+def _reader_language_surface(text: str) -> str:
+    """Mask citations and code while retaining reader-prose line offsets."""
+    lines: list[str] = []
+    inside_references = False
+    for line in text.splitlines(keepends=True):
+        stripped = line.strip()
+        if stripped == "> 最後更新：YYYYMMDD":
+            lines.append(_mask_preserving_newlines(line))
+            continue
+        if stripped == "## 引用來源":
+            inside_references = True
+            lines.append(line)
+            continue
+        if inside_references and GRADE_RE.fullmatch(stripped):
+            inside_references = False
+        if inside_references:
+            lines.append(_mask_preserving_newlines(line))
+        else:
+            lines.append(line)
+
+    surface = "".join(lines)
+    for pattern in (
+        re.compile(r"```.*?```", re.DOTALL),
+        re.compile(r"~~~.*?~~~", re.DOTALL),
+        re.compile(r"`[^`\n]+`"),
+        re.compile(r"https?://[^\s)>）]+", re.IGNORECASE),
+    ):
+        surface = pattern.sub(
+            lambda match: _mask_preserving_newlines(match.group(0)),
+            surface,
+        )
+    return surface
+
+
+def _has_immediate_chinese_gloss(text: str, end: int) -> bool:
+    if end >= len(text) or text[end] not in "(（":
+        return False
+    closing = ")" if text[end] == "(" else "）"
+    close_index = text.find(closing, end + 1)
+    if close_index == -1:
+        return False
+    return HAN_RE.search(text[end + 1 : close_index]) is not None
+
+
+def _is_exempt_latin_span(text: str, match: re.Match[str]) -> bool:
+    term = match.group("term")
+    if term in PUBLIC_IDENTIFIER_TERMS:
+        return True
+
+    compact_words = term.split()
+    if len(compact_words) == 1:
+        token = compact_words[0]
+        before = text[: match.start()].rstrip()
+        after = text[match.end() :]
+        if token in MEASUREMENT_UNITS and before:
+            if before[-1].isdigit():
+                return True
+            if before[-1] in "/·" and any(
+                character.isdigit() for character in before[-16:]
+            ):
+                return True
+        if len(token) == 1 and re.match(r"\s*(?:[=<>≤≥]|[（(]?[0-9.])", after):
+            return True
+
+    looks_like_name = any(character.isupper() for character in term)
+    if looks_like_name and re.match(
+        r"\s*(?:等人|等|[（(]\d{4}[）)]|[，,]?\s*\d{4})",
+        text[match.end() :],
+    ):
+        return True
+    return False
+
+
+def english_gloss_errors(text: str) -> list[str]:
+    """Reject unglossed English in reader prose.
+
+    English lexical spans must be followed immediately by a Chinese gloss, for
+    example ``self-report(自陳)``. Bibliographic entries, URLs, code, public
+    identifier labels, author-year attributions, statistical symbols, and
+    number-bound measurement units are outside this reader-language rule.
+    """
+    surface = _reader_language_surface(text)
+    errors: list[str] = []
+    for match in LATIN_SPAN_RE.finditer(surface):
+        if _is_exempt_latin_span(surface, match):
+            continue
+        if _has_immediate_chinese_gloss(surface, match.end()):
+            continue
+        errors.append(
+            "reader-facing English requires an immediate Chinese gloss "
+            f"at line {_line_number(surface, match.start())}: "
+            f"{match.group('term')!r}; use English(中文)"
+        )
+    return errors
+
+
 def validate_text(
     text: str,
     *,
     filename: str,
     allow_large_literature: bool = False,
     length_exception_reason: str | None = None,
+    require_english_gloss: bool = True,
 ) -> list[str]:
     errors: list[str] = []
 
@@ -132,7 +251,10 @@ def validate_text(
                         "內容 exceeds the default 4000-character ceiling: "
                         f"{content_character_count} non-whitespace Unicode code points"
                     )
-                elif not isinstance(length_exception_reason, str) or not length_exception_reason.strip():
+                elif (
+                    not isinstance(length_exception_reason, str)
+                    or not length_exception_reason.strip()
+                ):
                     errors.append(
                         "large-literature length exception requires a non-empty reason"
                     )
@@ -188,6 +310,8 @@ def validate_text(
         errors.append("最後更新 footnote must appear after the evidence-grade label")
 
     errors.extend(internal_marker_errors(text))
+    if require_english_gloss:
+        errors.extend(english_gloss_errors(text))
 
     for match in LOCAL_PDF_RE.finditer(text):
         if not _looks_like_public_url_token(text, match.start(), match.end()):
@@ -206,6 +330,7 @@ def validate_file(
     *,
     allow_large_literature: bool = False,
     length_exception_reason: str | None = None,
+    require_english_gloss: bool = True,
 ) -> list[str]:
     try:
         text = path.read_text(encoding="utf-8")
@@ -216,6 +341,7 @@ def validate_file(
         filename=path.name,
         allow_large_literature=allow_large_literature,
         length_exception_reason=length_exception_reason,
+        require_english_gloss=require_english_gloss,
     )
 
 
