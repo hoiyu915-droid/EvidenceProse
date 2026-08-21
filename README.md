@@ -23,7 +23,7 @@ The highest success criterion is reader understanding: after reading, a non-spec
 - Audited companion cards: 36 (36/36 content-truth passes; 28/36 substantive render-fidelity passes)
 - Stable induction generation rules: 0; stable voice rules: 0
 <!-- END sync_readme:registry-status -->
-- Live runtime contract: `EP_TA06_PROSE_RUNTIME v1.1.1`
+- Live runtime contract: `EP_TA06_PROSE_RUNTIME v1.2.0`
 - Probe transform contract: `EP_PROBE_POST_AUDIT_TRANSFORM v1.1`
 - Probe TE delivery contract: `EP_PROBE_TE_DELIVERY v1.0`
 - Rendered-card audit contract: `EP_RENDERED_CARD_AUDIT v1.2.0`
@@ -41,8 +41,11 @@ TA06 ta06_audit_packet
   -> ta06_prose_handoff
   -> standalone prose_reader_contract
   -> prose draft
-  -> EP_PROSE_AUDIT_SIDECAR v1.1
+  -> EP_PROSE_AUDIT_SIDECAR v1.2
        - semantic preservation / NO_ADD
+       - exact required-claim and joint-contrast coverage
+       - statistical interpretation constraints
+       - internal-process leakage rejection
        - numeric / denominator / comparator / timeframe fidelity
        - population / causal / uncertainty / evidence-role fidelity
        - headline / analogy / recommendation overclaim checks
@@ -66,7 +69,7 @@ TA06 ta06_audit_packet
 
 A valid TA06 handoff is the scientific truth boundary. EvidenceProse does not silently redo source discovery in this lane. If the handoff is missing, blocked, internally inconsistent, or superseded by new evidence, route back to TA06 rather than guessing.
 
-The canonical runtime specification is [docs/ta06_prose_runtime.md](docs/ta06_prose_runtime.md). The current machine contract is [contracts/EP_TA06_PROSE_RUNTIME_CONTRACT_v1.1.json](contracts/EP_TA06_PROSE_RUNTIME_CONTRACT_v1.1.json); v1.0 remains a superseded historical contract.
+The canonical runtime specification is [docs/ta06_prose_runtime.md](docs/ta06_prose_runtime.md). The current machine contract is [contracts/EP_TA06_PROSE_RUNTIME_CONTRACT_v1.2.json](contracts/EP_TA06_PROSE_RUNTIME_CONTRACT_v1.2.json); v1.0 and v1.1 remain superseded historical contracts.
 
 ### Standalone reader contract
 
@@ -94,6 +97,8 @@ Every retained proposition must preserve material facts, numbers, units, denomin
 Unsupported new facts, evidence-bearing numbers, sources, quotations, mechanisms, causal explanations, recommendations, thresholds, prescriptions, actors, deadlines, or broader applicability are forbidden.
 
 Hard failures include association→causation, subgroup→whole population, pooled→subgroup estimate, proxy→clinical outcome, observational plateau→intervention threshold, exploratory subgroup→treatment ranking, short-term attrition→long-term adherence, analogy→demonstrated mechanism, practical meaning→recommendation, and a headline stronger than the body.
+
+The handoff also carries a closed reader projection. Every released claim is classified as required or optional; every required claim must bind to an actual article span. Material contrasts must be represented together, statistical constraints prevent language such as “not significant” from becoming “zero” or “disappeared”, and internal audit provenance or renderer metadata must remain outside public copy. These executable checks prevent a self-reported `no_loss: pass` from authorizing an article that omits the evidence boundary it was supposed to preserve.
 
 ### Reader outcomes and zh-Hant lint
 
@@ -175,6 +180,7 @@ contracts/
   EP_RENDERED_CARD_AUDIT_CONTRACT_v1.2.json
   EP_TA06_PROSE_RUNTIME_CONTRACT_v1.0.json
   EP_TA06_PROSE_RUNTIME_CONTRACT_v1.1.json
+  EP_TA06_PROSE_RUNTIME_CONTRACT_v1.2.json
 data/
   rules/
     rules.json
@@ -228,9 +234,11 @@ schemas/
     probe_post_audit_bundle_v1.0.schema.json
     prose_audit_sidecar.schema.json
     prose_audit_sidecar_v1.0.schema.json
+    prose_audit_sidecar_v1.1.schema.json
     prose_reader_contract.schema.json
     rendered_card_audit.schema.json
     ta06_prose_handoff.schema.json
+    ta06_prose_handoff_v1.0.schema.json
   batch_results.schema.json
   card_storyboard.schema.json
   registry.schema.json
@@ -349,7 +357,7 @@ python3 scripts/validate_probe_post_audit.py \
   fixtures/valid_probe_post_audit_bundle.json --json
 ```
 
-A passing prose-runtime validator proves that the bundle is correctly bound, its permission projection is consistent, all required semantic judgments are present and releasable, repairs are verified, reader-outcome axes do not fail, and the article satisfies the delivery shell. It does not prove scientific equivalence by string matching.
+A passing prose-runtime validator proves that the bundle is correctly bound, its permission projection is consistent, required claims and contrasts have exact article-span coverage, declared interpretation constraints and internal-only boundaries are recomputed, all required semantic judgments are present and releasable, repairs are verified, reader-outcome axes do not fail, and the article satisfies the delivery shell. It does not prove scientific equivalence by string matching.
 
 A passing Probe validator additionally proves that declared source/output files match their digests, computed element changes match the operation manifest, immutable assets remain byte-identical, package coverage is complete, and the isolated-reader record reconstructs the required final-package evidence structure. It does not replace Claude's semantic audit.
 
