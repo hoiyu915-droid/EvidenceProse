@@ -1,6 +1,6 @@
 # TA06-backed prose runtime
 
-Contract: `EP_TA06_PROSE_RUNTIME v1.1.1`
+Contract: `EP_TA06_PROSE_RUNTIME v1.2.0`
 
 Status: canonical production lane for evidence packages that have already passed TA06. This runtime does not promote any `R###` processing rule or `V###` article-register rule to stable status.
 
@@ -38,8 +38,19 @@ If the TA06 handoff is missing, blocked, internally inconsistent, or superseded 
 - terminology and required qualifiers;
 - numeric ledger entries;
 - document permission, released claims, blocked claims and forbidden overclaims.
+- a closed reader projection: required and optional claim IDs, internal-only statements, required contrast sets and interpretation constraints.
 
 The full TA06 packet remains the scientific authority. The handoff digest and source packet digest exist to detect drift; they do not create new evidence.
+
+### Executable reader projection
+
+The current handoff contract is `1.1`. `reader_projection.required_claim_ids` and `optional_claim_ids` must be disjoint and together exactly partition every released claim. A required claim is not considered represented merely because the sidecar says `no_loss: pass`: the sidecar must bind it to an exact, non-empty span present in the delivered article.
+
+`contrast_sets` keep material pairs or groups together. This is used when omitting one half would change the reader's conclusion, such as concurrent association versus longitudinal direction, or a direct result versus an author-proposed mechanism. The bound joint span must contain the represented span of every member claim.
+
+`interpretation_constraints` carry source-specific semantic boundaries. They can forbid phrases that turn non-significance into zero effect or attenuation into disappearance. The validator scans reader-facing prose and fails closed when a forbidden phrase appears, regardless of the sidecar's self-reported status.
+
+`internal_only_statements` identify audit provenance and renderer metadata that must not become public science claims. The validator recomputes their absence from the article. Exact span closure establishes presence and binding; it does not claim that string matching proves semantic equivalence.
 
 ## Standalone reader contract
 
@@ -115,7 +126,7 @@ When readability and precision conflict, precision wins.
 
 ## Draft audit
 
-The semantic auditor reads the completed draft against the TA06 handoff and the reader contract and writes `EP_PROSE_AUDIT_SIDECAR v1.1`. Its current schema is `schemas/runtime/prose_audit_sidecar.schema.json`; the preserved v1.0 schema is `schemas/runtime/prose_audit_sidecar_v1.0.schema.json`.
+The semantic auditor reads the completed draft against the TA06 handoff and the reader contract and writes `EP_PROSE_AUDIT_SIDECAR v1.2`. Its current schema is `schemas/runtime/prose_audit_sidecar.schema.json`; preserved v1.0 and v1.1 schemas remain historical references.
 
 The sidecar has two tracks.
 
@@ -134,6 +145,10 @@ All of these must pass:
 - headline no stronger than body;
 - analogy not presented as mechanism;
 - practical meaning not upgraded to recommendation.
+- non-significance not promoted to zero effect;
+- attenuation or loss of significance not promoted to disappearance;
+- required contrasts preserved;
+- internal process absent from public copy.
 
 Any item recorded in `violations` with `severity: hard` also forces `final_gate.status: fail`; a bundle cannot declare a hard violation and release itself as passing.
 
@@ -177,7 +192,7 @@ Unexplained English is handled separately from lint. When English is retained in
 
 The reader-facing `## 內容` section defaults to no more than 4,000 non-whitespace Unicode code points. This is a ceiling, not a target: when the evidence base is small, the article should end naturally rather than being padded to approach 4,000 characters.
 
-Exceed the ceiling only for a genuinely large literature base when compression would remove material claims, limitations, applicability boundaries, uncertainty, evidence roles, or causal limits. The exception is a bound audit fact, not a command-line permission. A v1.1 sidecar must include:
+Exceed the ceiling only for a genuinely large literature base when compression would remove material claims, limitations, applicability boundaries, uncertainty, evidence roles, or causal limits. The exception is a bound audit fact, not a command-line permission. A v1.2 sidecar must include:
 
 ```json
 {
@@ -191,7 +206,7 @@ Exceed the ceiling only for a genuinely large literature base when compression w
 }
 ```
 
-The v1.1 sidecar also binds `article_sha256`, computed over the exact delivered UTF-8 bytes. The validator rejects an article swap even when the replacement has the same length and lint categories. It recomputes `measured_characters` from that bound article and requires an exact match. `granted: true` requires both a count above 4,000 and a non-empty reason. At or below the ceiling, `granted` must be `false` and `reason` must be `null`. Runtime CLI overrides are rejected because they would not be visible in the bound bundle. This internal provenance remains outside the reader article and task JSON.
+The v1.2 sidecar also binds `article_sha256`, computed over the exact delivered UTF-8 bytes. The validator rejects an article swap even when the replacement has the same length and lint categories. It recomputes `measured_characters` from that bound article and requires an exact match. `granted: true` requires both a count above 4,000 and a non-empty reason. At or below the ceiling, `granted` must be `false` and `reason` must be `null`. Runtime CLI overrides are rejected because they would not be visible in the bound bundle. This internal provenance remains outside the reader article and task JSON.
 
 ## Repair policy
 
@@ -230,9 +245,9 @@ python3 scripts/validate_prose_runtime.py \
 
 Machine-readable output adds `--json`.
 
-For a justified large-literature exception, record the authorization in the bound v1.1 audit sidecar and run the same command. The validator checks transport graph integrity, digests, permission projection, semantic-gate consistency, repair state, reader-outcome state, recomputed length-exception provenance and the existing delivery shell. It does not replace the semantic auditor.
+For a justified large-literature exception, record the authorization in the bound v1.2 audit sidecar and run the same command. The validator checks transport graph integrity, digests, permission projection, exact required-claim coverage, joint contrast coverage, interpretation constraints, internal-only leakage, semantic-gate consistency, repair state, reader-outcome state, recomputed length-exception provenance and the existing delivery shell. It does not replace the semantic auditor.
 
-The validator continues to accept a v1.0 sidecar for an article at or below the ceiling. A v1.0 sidecar cannot authorize an over-limit release.
+The current production validator requires handoff `1.1` and sidecar `1.2`. Historical schemas remain available for reading archived bundles, but they cannot authorize a new release because they lack executable projection closure.
 
 ## R/V rule boundary
 

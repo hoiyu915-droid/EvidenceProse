@@ -58,6 +58,40 @@ class ProseRuntimeTests(unittest.TestCase):
                 article_path=FIXTURES / "20260815_demo-explainer.md",
             )
 
+    @staticmethod
+    def validate_mutated_bundle(
+        handoff: dict,
+        reader: dict,
+        sidecar: dict,
+        article: str,
+    ):
+        reader["handoff_digest"] = runtime.canonical_digest(handoff)
+        sidecar["handoff_digest"] = reader["handoff_digest"]
+        sidecar["reader_contract_digest"] = runtime.canonical_digest(reader)
+        sidecar["article_sha256"] = hashlib.sha256(article.encode("utf-8")).hexdigest()
+        sidecar["delivery_length_exception"]["measured_characters"] = (
+            runtime.content_character_count(article)
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            handoff_path = tmp_path / "handoff.json"
+            reader_path = tmp_path / "reader.json"
+            sidecar_path = tmp_path / "sidecar.json"
+            article_path = tmp_path / "20260815_demo-explainer.md"
+            for path, value in (
+                (handoff_path, handoff),
+                (reader_path, reader),
+                (sidecar_path, sidecar),
+            ):
+                path.write_text(json.dumps(value, ensure_ascii=False), encoding="utf-8")
+            article_path.write_text(article, encoding="utf-8")
+            return runtime.validate_bundle(
+                handoff_path=handoff_path,
+                reader_path=reader_path,
+                sidecar_path=sidecar_path,
+                article_path=article_path,
+            )
+
     def test_valid_fixture_passes(self):
         report = runtime.validate_bundle(
             handoff_path=FIXTURES / "valid_ta06_prose_handoff.json",
@@ -66,6 +100,139 @@ class ProseRuntimeTests(unittest.TestCase):
             article_path=FIXTURES / "20260815_demo-explainer.md",
         )
         self.assertEqual(report["status"], "pass", report["errors"])
+
+    def test_required_claim_omission_blocks_even_when_sidecar_self_reports_pass(self):
+        handoff = load_json("valid_ta06_prose_handoff.json")
+        reader = load_json("valid_prose_reader_contract.json")
+        sidecar = load_json("valid_prose_audit_sidecar.json")
+        article = (FIXTURES / "20260815_demo-explainer.md").read_text(encoding="utf-8")
+        article = article.replace(
+            "\n作者也提出一個可能機制作為解釋，但這仍屬推測，不是研究已直接證實的機制。"
+            "真正重要的邊界是：目前證據沒有建立最佳治療門檻，也沒有把這個短期訊號驗證成長期臨床優勢。\n",
+            "\n",
+        )
+        report = self.validate_mutated_bundle(handoff, reader, sidecar, article)
+        self.assertEqual(report["status"], "fail")
+        self.assertTrue(
+            any(
+                "represented_claims[1].article_span is not present" in error
+                for error in report["errors"]
+            ),
+            report["errors"],
+        )
+
+    def test_internal_only_statement_leak_blocks_public_article(self):
+        handoff = load_json("valid_ta06_prose_handoff.json")
+        reader = load_json("valid_prose_reader_contract.json")
+        sidecar = load_json("valid_prose_audit_sidecar.json")
+        article = (FIXTURES / "20260815_demo-explainer.md").read_text(encoding="utf-8")
+        article = article.replace(
+            "\n## 引用來源",
+            "\n本輪只依主文製作；補充材料未在附件中逐項審讀。\n\n## 引用來源",
+        )
+        report = self.validate_mutated_bundle(handoff, reader, sidecar, article)
+        self.assertEqual(report["status"], "fail")
+        self.assertTrue(
+            any(
+                "exposes handoff internal-only statements" in error
+                for error in report["errors"]
+            ),
+            report["errors"],
+        )
+
+    def test_contrast_must_be_bound_to_a_joint_article_span(self):
+        handoff = load_json("valid_ta06_prose_handoff.json")
+        reader = load_json("valid_prose_reader_contract.json")
+        sidecar = load_json("valid_prose_audit_sidecar.json")
+        article = (FIXTURES / "20260815_demo-explainer.md").read_text(encoding="utf-8")
+        sidecar["contrast_coverage"][0]["joint_article_span"] = sidecar[
+            "claim_coverage"
+        ]["represented_claims"][0]["article_span"]
+        report = self.validate_mutated_bundle(handoff, reader, sidecar, article)
+        self.assertEqual(report["status"], "fail")
+        self.assertTrue(
+            any(
+                "does not contain represented span for CLM002" in error
+                for error in report["errors"]
+            ),
+            report["errors"],
+        )
+
+    def test_attenuation_cannot_be_promoted_to_disappearance(self):
+        handoff = load_json("valid_ta06_prose_handoff.json")
+        reader = load_json("valid_prose_reader_contract.json")
+        sidecar = load_json("valid_prose_audit_sidecar.json")
+        handoff["reader_projection"]["interpretation_constraints"] = [
+            {
+                "constraint_id": "STAT001",
+                "claim_ids": ["CLM001"],
+                "kind": "attenuation_not_disappearance",
+                "forbidden_phrases": ["效果已經消失", "控制後消失"],
+                "required_boundary": "控制後不再達顯著，不代表效應為零。",
+            }
+        ]
+        sidecar["interpretation_constraint_checks"] = [
+            {
+                "constraint_id": "STAT001",
+                "status": "pass",
+                "article_span": "研究顯示效果已經消失",
+            }
+        ]
+        article = (FIXTURES / "20260815_demo-explainer.md").read_text(encoding="utf-8")
+        article = article.replace(
+            "# 研究顯示短期有利方向，但還不能變成最佳門檻",
+            "# 研究顯示效果已經消失",
+        )
+        report = self.validate_mutated_bundle(handoff, reader, sidecar, article)
+        self.assertEqual(report["status"], "fail")
+        self.assertTrue(
+            any("forbidden phrase '效果已經消失'" in error for error in report["errors"]),
+            report["errors"],
+        )
+
+    def test_non_significance_cannot_be_promoted_to_zero_effect(self):
+        handoff = load_json("valid_ta06_prose_handoff.json")
+        reader = load_json("valid_prose_reader_contract.json")
+        sidecar = load_json("valid_prose_audit_sidecar.json")
+        handoff["reader_projection"]["interpretation_constraints"] = [
+            {
+                "constraint_id": "STAT002",
+                "claim_ids": ["CLM001"],
+                "kind": "non_significant_not_zero",
+                "forbidden_phrases": ["證明沒有影響"],
+                "required_boundary": "未達顯著不等於證明效應為零。",
+            }
+        ]
+        sidecar["interpretation_constraint_checks"] = [
+            {
+                "constraint_id": "STAT002",
+                "status": "pass",
+                "article_span": "結果證明沒有影響",
+            }
+        ]
+        article = (FIXTURES / "20260815_demo-explainer.md").read_text(encoding="utf-8")
+        article = article.replace(
+            "# 研究顯示短期有利方向，但還不能變成最佳門檻",
+            "# 結果證明沒有影響",
+        )
+        report = self.validate_mutated_bundle(handoff, reader, sidecar, article)
+        self.assertEqual(report["status"], "fail")
+        self.assertTrue(
+            any(
+                "forbidden phrase '證明沒有影響'" in error
+                for error in report["errors"]
+            ),
+            report["errors"],
+        )
+
+    def test_reader_projection_must_partition_every_released_claim(self):
+        handoff = load_json("valid_ta06_prose_handoff.json")
+        handoff["reader_projection"]["required_claim_ids"].remove("CLM002")
+        errors = runtime.validate_handoff(handoff)
+        self.assertTrue(
+            any("must exactly partition released_claim_ids" in error for error in errors),
+            errors,
+        )
 
     def test_permission_projection_is_fail_closed(self):
         handoff = load_json("valid_ta06_prose_handoff.json")
@@ -99,6 +266,10 @@ class ProseRuntimeTests(unittest.TestCase):
             handoff_digest=runtime.canonical_digest(handoff),
             reader_digest=runtime.canonical_digest(reader),
             article_id=reader["article_id"],
+            handoff=handoff,
+            article_text=(FIXTURES / "20260815_demo-explainer.md").read_text(
+                encoding="utf-8"
+            ),
         )
         self.assertTrue(any("final_gate.status must be fail" in error for error in errors))
 
@@ -115,6 +286,10 @@ class ProseRuntimeTests(unittest.TestCase):
                     handoff_digest=runtime.canonical_digest(handoff),
                     reader_digest=runtime.canonical_digest(reader),
                     article_id=reader["article_id"],
+                    handoff=handoff,
+                    article_text=(FIXTURES / "20260815_demo-explainer.md").read_text(
+                        encoding="utf-8"
+                    ),
                 )
                 self.assertTrue(
                     any("final_gate.status must be fail" in error for error in errors)
@@ -140,6 +315,10 @@ class ProseRuntimeTests(unittest.TestCase):
             handoff_digest=runtime.canonical_digest(handoff),
             reader_digest=runtime.canonical_digest(reader),
             article_id=reader["article_id"],
+            handoff=handoff,
+            article_text=(FIXTURES / "20260815_demo-explainer.md").read_text(
+                encoding="utf-8"
+            ),
         )
         self.assertTrue(
             any("final_gate.status must be fail" in error for error in errors),
@@ -172,6 +351,10 @@ class ProseRuntimeTests(unittest.TestCase):
             handoff_digest=runtime.canonical_digest(handoff),
             reader_digest=runtime.canonical_digest(reader),
             article_id=reader["article_id"],
+            handoff=handoff,
+            article_text=(FIXTURES / "20260815_demo-explainer.md").read_text(
+                encoding="utf-8"
+            ),
         )
         self.assertTrue(any("final_gate.status must be fail" in error for error in errors))
 
@@ -193,6 +376,10 @@ class ProseRuntimeTests(unittest.TestCase):
             handoff_digest=runtime.canonical_digest(handoff),
             reader_digest=runtime.canonical_digest(reader),
             article_id=reader["article_id"],
+            handoff=handoff,
+            article_text=(FIXTURES / "20260815_demo-explainer.md").read_text(
+                encoding="utf-8"
+            ),
         )
         self.assertTrue(any("final_gate.status must be fail" in error for error in errors))
 
@@ -250,6 +437,15 @@ class ProseRuntimeTests(unittest.TestCase):
             "self-report(自陳)結果呈現有利方向",
         )
         sidecar = load_json("valid_prose_audit_sidecar.json")
+        sidecar["claim_coverage"]["represented_claims"][0]["article_span"] = (
+            "研究彙整了 7 項研究，self-report(自陳)結果呈現有利方向。"
+        )
+        sidecar["contrast_coverage"][0]["joint_article_span"] = sidecar[
+            "contrast_coverage"
+        ][0]["joint_article_span"].replace(
+            "主要結果呈現有利方向",
+            "self-report(自陳)結果呈現有利方向",
+        )
         sidecar["article_sha256"] = hashlib.sha256(article.encode("utf-8")).hexdigest()
         sidecar["delivery_length_exception"]["measured_characters"] = (
             runtime.content_character_count(article)
@@ -287,11 +483,16 @@ class ProseRuntimeTests(unittest.TestCase):
 
     def test_runtime_allows_bound_large_literature_exception(self):
         article = (FIXTURES / "20260815_demo-explainer.md").read_text(encoding="utf-8")
-        article = self.with_content(article, "研" * 4001)
+        original_content = (
+            article.split("## 內容\n", 1)[1]
+            .split("## 引用來源", 1)[0]
+            .strip()
+        )
+        article = self.with_content(article, f"{original_content}\n\n{'研' * 4001}")
         sidecar = load_json("valid_prose_audit_sidecar.json")
         sidecar["delivery_length_exception"] = {
             "granted": True,
-            "measured_characters": 4001,
+            "measured_characters": runtime.content_character_count(article),
             "ceiling": 4000,
             "reason": "Compression would remove material cross-study limits.",
         }
@@ -383,7 +584,7 @@ class ProseRuntimeTests(unittest.TestCase):
         self.assertEqual(report["status"], "fail")
         self.assertTrue(any("unnecessary" in error for error in report["errors"]))
 
-    def test_legacy_sidecar_remains_valid_below_ceiling(self):
+    def test_legacy_sidecar_is_rejected_by_current_runtime(self):
         sidecar = load_json("valid_prose_audit_sidecar.json")
         sidecar["contract_version"] = "1.0"
         del sidecar["delivery_length_exception"]
@@ -399,24 +600,17 @@ class ProseRuntimeTests(unittest.TestCase):
                 sidecar_path=sidecar_path,
                 article_path=FIXTURES / "20260815_demo-explainer.md",
             )
-        self.assertEqual(report["status"], "pass", report["errors"])
+        self.assertEqual(report["status"], "fail")
+        self.assertIn("audit_sidecar.contract_version must be 1.2", report["errors"])
 
-    def test_legacy_sidecar_rejects_null_v11_only_fields(self):
+    def test_legacy_sidecar_with_current_only_fields_is_still_rejected(self):
         sidecar = load_json("valid_prose_audit_sidecar.json")
         sidecar["contract_version"] = "1.0"
         sidecar["delivery_length_exception"] = None
         sidecar["article_sha256"] = None
         report = self.validate_fixture_with_sidecar(sidecar)
         self.assertEqual(report["status"], "fail")
-        self.assertTrue(
-            any("must not contain article_sha256" in error for error in report["errors"])
-        )
-        self.assertTrue(
-            any(
-                "must not contain delivery_length_exception" in error
-                for error in report["errors"]
-            )
-        )
+        self.assertIn("audit_sidecar.contract_version must be 1.2", report["errors"])
 
     def test_legacy_sidecar_cannot_authorize_over_limit_article(self):
         article = (FIXTURES / "20260815_demo-explainer.md").read_text(encoding="utf-8")
@@ -440,9 +634,7 @@ class ProseRuntimeTests(unittest.TestCase):
                 article_path=article_path,
             )
         self.assertEqual(report["status"], "fail")
-        self.assertTrue(
-            any("v1.0 cannot authorize" in error for error in report["errors"])
-        )
+        self.assertIn("audit_sidecar.contract_version must be 1.2", report["errors"])
 
     def test_runtime_argument_override_is_rejected(self):
         report = runtime.validate_bundle(

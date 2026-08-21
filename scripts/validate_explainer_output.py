@@ -48,6 +48,18 @@ INTERNAL_REFERENCE_PATTERNS = (
     ("sandbox path", re.compile(r"sandbox:/", re.IGNORECASE)),
     ("container path", re.compile(r"/mnt/data/", re.IGNORECASE)),
     ("internal library file id", re.compile(r"\blibrary_file_id\b", re.IGNORECASE)),
+    (
+        "internal process/provenance statement",
+        re.compile(
+            r"(?:"
+            r"本輪(?:只|未|沒有|尚未|依)|"
+            r"補充材料[^。！？\n]{0,18}(?:未|沒有|尚未)[^。！？\n]{0,10}"
+            r"(?:審讀|核對|檢查)|"
+            r"(?:標籤|框線)[^。！？\n]{0,16}表示(?:內容功能|證據狀態)|"
+            r"(?:工作區(?:內|中的)?(?:檔案|附件)|附件區|檔案區)"
+            r")"
+        ),
+    ),
 )
 
 

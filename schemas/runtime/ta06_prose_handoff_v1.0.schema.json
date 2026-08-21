@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://evidenceprose.local/schemas/ta06_prose_handoff.schema.json",
-  "title": "EvidenceProse TA06 prose handoff",
+  "$id": "https://evidenceprose.local/schemas/ta06_prose_handoff_v1.0.schema.json",
+  "title": "EvidenceProse TA06 prose handoff v1.0",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -16,12 +16,11 @@
     "citations",
     "terminology",
     "numeric_ledger",
-    "reader_projection",
     "permission"
   ],
   "properties": {
     "contract_version": {
-      "const": "1.1"
+      "const": "1.0"
     },
     "handoff_id": {
       "type": "string",
@@ -383,129 +382,6 @@
               "direct",
               "derived"
             ]
-          }
-        }
-      }
-    },
-    "reader_projection": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "required_claim_ids",
-        "optional_claim_ids",
-        "internal_only_statements",
-        "contrast_sets",
-        "interpretation_constraints"
-      ],
-      "properties": {
-        "required_claim_ids": {
-          "type": "array",
-          "minItems": 1,
-          "uniqueItems": true,
-          "items": {
-            "type": "string",
-            "minLength": 1
-          }
-        },
-        "optional_claim_ids": {
-          "type": "array",
-          "uniqueItems": true,
-          "items": {
-            "type": "string",
-            "minLength": 1
-          }
-        },
-        "internal_only_statements": {
-          "type": "array",
-          "uniqueItems": true,
-          "items": {
-            "type": "string",
-            "minLength": 1
-          }
-        },
-        "contrast_sets": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "contrast_id",
-              "claim_ids",
-              "joint_representation_required",
-              "reason"
-            ],
-            "properties": {
-              "contrast_id": {
-                "type": "string",
-                "minLength": 1
-              },
-              "claim_ids": {
-                "type": "array",
-                "minItems": 2,
-                "uniqueItems": true,
-                "items": {
-                  "type": "string",
-                  "minLength": 1
-                }
-              },
-              "joint_representation_required": {
-                "const": true
-              },
-              "reason": {
-                "type": "string",
-                "minLength": 1
-              }
-            }
-          }
-        },
-        "interpretation_constraints": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "constraint_id",
-              "claim_ids",
-              "kind",
-              "forbidden_phrases",
-              "required_boundary"
-            ],
-            "properties": {
-              "constraint_id": {
-                "type": "string",
-                "minLength": 1
-              },
-              "claim_ids": {
-                "type": "array",
-                "minItems": 1,
-                "uniqueItems": true,
-                "items": {
-                  "type": "string",
-                  "minLength": 1
-                }
-              },
-              "kind": {
-                "enum": [
-                  "non_significant_not_zero",
-                  "attenuation_not_disappearance",
-                  "concurrent_longitudinal_distinction",
-                  "custom"
-                ]
-              },
-              "forbidden_phrases": {
-                "type": "array",
-                "minItems": 1,
-                "uniqueItems": true,
-                "items": {
-                  "type": "string",
-                  "minLength": 1
-                }
-              },
-              "required_boundary": {
-                "type": "string",
-                "minLength": 1
-              }
-            }
           }
         }
       }

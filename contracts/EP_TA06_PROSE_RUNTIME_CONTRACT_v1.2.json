@@ -1,9 +1,8 @@
 {
   "contract_name": "EP_TA06_PROSE_RUNTIME",
-  "contract_version": "1.1.1",
-  "status": "historical",
-  "superseded_by": "EP_TA06_PROSE_RUNTIME_CONTRACT_v1.2.json",
-  "supersedes": "EP_TA06_PROSE_RUNTIME_CONTRACT_v1.0.json",
+  "contract_version": "1.2.0",
+  "status": "canonical",
+  "supersedes": "EP_TA06_PROSE_RUNTIME_CONTRACT_v1.1.json",
   "scope": "TA06-backed Traditional-Chinese science-explainer production lane",
   "standards_note": "Local reader-outcome and plain-language implementation. This is not an ISO 24495 conformity, certification, or compliance claim.",
   "authority_model": {
@@ -100,6 +99,15 @@
     ],
     "precision_precedence": "When readability and scientific precision conflict, scientific precision wins."
   },
+  "reader_projection_closure": {
+    "handoff_contract_version": "1.1",
+    "required_claims": "Every reader_projection.required_claim_id must be bound to an exact non-empty article span.",
+    "released_claim_partition": "Required and optional claim IDs are disjoint and together exactly partition permission.released_claim_ids.",
+    "contrast_sets": "Each required contrast set must be represented in one bound article span that contains the represented spans of all member claims.",
+    "interpretation_constraints": "Forbidden statistical promotions are recomputed against reader-facing prose; a sidecar pass cannot override a matched forbidden phrase.",
+    "internal_only_statements": "Audit provenance and renderer metadata declared internal-only must be absent from reader-facing prose.",
+    "semantic_boundary": "Exact span closure proves presence and binding, not semantic equivalence. Meaning preservation remains a human or model audit judgment recorded by the sidecar."
+  },
   "reader_outcome_audit": {
     "axes": [
       "relevant",
@@ -176,7 +184,7 @@
     "padding_to_target_is_forbidden": true,
     "exception_type": "large_literature_only",
     "exception_requires_nonempty_reason": true,
-    "exception_authority": "EP_PROSE_AUDIT_SIDECAR v1.1 delivery_length_exception",
+    "exception_authority": "EP_PROSE_AUDIT_SIDECAR v1.2 delivery_length_exception",
     "measured_count_recomputed_by_validator": true,
     "runtime_cli_override_forbidden": true,
     "semantic_precedence": "The ceiling must not erase material claims, limitations, applicability boundaries, uncertainty, evidence roles, or causal limits."
@@ -204,15 +212,19 @@
       "forbidden_overclaims_absent",
       "headline_not_stronger_than_body",
       "analogy_not_presented_as_mechanism",
-      "practical_meaning_not_upgraded_to_recommendation"
+      "practical_meaning_not_upgraded_to_recommendation",
+      "non_significance_not_promoted_to_zero",
+      "attenuation_not_promoted_to_disappearance",
+      "required_contrasts_preserved",
+      "internal_process_absent_from_public_copy"
     ],
-    "pass_rule": "All hard semantic checks must pass, no reader-outcome axis may be fail, all repairs must be verified, no recorded violation may have severity hard, and reader-facing English must carry an immediate Chinese explanation.",
+    "pass_rule": "All hard semantic checks and executable projection-closure checks must pass, no reader-outcome axis may be fail, all repairs must be verified, no recorded violation may have severity hard, and reader-facing English must carry an immediate Chinese explanation.",
     "lint_warnings_block_delivery": false
   },
   "delivery": {
     "reader_shell": "EP-SCIENCE-EXPLAINER-OUTPUT v0.2",
     "public_copy": "Markdown reader artifact only",
-    "internal_sidecar": "EP_PROSE_AUDIT_SIDECAR v1.1",
+    "internal_sidecar": "EP_PROSE_AUDIT_SIDECAR v1.2",
     "sidecar_article_binding": "article_sha256 over exact delivered UTF-8 bytes",
     "sidecar_visibility": "hidden_by_default"
   }

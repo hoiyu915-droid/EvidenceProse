@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://evidenceprose.local/schemas/prose_audit_sidecar.schema.json",
-  "title": "EvidenceProse prose audit sidecar",
+  "$id": "https://evidenceprose.local/schemas/prose_audit_sidecar_v1.1.schema.json",
+  "title": "EvidenceProse prose audit sidecar v1.1",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -12,10 +12,6 @@
     "article_sha256",
     "delivery_length_exception",
     "semantic_guard",
-    "claim_coverage",
-    "contrast_coverage",
-    "interpretation_constraint_checks",
-    "public_surface_check",
     "reader_outcomes",
     "missing_action_info",
     "lint_warnings",
@@ -25,7 +21,7 @@
   ],
   "properties": {
     "contract_version": {
-      "const": "1.2"
+      "const": "1.1"
     },
     "article_id": {
       "type": "string",
@@ -91,11 +87,7 @@
         "forbidden_overclaims_absent",
         "headline_not_stronger_than_body",
         "analogy_not_presented_as_mechanism",
-        "practical_meaning_not_upgraded_to_recommendation",
-        "non_significance_not_promoted_to_zero",
-        "attenuation_not_promoted_to_disappearance",
-        "required_contrasts_preserved",
-        "internal_process_absent_from_public_copy"
+        "practical_meaning_not_upgraded_to_recommendation"
       ],
       "properties": {
         "no_loss": {
@@ -199,164 +191,6 @@
             "pass",
             "fail"
           ]
-        },
-        "non_significance_not_promoted_to_zero": {
-          "enum": [
-            "pass",
-            "fail"
-          ]
-        },
-        "attenuation_not_promoted_to_disappearance": {
-          "enum": [
-            "pass",
-            "fail"
-          ]
-        },
-        "required_contrasts_preserved": {
-          "enum": [
-            "pass",
-            "fail"
-          ]
-        },
-        "internal_process_absent_from_public_copy": {
-          "enum": [
-            "pass",
-            "fail"
-          ]
-        }
-      }
-    },
-    "claim_coverage": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "required_claim_ids",
-        "represented_claims",
-        "omitted_claim_ids"
-      ],
-      "properties": {
-        "required_claim_ids": {
-          "type": "array",
-          "minItems": 1,
-          "uniqueItems": true,
-          "items": {
-            "type": "string",
-            "minLength": 1
-          }
-        },
-        "represented_claims": {
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "claim_id",
-              "article_span"
-            ],
-            "properties": {
-              "claim_id": {
-                "type": "string",
-                "minLength": 1
-              },
-              "article_span": {
-                "type": "string",
-                "minLength": 1
-              }
-            }
-          }
-        },
-        "omitted_claim_ids": {
-          "type": "array",
-          "uniqueItems": true,
-          "maxItems": 0,
-          "items": {
-            "type": "string",
-            "minLength": 1
-          }
-        }
-      }
-    },
-    "contrast_coverage": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "contrast_id",
-          "claim_ids",
-          "joint_article_span"
-        ],
-        "properties": {
-          "contrast_id": {
-            "type": "string",
-            "minLength": 1
-          },
-          "claim_ids": {
-            "type": "array",
-            "minItems": 2,
-            "uniqueItems": true,
-            "items": {
-              "type": "string",
-              "minLength": 1
-            }
-          },
-          "joint_article_span": {
-            "type": "string",
-            "minLength": 1
-          }
-        }
-      }
-    },
-    "interpretation_constraint_checks": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "constraint_id",
-          "status",
-          "article_span"
-        ],
-        "properties": {
-          "constraint_id": {
-            "type": "string",
-            "minLength": 1
-          },
-          "status": {
-            "enum": [
-              "pass",
-              "fail"
-            ]
-          },
-          "article_span": {
-            "type": "string",
-            "minLength": 1
-          }
-        }
-      }
-    },
-    "public_surface_check": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "internal_only_absent",
-        "leaked_statements"
-      ],
-      "properties": {
-        "internal_only_absent": {
-          "enum": [
-            "pass",
-            "fail"
-          ]
-        },
-        "leaked_statements": {
-          "type": "array",
-          "uniqueItems": true,
-          "items": {
-            "type": "string",
-            "minLength": 1
-          }
         }
       }
     },

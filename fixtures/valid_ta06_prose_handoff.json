@@ -1,5 +1,5 @@
 {
-  "contract_version": "1.0",
+  "contract_version": "1.1",
   "handoff_id": "EPH-DEMO-001",
   "producer": "TA06",
   "consumer": "EvidenceProse",
@@ -109,6 +109,28 @@
       "transformation_state": "direct"
     }
   ],
+  "reader_projection": {
+    "required_claim_ids": [
+      "CLM001",
+      "CLM002"
+    ],
+    "optional_claim_ids": [],
+    "internal_only_statements": [
+      "本輪只依主文製作；補充材料未在附件中逐項審讀。"
+    ],
+    "contrast_sets": [
+      {
+        "contrast_id": "CTR001",
+        "claim_ids": [
+          "CLM001",
+          "CLM002"
+        ],
+        "joint_representation_required": true,
+        "reason": "直接結果與作者推測必須同時呈現並清楚區分證據角色。"
+      }
+    ],
+    "interpretation_constraints": []
+  },
   "permission": {
     "document_permission": "conditional",
     "released_claim_ids": ["CLM001", "CLM002"],

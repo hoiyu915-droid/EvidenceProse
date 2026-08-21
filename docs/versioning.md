@@ -30,8 +30,9 @@ and must be read from the artifact's declared contract/schema field.
 
 | Artifact or surface | Current version | Meaning |
 |---|---:|---|
-| TA06 prose runtime | `EP_TA06_PROSE_RUNTIME v1.1.1` | Binding and validation rules for a complete prose bundle. Patch 1.1.1 adds the reader-facing English-to-Chinese gloss gate without changing the sidecar shape. v1.0 is a superseded historical contract. |
-| Prose audit sidecar | `contract_version: 1.1` | Current audit-sidecar shape, including auditable delivery-length decisions. `prose_audit_sidecar_v1.0.schema.json` preserves the former shape. |
+| TA06 prose runtime | `EP_TA06_PROSE_RUNTIME v1.2.0` | Binding and validation rules for a complete prose bundle. Version 1.2 adds executable claim coverage, required contrasts, interpretation constraints and internal-only leakage checks. v1.0 and v1.1 are superseded historical contracts. |
+| TA06 prose handoff | `contract_version: 1.1` | Current handoff shape, including the closed reader projection. `ta06_prose_handoff_v1.0.schema.json` preserves the former shape. |
+| Prose audit sidecar | `contract_version: 1.2` | Current audit-sidecar shape, including exact article binding, auditable delivery-length decisions and recomputed reader-projection closure. v1.0 and v1.1 schemas preserve former shapes. |
 | Probe post-audit bundle | `contract_version: 1.1` | File-bound post-audit transform, computed diff, immutable assets, coverage and isolated-reader record. v1.0 remains a legacy input schema. |
 | Portable image-generation queue consumed by TE finalization | `schema_version: 1.3` | Upstream queue artifact shape accepted by `finalize_probe_te_queue.py`. |
 | Probe TE delivery | `EP_PROBE_TE_DELIVERY v1.0` | Finalization, `TE_` namespace and delivery-order contract. It does not rename or replace the queue's own schema version. |

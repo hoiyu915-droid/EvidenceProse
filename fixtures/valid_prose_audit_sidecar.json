@@ -1,8 +1,8 @@
 {
-  "contract_version": "1.1",
+  "contract_version": "1.2",
   "article_id": "demo-explainer",
-  "handoff_digest": "de01a4047d6208a0a9a81307f1b56ab794ccbec5d077872b9bb446f5ec17a03a",
-  "reader_contract_digest": "6ba71acb80ee3ca3009e852dfb34585e11fe0b59ce42305f88bb7844a1504a29",
+  "handoff_digest": "1f4f6dbc16b70002027cf06528114759cd0f5b7c3d344690c157bd4bb28f9ca2",
+  "reader_contract_digest": "8bf8e9a7dd6c730b214e1fab40ae85b52f2e0d6a0faba38e8d7b1a1b0b4b570c",
   "article_sha256": "bcd995a00379e7b10e6f8b6c236794852084e439d3328eb6208dca04cf031788",
   "delivery_length_exception": {
     "granted": false,
@@ -27,7 +27,43 @@
     "forbidden_overclaims_absent": "pass",
     "headline_not_stronger_than_body": "pass",
     "analogy_not_presented_as_mechanism": "pass",
-    "practical_meaning_not_upgraded_to_recommendation": "pass"
+    "practical_meaning_not_upgraded_to_recommendation": "pass",
+    "non_significance_not_promoted_to_zero": "pass",
+    "attenuation_not_promoted_to_disappearance": "pass",
+    "required_contrasts_preserved": "pass",
+    "internal_process_absent_from_public_copy": "pass"
+  },
+  "claim_coverage": {
+    "required_claim_ids": [
+      "CLM001",
+      "CLM002"
+    ],
+    "represented_claims": [
+      {
+        "claim_id": "CLM001",
+        "article_span": "研究彙整了 7 項研究，主要結果呈現有利方向。"
+      },
+      {
+        "claim_id": "CLM002",
+        "article_span": "作者也提出一個可能機制作為解釋，但這仍屬推測，不是研究已直接證實的機制。"
+      }
+    ],
+    "omitted_claim_ids": []
+  },
+  "contrast_coverage": [
+    {
+      "contrast_id": "CTR001",
+      "claim_ids": [
+        "CLM001",
+        "CLM002"
+      ],
+      "joint_article_span": "研究彙整了 7 項研究，主要結果呈現有利方向。這個結果可以支持「短期可能有幫助」的解讀，但不能把關聯與短期結果升級成長期優勢。\n\n作者也提出一個可能機制作為解釋，但這仍屬推測，不是研究已直接證實的機制。真正重要的邊界是：目前證據沒有建立最佳治療門檻，也沒有把這個短期訊號驗證成長期臨床優勢。"
+    }
+  ],
+  "interpretation_constraint_checks": [],
+  "public_surface_check": {
+    "internal_only_absent": "pass",
+    "leaked_statements": []
   },
   "reader_outcomes": {
     "relevant": {"status": "pass", "note": "內容集中於讀者問題。"},

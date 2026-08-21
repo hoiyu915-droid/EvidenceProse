@@ -2,9 +2,11 @@
 """Validate a TA06-backed EvidenceProse runtime bundle.
 
 This validator is deliberately structural and consistency-oriented. It verifies
-binding, permission projection, digests, declared semantic-gate state,
-reader-outcome state, repair state, and the public delivery shell. It does not
-claim that deterministic string matching can prove scientific truth.
+binding, permission projection, claim/contrast coverage against article spans,
+statistical-interpretation constraints, public-surface separation, digests,
+declared semantic-gate state, reader-outcome state, repair state, and the public
+delivery shell. It does not claim that deterministic span binding can prove
+scientific equivalence.
 """
 
 from __future__ import annotations
@@ -38,6 +40,10 @@ HARD_CHECKS = (
     "headline_not_stronger_than_body",
     "analogy_not_presented_as_mechanism",
     "practical_meaning_not_upgraded_to_recommendation",
+    "non_significance_not_promoted_to_zero",
+    "attenuation_not_promoted_to_disappearance",
+    "required_contrasts_preserved",
+    "internal_process_absent_from_public_copy",
 )
 READER_AXES = ("relevant", "findable", "understandable", "usable")
 LINT_CATEGORIES = {
@@ -50,12 +56,18 @@ LINT_CATEGORIES = {
     "hedge_stack",
     "jargon_density",
 }
-SIDECAR_V1_BASE_FIELDS = {
+SIDECAR_CURRENT_FIELDS = {
     "contract_version",
     "article_id",
     "handoff_digest",
     "reader_contract_digest",
+    "article_sha256",
+    "delivery_length_exception",
     "semantic_guard",
+    "claim_coverage",
+    "contrast_coverage",
+    "interpretation_constraint_checks",
+    "public_surface_check",
     "reader_outcomes",
     "missing_action_info",
     "lint_warnings",
@@ -63,9 +75,13 @@ SIDECAR_V1_BASE_FIELDS = {
     "targeted_repairs",
     "final_gate",
 }
-SIDECAR_V1_1_FIELDS = SIDECAR_V1_BASE_FIELDS | {
-    "article_sha256",
-    "delivery_length_exception",
+HANDOFF_CONTRACT_VERSION = "1.1"
+SIDECAR_CONTRACT_VERSION = "1.2"
+INTERPRETATION_KINDS = {
+    "non_significant_not_zero",
+    "attenuation_not_disappearance",
+    "concurrent_longitudinal_distinction",
+    "custom",
 }
 MECHANICAL_LINT_CATEGORIES = frozenset(
     {
@@ -138,6 +154,36 @@ def _require_object(value: Any, label: str, errors: list[str]) -> dict[str, Any]
 
 def _nonempty_string(value: Any) -> bool:
     return isinstance(value, str) and bool(value.strip())
+
+
+def _unique_nonempty_strings(value: Any, *, allow_empty: bool = False) -> bool:
+    return (
+        isinstance(value, list)
+        and (allow_empty or bool(value))
+        and all(_nonempty_string(item) for item in value)
+        and len(value) == len(set(value))
+    )
+
+
+def _reader_claim_surface(article_text: str) -> str:
+    """Return reader-visible prose while excluding bibliographic entries."""
+    lines: list[str] = []
+    inside_references = False
+    for line in article_text.splitlines(keepends=True):
+        stripped = line.strip()
+        if stripped == "## 引用來源":
+            inside_references = True
+            lines.append(line)
+            continue
+        if inside_references and re.match(r"^[🟢🟡🔴] 證據分級：", stripped):
+            inside_references = False
+        if not inside_references:
+            lines.append(line)
+    return "".join(lines)
+
+
+def _compact_for_match(value: str) -> str:
+    return "".join(value.split())
 
 
 def content_character_count(text: str) -> int | None:
@@ -276,22 +322,7 @@ def _validate_length_exception(
     version = sidecar.get("contract_version")
     exception = sidecar.get("delivery_length_exception")
 
-    if version == "1.0":
-        if "delivery_length_exception" in sidecar:
-            errors.append(
-                "audit_sidecar v1.0 must not contain delivery_length_exception"
-            )
-        if (
-            measured_content_characters is not None
-            and measured_content_characters > DELIVERY_CONTENT_CEILING
-        ):
-            errors.append(
-                "audit_sidecar v1.0 cannot authorize a delivery length exception; "
-                "use a bound v1.1 sidecar"
-            )
-        return errors
-
-    if version != "1.1":
+    if version != SIDECAR_CONTRACT_VERSION:
         return errors
     if not isinstance(exception, dict):
         return ["audit_sidecar.delivery_length_exception must be an object"]
@@ -376,7 +407,10 @@ def _validate_length_exception(
 
 
 def _length_exception_authorization(sidecar: Any) -> tuple[bool, str | None]:
-    if not isinstance(sidecar, dict) or sidecar.get("contract_version") != "1.1":
+    if (
+        not isinstance(sidecar, dict)
+        or sidecar.get("contract_version") != SIDECAR_CONTRACT_VERSION
+    ):
         return False, None
     exception = sidecar.get("delivery_length_exception")
     if not isinstance(exception, dict):
@@ -395,13 +429,15 @@ def validate_handoff(handoff: Any) -> list[str]:
     for field in (
         "contract_version", "handoff_id", "producer", "consumer", "ta06_packet",
         "reader_context", "claims", "evidence", "citations", "terminology",
-        "numeric_ledger", "permission",
+        "numeric_ledger", "permission", "reader_projection",
     ):
         if field not in h:
             errors.append(f"handoff missing required field {field}")
 
-    if h.get("contract_version") != "1.0":
-        errors.append("handoff.contract_version must be 1.0")
+    if h.get("contract_version") != HANDOFF_CONTRACT_VERSION:
+        errors.append(
+            f"handoff.contract_version must be {HANDOFF_CONTRACT_VERSION}"
+        )
     if h.get("producer") != "TA06":
         errors.append("handoff.producer must be TA06")
     if h.get("consumer") != "EvidenceProse":
@@ -538,6 +574,157 @@ def validate_handoff(handoff: Any) -> list[str]:
     else:
         errors.append("handoff.permission must be an object")
 
+    projection = h.get("reader_projection")
+    if not isinstance(projection, dict):
+        errors.append("handoff.reader_projection must be an object")
+        return errors
+
+    projection_fields = {
+        "required_claim_ids",
+        "optional_claim_ids",
+        "internal_only_statements",
+        "contrast_sets",
+        "interpretation_constraints",
+    }
+    if set(projection) != projection_fields:
+        errors.append(
+            "handoff.reader_projection must contain exactly "
+            f"{sorted(projection_fields)}"
+        )
+
+    required_claim_ids = projection.get("required_claim_ids")
+    optional_claim_ids = projection.get("optional_claim_ids")
+    if not _unique_nonempty_strings(required_claim_ids):
+        errors.append(
+            "handoff.reader_projection.required_claim_ids must be a unique "
+            "non-empty string array"
+        )
+        required_claim_ids = []
+    if not _unique_nonempty_strings(optional_claim_ids, allow_empty=True):
+        errors.append(
+            "handoff.reader_projection.optional_claim_ids must be a unique "
+            "non-empty string array"
+        )
+        optional_claim_ids = []
+    required_set = set(required_claim_ids)
+    optional_set = set(optional_claim_ids)
+    if required_set & optional_set:
+        errors.append(
+            "handoff.reader_projection required and optional claim IDs must be disjoint"
+        )
+    released_set = (
+        set(permission.get("released_claim_ids", []))
+        if isinstance(permission, dict)
+        and isinstance(permission.get("released_claim_ids"), list)
+        else set()
+    )
+    if required_set | optional_set != released_set:
+        errors.append(
+            "handoff.reader_projection required+optional claim IDs must exactly "
+            "partition released_claim_ids"
+        )
+
+    internal_statements = projection.get("internal_only_statements")
+    if not _unique_nonempty_strings(internal_statements, allow_empty=True):
+        errors.append(
+            "handoff.reader_projection.internal_only_statements must be a unique "
+            "non-empty string array"
+        )
+
+    contrast_sets = projection.get("contrast_sets")
+    contrast_ids: set[str] = set()
+    if not isinstance(contrast_sets, list):
+        errors.append("handoff.reader_projection.contrast_sets must be an array")
+    else:
+        contrast_fields = {
+            "contrast_id",
+            "claim_ids",
+            "joint_representation_required",
+            "reason",
+        }
+        for index, contrast in enumerate(contrast_sets):
+            label = f"handoff.reader_projection.contrast_sets[{index}]"
+            if not isinstance(contrast, dict):
+                errors.append(f"{label} must be an object")
+                continue
+            if set(contrast) != contrast_fields:
+                errors.append(f"{label} has invalid fields")
+            contrast_id = contrast.get("contrast_id")
+            if not _nonempty_string(contrast_id):
+                errors.append(f"{label}.contrast_id must be non-empty")
+            elif contrast_id in contrast_ids:
+                errors.append(f"duplicate contrast_id {contrast_id}")
+            else:
+                contrast_ids.add(contrast_id)
+            claim_ids = contrast.get("claim_ids")
+            if (
+                not _unique_nonempty_strings(claim_ids)
+                or len(claim_ids) < 2
+            ):
+                errors.append(
+                    f"{label}.claim_ids must contain at least two unique claim IDs"
+                )
+            elif not set(claim_ids).issubset(required_set):
+                errors.append(
+                    f"{label}.claim_ids must resolve to required reader claims"
+                )
+            if contrast.get("joint_representation_required") is not True:
+                errors.append(
+                    f"{label}.joint_representation_required must be true"
+                )
+            if not _nonempty_string(contrast.get("reason")):
+                errors.append(f"{label}.reason must be non-empty")
+
+    constraints = projection.get("interpretation_constraints")
+    constraint_ids: set[str] = set()
+    if not isinstance(constraints, list):
+        errors.append(
+            "handoff.reader_projection.interpretation_constraints must be an array"
+        )
+    else:
+        constraint_fields = {
+            "constraint_id",
+            "claim_ids",
+            "kind",
+            "forbidden_phrases",
+            "required_boundary",
+        }
+        for index, constraint in enumerate(constraints):
+            label = (
+                "handoff.reader_projection.interpretation_constraints"
+                f"[{index}]"
+            )
+            if not isinstance(constraint, dict):
+                errors.append(f"{label} must be an object")
+                continue
+            if set(constraint) != constraint_fields:
+                errors.append(f"{label} has invalid fields")
+            constraint_id = constraint.get("constraint_id")
+            if not _nonempty_string(constraint_id):
+                errors.append(f"{label}.constraint_id must be non-empty")
+            elif constraint_id in constraint_ids:
+                errors.append(f"duplicate constraint_id {constraint_id}")
+            else:
+                constraint_ids.add(constraint_id)
+            claim_ids = constraint.get("claim_ids")
+            if not _unique_nonempty_strings(claim_ids):
+                errors.append(
+                    f"{label}.claim_ids must be a unique non-empty string array"
+                )
+            elif not set(claim_ids).issubset(required_set):
+                errors.append(
+                    f"{label}.claim_ids must resolve to required reader claims"
+                )
+            if constraint.get("kind") not in INTERPRETATION_KINDS:
+                errors.append(f"{label}.kind is invalid")
+            if not _unique_nonempty_strings(constraint.get("forbidden_phrases")):
+                errors.append(
+                    f"{label}.forbidden_phrases must be a unique non-empty "
+                    "string array"
+                )
+            if not _nonempty_string(constraint.get("required_boundary")):
+                errors.append(f"{label}.required_boundary must be non-empty")
+
     return errors
 
 
@@ -574,12 +761,313 @@ def validate_reader_contract(reader: Any, *, handoff_digest: str) -> list[str]:
     return errors
 
 
+def _validate_projection_closure(
+    *,
+    handoff: Any,
+    sidecar: dict[str, Any],
+    article_text: str | None,
+) -> tuple[list[str], bool]:
+    """Bind required claims, contrasts, constraints and internal-only state.
+
+    The semantic auditor still decides whether a span represents a claim. This
+    function makes that decision falsifiable against the exact delivered bytes:
+    every required claim needs a real article span, every closed contrast needs
+    one joint span, every interpretation constraint needs a recorded check, and
+    internal-only text is recomputed rather than trusted from the sidecar.
+    """
+    errors: list[str] = []
+    closure_pass = True
+    projection = (
+        handoff.get("reader_projection")
+        if isinstance(handoff, dict)
+        and isinstance(handoff.get("reader_projection"), dict)
+        else {}
+    )
+    if not projection:
+        return ["handoff.reader_projection is unavailable for sidecar closure"], False
+    if not isinstance(article_text, str):
+        return ["reader-facing article text is unavailable for sidecar closure"], False
+
+    reader_surface = _reader_claim_surface(article_text)
+    reader_surface_compact = _compact_for_match(reader_surface)
+    expected_required = set(projection.get("required_claim_ids", []))
+
+    claim_coverage = sidecar.get("claim_coverage")
+    represented_spans: dict[str, str] = {}
+    if not isinstance(claim_coverage, dict):
+        errors.append("audit_sidecar.claim_coverage must be an object")
+        closure_pass = False
+    else:
+        expected_fields = {
+            "required_claim_ids",
+            "represented_claims",
+            "omitted_claim_ids",
+        }
+        if set(claim_coverage) != expected_fields:
+            errors.append("audit_sidecar.claim_coverage has invalid fields")
+            closure_pass = False
+        declared_required = claim_coverage.get("required_claim_ids")
+        if not _unique_nonempty_strings(declared_required):
+            errors.append(
+                "audit_sidecar.claim_coverage.required_claim_ids must be a "
+                "unique non-empty string array"
+            )
+            closure_pass = False
+            declared_required = []
+        if set(declared_required) != expected_required:
+            errors.append(
+                "audit_sidecar.claim_coverage.required_claim_ids must exactly "
+                "match handoff reader_projection.required_claim_ids"
+            )
+            closure_pass = False
+
+        represented = claim_coverage.get("represented_claims")
+        if not isinstance(represented, list):
+            errors.append(
+                "audit_sidecar.claim_coverage.represented_claims must be an array"
+            )
+            closure_pass = False
+        else:
+            for index, item in enumerate(represented):
+                label = (
+                    "audit_sidecar.claim_coverage.represented_claims"
+                    f"[{index}]"
+                )
+                if not isinstance(item, dict) or set(item) != {
+                    "claim_id",
+                    "article_span",
+                }:
+                    errors.append(f"{label} must contain claim_id/article_span")
+                    closure_pass = False
+                    continue
+                claim_id = item.get("claim_id")
+                span = item.get("article_span")
+                if not _nonempty_string(claim_id):
+                    errors.append(f"{label}.claim_id must be non-empty")
+                    closure_pass = False
+                    continue
+                if claim_id in represented_spans:
+                    errors.append(f"duplicate represented claim_id {claim_id}")
+                    closure_pass = False
+                if not _nonempty_string(span):
+                    errors.append(f"{label}.article_span must be non-empty")
+                    closure_pass = False
+                    continue
+                represented_spans[claim_id] = span
+                if _compact_for_match(span) not in reader_surface_compact:
+                    errors.append(
+                        f"{label}.article_span is not present in reader-facing article"
+                    )
+                    closure_pass = False
+        if set(represented_spans) != expected_required:
+            errors.append(
+                "audit_sidecar.claim_coverage represented claim IDs must exactly "
+                "match required claim IDs"
+            )
+            closure_pass = False
+
+        omitted = claim_coverage.get("omitted_claim_ids")
+        if not _unique_nonempty_strings(omitted, allow_empty=True):
+            errors.append(
+                "audit_sidecar.claim_coverage.omitted_claim_ids must be a unique "
+                "string array"
+            )
+            closure_pass = False
+        elif omitted:
+            errors.append(
+                "audit_sidecar.claim_coverage.omitted_claim_ids must be empty for release"
+            )
+            closure_pass = False
+
+    expected_contrasts = {
+        item.get("contrast_id"): item
+        for item in projection.get("contrast_sets", [])
+        if isinstance(item, dict) and _nonempty_string(item.get("contrast_id"))
+    }
+    contrast_coverage = sidecar.get("contrast_coverage")
+    if not isinstance(contrast_coverage, list):
+        errors.append("audit_sidecar.contrast_coverage must be an array")
+        closure_pass = False
+        contrast_coverage = []
+    seen_contrasts: set[str] = set()
+    for index, item in enumerate(contrast_coverage):
+        label = f"audit_sidecar.contrast_coverage[{index}]"
+        if not isinstance(item, dict) or set(item) != {
+            "contrast_id",
+            "claim_ids",
+            "joint_article_span",
+        }:
+            errors.append(
+                f"{label} must contain contrast_id/claim_ids/joint_article_span"
+            )
+            closure_pass = False
+            continue
+        contrast_id = item.get("contrast_id")
+        if not _nonempty_string(contrast_id):
+            errors.append(f"{label}.contrast_id must be non-empty")
+            closure_pass = False
+            continue
+        if contrast_id in seen_contrasts:
+            errors.append(f"duplicate contrast coverage {contrast_id}")
+            closure_pass = False
+        seen_contrasts.add(contrast_id)
+        expected_contrast = expected_contrasts.get(contrast_id)
+        if expected_contrast is None:
+            errors.append(f"{label}.contrast_id does not resolve to handoff")
+            closure_pass = False
+            continue
+        claim_ids = item.get("claim_ids")
+        if not _unique_nonempty_strings(claim_ids):
+            errors.append(f"{label}.claim_ids must be unique and non-empty")
+            closure_pass = False
+        elif set(claim_ids) != set(expected_contrast.get("claim_ids", [])):
+            errors.append(f"{label}.claim_ids do not match handoff contrast")
+            closure_pass = False
+        joint_span = item.get("joint_article_span")
+        if not _nonempty_string(joint_span):
+            errors.append(f"{label}.joint_article_span must be non-empty")
+            closure_pass = False
+            continue
+        compact_joint = _compact_for_match(joint_span)
+        if compact_joint not in reader_surface_compact:
+            errors.append(
+                f"{label}.joint_article_span is not present in reader-facing article"
+            )
+            closure_pass = False
+        for claim_id in expected_contrast.get("claim_ids", []):
+            represented_span = represented_spans.get(claim_id)
+            if (
+                represented_span
+                and _compact_for_match(represented_span) not in compact_joint
+            ):
+                errors.append(
+                    f"{label}.joint_article_span does not contain represented "
+                    f"span for {claim_id}"
+                )
+                closure_pass = False
+    if seen_contrasts != set(expected_contrasts):
+        errors.append(
+            "audit_sidecar.contrast_coverage IDs must exactly match handoff contrasts"
+        )
+        closure_pass = False
+
+    expected_constraints = {
+        item.get("constraint_id"): item
+        for item in projection.get("interpretation_constraints", [])
+        if isinstance(item, dict) and _nonempty_string(item.get("constraint_id"))
+    }
+    constraint_checks = sidecar.get("interpretation_constraint_checks")
+    if not isinstance(constraint_checks, list):
+        errors.append(
+            "audit_sidecar.interpretation_constraint_checks must be an array"
+        )
+        closure_pass = False
+        constraint_checks = []
+    seen_constraints: set[str] = set()
+    for index, item in enumerate(constraint_checks):
+        label = f"audit_sidecar.interpretation_constraint_checks[{index}]"
+        if not isinstance(item, dict) or set(item) != {
+            "constraint_id",
+            "status",
+            "article_span",
+        }:
+            errors.append(
+                f"{label} must contain constraint_id/status/article_span"
+            )
+            closure_pass = False
+            continue
+        constraint_id = item.get("constraint_id")
+        if not _nonempty_string(constraint_id):
+            errors.append(f"{label}.constraint_id must be non-empty")
+            closure_pass = False
+            continue
+        if constraint_id in seen_constraints:
+            errors.append(f"duplicate constraint check {constraint_id}")
+            closure_pass = False
+        seen_constraints.add(constraint_id)
+        constraint = expected_constraints.get(constraint_id)
+        if constraint is None:
+            errors.append(f"{label}.constraint_id does not resolve to handoff")
+            closure_pass = False
+            continue
+        if item.get("status") != "pass":
+            errors.append(f"{label}.status must be pass for release")
+            closure_pass = False
+        span = item.get("article_span")
+        if not _nonempty_string(span):
+            errors.append(f"{label}.article_span must be non-empty")
+            closure_pass = False
+        elif _compact_for_match(span) not in reader_surface_compact:
+            errors.append(
+                f"{label}.article_span is not present in reader-facing article"
+            )
+            closure_pass = False
+        for phrase in constraint.get("forbidden_phrases", []):
+            if _compact_for_match(phrase) in reader_surface_compact:
+                errors.append(
+                    f"reader-facing article violates interpretation constraint "
+                    f"{constraint_id}: forbidden phrase {phrase!r}"
+                )
+                closure_pass = False
+    if seen_constraints != set(expected_constraints):
+        errors.append(
+            "audit_sidecar interpretation constraint IDs must exactly match handoff"
+        )
+        closure_pass = False
+
+    public_surface = sidecar.get("public_surface_check")
+    if not isinstance(public_surface, dict) or set(public_surface) != {
+        "internal_only_absent",
+        "leaked_statements",
+    }:
+        errors.append(
+            "audit_sidecar.public_surface_check must contain "
+            "internal_only_absent/leaked_statements"
+        )
+        closure_pass = False
+        public_surface = {}
+    internal_statements = projection.get("internal_only_statements", [])
+    recomputed_leaks = [
+        statement
+        for statement in internal_statements
+        if _compact_for_match(statement) in reader_surface_compact
+    ]
+    declared_leaks = public_surface.get("leaked_statements")
+    if not _unique_nonempty_strings(declared_leaks, allow_empty=True):
+        errors.append(
+            "audit_sidecar.public_surface_check.leaked_statements must be a "
+            "unique string array"
+        )
+        closure_pass = False
+        declared_leaks = []
+    if declared_leaks != recomputed_leaks:
+        errors.append(
+            "audit_sidecar.public_surface_check.leaked_statements must equal "
+            "recomputed internal-only leaks"
+        )
+        closure_pass = False
+    expected_internal_status = "pass" if not recomputed_leaks else "fail"
+    if public_surface.get("internal_only_absent") != expected_internal_status:
+        errors.append(
+            "audit_sidecar.public_surface_check.internal_only_absent must be "
+            f"{expected_internal_status}"
+        )
+        closure_pass = False
+    if recomputed_leaks:
+        errors.append("reader-facing article exposes handoff internal-only statements")
+        closure_pass = False
+
+    return errors, closure_pass
+
+
 def validate_sidecar(
     sidecar: Any,
     *,
     handoff_digest: str,
     reader_digest: str,
     article_id: str,
+    handoff: Any = None,
+    article_text: str | None = None,
     measured_content_characters: int | None = None,
     article_sha256: str | None = None,
 ) -> list[str]:
@@ -588,16 +1076,13 @@ def validate_sidecar(
     if not s:
         return errors
 
-    if s.get("contract_version") not in {"1.0", "1.1"}:
-        errors.append("audit_sidecar.contract_version must be 1.0 or 1.1")
-    else:
-        expected_fields = (
-            SIDECAR_V1_BASE_FIELDS
-            if s.get("contract_version") == "1.0"
-            else SIDECAR_V1_1_FIELDS
+    if s.get("contract_version") != SIDECAR_CONTRACT_VERSION:
+        errors.append(
+            f"audit_sidecar.contract_version must be {SIDECAR_CONTRACT_VERSION}"
         )
-        missing_fields = expected_fields - set(s)
-        unexpected_fields = set(s) - expected_fields
+    else:
+        missing_fields = SIDECAR_CURRENT_FIELDS - set(s)
+        unexpected_fields = set(s) - SIDECAR_CURRENT_FIELDS
         if missing_fields:
             errors.append(
                 f"audit_sidecar missing required fields: {sorted(missing_fields)}"
@@ -615,10 +1100,7 @@ def validate_sidecar(
             "audit_sidecar.reader_contract_digest does not match canonical reader-contract digest"
         )
     declared_article_sha256 = s.get("article_sha256")
-    if s.get("contract_version") == "1.0":
-        if "article_sha256" in s:
-            errors.append("audit_sidecar v1.0 must not contain article_sha256")
-    elif s.get("contract_version") == "1.1":
+    if s.get("contract_version") == SIDECAR_CONTRACT_VERSION:
         if (
             not isinstance(declared_article_sha256, str)
             or len(declared_article_sha256) != 64
@@ -645,6 +1127,12 @@ def validate_sidecar(
             measured_content_characters=measured_content_characters,
         )
     )
+    projection_errors, projection_pass = _validate_projection_closure(
+        handoff=handoff,
+        sidecar=s,
+        article_text=article_text,
+    )
+    errors.extend(projection_errors)
 
     guard = s.get("semantic_guard")
     if not isinstance(guard, dict):
@@ -800,6 +1288,7 @@ def validate_sidecar(
     expected = (
         "pass"
         if semantic_pass
+        and projection_pass
         and reader_pass
         and repairs_verified
         and hard_violations_absent
@@ -808,7 +1297,7 @@ def validate_sidecar(
     if final_gate.get("status") != expected:
         errors.append(
             f"audit_sidecar.final_gate.status must be {expected} from "
-            "semantic/readability/repair/violation state"
+            "semantic/projection/readability/repair/violation state"
         )
     if not _nonempty_string(final_gate.get("rationale")):
         errors.append("audit_sidecar.final_gate.rationale must be non-empty")
@@ -884,6 +1373,8 @@ def validate_bundle(
                 handoff_digest=handoff_digest,
                 reader_digest=reader_digest,
                 article_id=article_id,
+                handoff=handoff,
+                article_text=article_text,
                 measured_content_characters=measured_content_characters,
                 article_sha256=article_sha256,
             )

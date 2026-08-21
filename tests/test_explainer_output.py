@@ -92,6 +92,32 @@ class ExplainerOutputFormatTests(unittest.TestCase):
         )
         self.assertTrue(any("bare/local PDF filename" in error for error in errors))
 
+    def test_internal_audit_provenance_sentence_is_rejected(self) -> None:
+        broken = VALID.replace(
+            "研究比較四套完整創作流程",
+            "本輪只依主文製作；補充材料尚未逐項審讀。",
+        )
+        errors = validate_text(
+            broken, filename="20260813_ai-ai-cocreation-creativity.md"
+        )
+        self.assertTrue(
+            any("internal process/provenance statement" in error for error in errors),
+            errors,
+        )
+
+    def test_renderer_meta_sentence_is_rejected(self) -> None:
+        broken = VALID.replace(
+            "研究比較四套完整創作流程",
+            "標籤與框線表示內容功能；小標記表示證據狀態。",
+        )
+        errors = validate_text(
+            broken, filename="20260813_ai-ai-cocreation-creativity.md"
+        )
+        self.assertTrue(
+            any("internal process/provenance statement" in error for error in errors),
+            errors,
+        )
+
     def test_reader_facing_english_requires_immediate_chinese_gloss(self) -> None:
         broken = VALID.replace("研究比較四套完整創作流程", "研究採用 self-report 設計")
         errors = validate_text(
